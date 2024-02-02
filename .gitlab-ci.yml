@@ -1,0 +1,39 @@
+stages:
+    - clean
+    - build
+    - run
+    - check
+
+fab cleanup:
+    stage: clean
+    tags:
+        - gadi
+    script:
+        - ./lfric_atm-fab-clean.sh
+
+fab build:
+    stage: build
+    tags:
+        - gadi
+    script:
+        - ./lfric_atm-fab-build.sh
+    timeout: 4 hours
+    variables:
+        NCPU: 1
+
+fab run:
+    stage: run
+    tags:
+        - gadi
+    script:
+        - qsub ./lfric_atm-fab-run.pbs
+    timeout: 4 hours
+    variables:
+        NCPU: 4
+
+fab check:
+    stage: check
+    tags:
+        - gadi
+    script:
+        - python3 ./lfric_atm-fab-check.py
