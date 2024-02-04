@@ -12,4 +12,4 @@
 module use /scratch/hc46/hc46_gitlab/ngm/modules/
 module load lfric-v0/intel-openmpi-lfric-fab
 
-imagerun -np 4 /path/to/lfric_atm /path/to/example.nml
+imagerun -np 4 /scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/lfric_revision_${LFRIC_REVISION}/lfric_atm /path/to/example.nml
