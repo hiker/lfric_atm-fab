@@ -9,7 +9,7 @@ module use /scratch/hc46/hc46_gitlab/ngm/modules/
 module load lfric-v0/intel-openmpi-lfric-fab
 
 # grab the lfric sources
-imagerun FAB_WORKSPACE=$PWD FC=ifort ./scripts/grab_lfric.py $rev
+imagerun FAB_WORKSPACE=$PWD FC=ifort ./scripts/grab_lfric.py
 
 # build lfric_atm
 imagerun FAB_WORKSPACE=$PWD FC=ifort ./scripts/atm.py
