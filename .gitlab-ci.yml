@@ -23,7 +23,8 @@ fab build:
     artifacts:
         paths:
             - configuration.nml
-            - atm_ifort_1stage
+            - lfric_atm.txt
+            - lfric_revision
 
 fab run:
     stage: run

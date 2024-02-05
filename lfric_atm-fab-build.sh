@@ -12,6 +12,7 @@ module load lfric-v0/intel-openmpi-lfric-fab
 imagerun FAB_WORKSPACE=$PWD FC=ifort ./scripts/grab_lfric.py
 
 cp lfric_source_${rev}/source/lfric/lfric_atm/example/configuration.nml .
+cp atm_ifort_1stage/lfric_atm.exe .
 
 # build lfric_atm
 imagerun FAB_WORKSPACE=$PWD FC=ifort ./scripts/atm.py
