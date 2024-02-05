@@ -23,4 +23,4 @@ echo $CONFIG_DIR
 module use /scratch/hc46/hc46_gitlab/ngm/modules/
 module load lfric-v0/intel-openmpi-lfric-fab
 
-imagerun mpirun -np 4 atm_ifort_1stage/lfric_atm.exe configuration.nml
+imagerun mpirun -np 4 ./lfric_atm.exe configuration.nml
