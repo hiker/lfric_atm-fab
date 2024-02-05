@@ -26,7 +26,7 @@ fab run:
     tags:
         - gadi
     script:
-        - qsub ./lfric_atm-fab-run.pbs
+        - ./lfric_atm-fab-run.sh
     timeout: 4 hours
     variables:
         NCPU: 4

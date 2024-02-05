@@ -1,6 +1,11 @@
 import sys
 import os
 
+fp = open('PET0.lfric_atm.Log')
+for line in fp:
+    line = line.split()
+fp.close()
+
 #def add_task(task, tasks):
 #    add = True
 #    for tt in tasks:
