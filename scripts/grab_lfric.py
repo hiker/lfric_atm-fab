@@ -40,4 +40,5 @@ if __name__ == '__main__':
             lfric_source_config, src='fcm:lfric.xm_tr', revision=LFRIC_REVISION, dst_label='lfric')
 
     with gpl_utils_source_config:
-        fcm_export(gpl_utils_source_config, src='fcm:lfric_gpl_utils.xm-tr', revision=ROSE_PICKER_REVISION, dst_label='gpl_utils')
+        fcm_export(gpl_utils_source_config, src='file:///g/data/ki32/mosrs/lfric/GPL-utilities', revision=ROSE_PICKER_REVISION, dst_label='gpl_utils')
+        #fcm_export(gpl_utils_source_config, src='fcm:lfric_gpl_utils.xm-tr', revision=ROSE_PICKER_REVISION, dst_label='gpl_utils')
