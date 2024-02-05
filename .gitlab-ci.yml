@@ -23,7 +23,7 @@ fab build:
     artifacts:
         paths:
             - configuration.nml
-            - lfric_atm.txt
+            - lfric_atm.exe
             - lfric_revision
 
 fab run:
