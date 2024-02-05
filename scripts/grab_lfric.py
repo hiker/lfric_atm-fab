@@ -27,6 +27,7 @@ print('lfric revision: ' + LFRIC_REVISION)
 print('rose-picker revision: ' + ROSE_PICKER_REVISION)
 
 os.system('echo $(which fcm)')
+os.system('echo $(fcm kp)')
 
 # these configs are interrogated by the build scripts
 # todo: doesn't need two separate configs, they use the same project workspace
