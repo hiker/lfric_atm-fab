@@ -26,6 +26,8 @@ ROSE_PICKER_REVISION=LFRIC_REVISION
 print('lfric revision: ' + LFRIC_REVISION)
 print('rose-picker revision: ' + ROSE_PICKER_REVISION)
 
+os.system('echo $(which fcm)')
+
 # these configs are interrogated by the build scripts
 # todo: doesn't need two separate configs, they use the same project workspace
 lfric_source_config = BuildConfig(project_label=f'lfric source {LFRIC_REVISION}')
