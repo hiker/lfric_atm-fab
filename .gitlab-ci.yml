@@ -35,6 +35,7 @@ fab run:
     variables:
         NCPU: 4
     artifacts:
+        paths:
             - PET0.lfric_atm.Log
 
 fab check:
