@@ -21,8 +21,8 @@ fab build:
     variables:
         NCPU: 1
     artifacts:
-            - configuration.nml
         paths:
+            - configuration.nml
             - atm_ifort_1stage
 
 fab run:
