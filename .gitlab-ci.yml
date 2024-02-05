@@ -20,6 +20,10 @@ fab build:
     timeout: 4 hours
     variables:
         NCPU: 1
+    artifacts:
+            - configuration.nml
+        paths:
+            - atm_ifort_1stage
 
 fab run:
     stage: run
@@ -30,6 +34,8 @@ fab run:
     timeout: 4 hours
     variables:
         NCPU: 4
+    artifacts:
+            - PET0.lfric_atm.Log
 
 fab check:
     stage: check
