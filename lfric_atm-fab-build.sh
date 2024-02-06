@@ -14,10 +14,7 @@ imagerun FAB_WORKSPACE=$PWD FC=ifort ./scripts/grab_lfric.py
 # build lfric_atm
 imagerun FAB_WORKSPACE=$PWD FC=ifort ./scripts/atm.py
 
-#rev='46556'
-
-cp lfric_source_${rev}/source/lfric/lfric_atm/example/configuration.nml /scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab
-cp lfric_source_${rev}/source/lfric/lfric_atm/example/iodef.xml /scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab
-cp lfric_source_${rev}/source/lfric/lfric_atm/example/mesh_BiP2x2-50000x50000.nc /scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab
+mv lfric_source_${rev}/source/lfric/lfric_atm/example /scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab
+mv lfric_source_${rev}/source/lfric/lfric_atm/metadata /scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab
 
 cp atm_ifort_1stage/lfric_atm.exe /scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab

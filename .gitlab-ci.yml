@@ -22,9 +22,8 @@ fab build:
         NCPU: 1
     artifacts:
         paths:
-            - configuration.nml
-            - iodef.xml
-            - mesh_BiP2x2-50000x50000.nc
+            - example
+            - metadata
             - lfric_atm.exe
             - lfric_revision
 
