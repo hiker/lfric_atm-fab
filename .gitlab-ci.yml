@@ -24,7 +24,7 @@ fab build:
         paths:
             - configuration.nml
             - iodef.xml
-            - mesh_BiP4x4-2500x2500.nc
+            - mesh_BiP2x2-50000x50000.nc
             - lfric_atm.exe
             - lfric_revision
 
