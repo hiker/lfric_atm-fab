@@ -14,7 +14,7 @@ imagerun FAB_WORKSPACE=$PWD FC=ifort ./scripts/grab_lfric.py
 # build lfric_atm
 imagerun FAB_WORKSPACE=$PWD FC=ifort ./scripts/atm.py
 
-rev='46556'
+#rev='46556'
 
 cp lfric_source_${rev}/source/lfric/lfric_atm/example/configuration.nml /scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab
 cp lfric_source_${rev}/source/lfric/lfric_atm/example/iodef.xml /scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab

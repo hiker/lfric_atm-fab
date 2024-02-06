@@ -176,26 +176,205 @@ def file_filtering(config):
         Include(science_root / 'jules/science/vegetation'),
 
         Exclude(science_root / 'socrates'),
-        Include(science_root / 'socrates/radiance_core'),
-        Include(science_root / 'socrates/interface_core'),
-        Include(science_root / 'socrates/illumination'),
-        #Include(science_root / 'socrates/cosp_control'), # DRL
-        #Include(science_root / 'socrates/cosp_control/cosp_mod.F90'), # DRL
-        #Include(science_root / 'socrates/cosp_github/model-interface'), # DRL
-        #Include(science_root / 'socrates/cosp_github/subsample_and_optics_example/optics/quickbeam_optics'), # DRL
-        Include(science_root / 'socrates/cosp_control/cosp_constants_mod.F90'),                               # DRL
-        Include(science_root / 'socrates/cosp_control/cosp_def_diag.F90'),                                    # DRL
-        Include(science_root / 'socrates/cosp_control/cosp_diagnostics_mod.F90'),                             # DRL
-        Include(science_root / 'socrates/cosp_control/cosp_input_mod.F90'),                                   # DRL
-        Include(science_root / 'socrates/cosp_control/cosp_mod.F90'),                                         # DRL
-        Include(science_root / 'socrates/cosp_control/cosp_radiation_mod.F90'),                               # DRL
-        Include(science_root / 'socrates/cosp_control/cosp_types_mod.F90'),                                   # DRL
-        Include(science_root / 'socrates/cosp_github/driver/src/cosp2_io.f90'),                               # DRL
-        Include(science_root / 'socrates/cosp_github/model-interface/cosp_errorHandling.F90'),                # DRL
-        Include(science_root / 'socrates/cosp_github/model-interface/cosp_kinds.F90'),                        # DRL
-        Include(science_root / 'socrates/cosp_github/src'),                                                   # DRL
-        Include(science_root / 'socrates/cosp_github/subsample_and_optics_example/optics/cosp_optics.F90'),   # DRL
-        Include(science_root / 'socrates/cosp_github/subsample_and_optics_example/optics/quickbeam_optics'),  # DRL
+        #Include(science_root / 'socrates/radiance_core'),
+        #Include(science_root / 'socrates/interface_core'),
+        #Include(science_root / 'socrates/illumination'),
+        #Include(science_root / 'socrates/cosp_control/cosp_constants_mod.F90'),                               # DRL
+        #Include(science_root / 'socrates/cosp_control/cosp_def_diag.F90'),                                    # DRL
+        #Include(science_root / 'socrates/cosp_control/cosp_diagnostics_mod.F90'),                             # DRL
+        #Include(science_root / 'socrates/cosp_control/cosp_input_mod.F90'),                                   # DRL
+        #Include(science_root / 'socrates/cosp_control/cosp_mod.F90'),                                         # DRL
+        #Include(science_root / 'socrates/cosp_control/cosp_radiation_mod.F90'),                               # DRL
+        #Include(science_root / 'socrates/cosp_control/cosp_types_mod.F90'),                                   # DRL
+        #Include(science_root / 'socrates/cosp_github/driver/src/cosp2_io.f90'),                               # DRL
+        #Include(science_root / 'socrates/cosp_github/model-interface/cosp_errorHandling.F90'),                # DRL
+        #Include(science_root / 'socrates/cosp_github/model-interface/cosp_kinds.F90'),                        # DRL
+        #Include(science_root / 'socrates/cosp_github/src'),                                                   # DRL
+        #Include(science_root / 'socrates/cosp_github/subsample_and_optics_example/optics/cosp_optics.F90'),   # DRL
+        #Include(science_root / 'socrates/cosp_github/subsample_and_optics_example/optics/quickbeam_optics'),  # DRL
+        Include(science_root / 'socrates/cosp_control/cosp_constants_mod.F90'),
+        Include(science_root / 'socrates/cosp_control/cosp_def_diag.F90'),
+        Include(science_root / 'socrates/cosp_control/cosp_diagnostics_mod.F90'),
+        Include(science_root / 'socrates/cosp_control/cosp_input_mod.F90'),
+        Include(science_root / 'socrates/cosp_control/cosp_mod.F90'),
+        Include(science_root / 'socrates/cosp_control/cosp_radiation_mod.F90'),
+        Include(science_root / 'socrates/cosp_control/cosp_types_mod.F90'),
+        Include(science_root / 'socrates/cosp_github/driver/src/cosp2_io.f90'),
+        Include(science_root / 'socrates/cosp_github/model-interface/cosp_errorHandling.F90'),
+        Include(science_root / 'socrates/cosp_github/model-interface/cosp_kinds.F90'),
+        Include(science_root / 'socrates/cosp_github/src'),
+        Include(science_root / 'socrates/cosp_github/subsample_and_optics_example/optics/cosp_optics.F90'),
+        Include(science_root / 'socrates/cosp_github/subsample_and_optics_example/optics/quickbeam_optics'),
+        Include(science_root / 'socrates/illumination/astro_constants_mod.F90'),
+        Include(science_root / 'socrates/illumination/def_orbit.F90'),
+        Include(science_root / 'socrates/illumination/orbprm_mod.F90'),
+        Include(science_root / 'socrates/illumination/socrates_illuminate.F90'),
+        Include(science_root / 'socrates/illumination/solang_mod.F90'),
+        Include(science_root / 'socrates/illumination/solinc_mod.F90'),
+        Include(science_root / 'socrates/illumination/solpos_mod.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_bones.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_cloud_abs_diag.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_cloud_ext_diag.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_cloud_gen.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_cloud_level_diag.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_def_diag.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_runes.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_aer.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_atm.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_bound.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_cld.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_cld_dim.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_cld_mcica.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_control.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_diag.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_dimen.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_spectrum.F90'),
+        Include(science_root / 'socrates/interface_core/socrates_set_topography.F90'),
+        Include(science_root / 'socrates/radiance_core/adjust_ir_radiance.F90'),
+        Include(science_root / 'socrates/radiance_core/aggregate_cloud.F90'),
+        Include(science_root / 'socrates/radiance_core/augment_channel_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/augment_radiance.F90'),
+        Include(science_root / 'socrates/radiance_core/augment_tiled_radiance.F90'),
+        Include(science_root / 'socrates/radiance_core/band_solver.F90'),
+        Include(science_root / 'socrates/radiance_core/build_sph_matrix.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_actinic_flux_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_brdf.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_cg_coeff.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_contrib_func.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_flux_ipa.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_gauss_weight_90.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_photolysis_incr_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_radiance_ipa.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_surf_rad.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_top_rad.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_uplm_sol.F90'),
+        Include(science_root / 'socrates/radiance_core/calc_uplm_zero.F90'),
+        Include(science_root / 'socrates/radiance_core/cg_kappa_ms.F90'),
+        Include(science_root / 'socrates/radiance_core/check_phf_term.F90'),
+        Include(science_root / 'socrates/radiance_core/circumsolar_fraction.F90'),
+        Include(science_root / 'socrates/radiance_core/cloud_maxcs_split.F90'),
+        Include(science_root / 'socrates/radiance_core/column_solver.F90'),
+        Include(science_root / 'socrates/radiance_core/copy_clr_full.F90'),
+        Include(science_root / 'socrates/radiance_core/copy_clr_sol.F90'),
+        Include(science_root / 'socrates/radiance_core/def_aer.F90'),
+        Include(science_root / 'socrates/radiance_core/def_atm.F90'),
+        Include(science_root / 'socrates/radiance_core/def_bound.F90'),
+        Include(science_root / 'socrates/radiance_core/def_cld.F90'),
+        Include(science_root / 'socrates/radiance_core/def_control.F90'),
+        Include(science_root / 'socrates/radiance_core/def_dimen.F90'),
+        Include(science_root / 'socrates/radiance_core/def_mcica.F90'),
+        Include(science_root / 'socrates/radiance_core/def_out.F90'),
+        Include(science_root / 'socrates/radiance_core/def_planck.F90'),
+        Include(science_root / 'socrates/radiance_core/def_spectrum.F90'),
+        Include(science_root / 'socrates/radiance_core/def_spherical_geometry.F90'),
+        Include(science_root / 'socrates/radiance_core/def_ss_prop.F90'),
+        Include(science_root / 'socrates/radiance_core/diff_albedo_basis.F90'),
+        Include(science_root / 'socrates/radiance_core/diff_planck_source_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/diffusivity_factor.F90'),
+        Include(science_root / 'socrates/radiance_core/eig_sys.F90'),
+        Include(science_root / 'socrates/radiance_core/eigenvalue_tri.F90'),
+        Include(science_root / 'socrates/radiance_core/eval_uplm.F90'),
+        Include(science_root / 'socrates/radiance_core/finalise_photol_incr_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/gas_list_pcf.F90'),
+        Include(science_root / 'socrates/radiance_core/gas_optical_properties.F90'),
+        Include(science_root / 'socrates/radiance_core/gauss_angle.F90'),
+        Include(science_root / 'socrates/radiance_core/gaussian_weight_pcf.F90'),
+        Include(science_root / 'socrates/radiance_core/grey_opt_prop.F90'),
+        Include(science_root / 'socrates/radiance_core/hemi_sph_integ.F90'),
+        Include(science_root / 'socrates/radiance_core/increment_rad_cf.F90'),
+        Include(science_root / 'socrates/radiance_core/inter_k.F90'),
+        Include(science_root / 'socrates/radiance_core/inter_pt.F90'),
+        Include(science_root / 'socrates/radiance_core/inter_pt_lookup.F90'),
+        Include(science_root / 'socrates/radiance_core/inter_t_lookup.F90'),
+        Include(science_root / 'socrates/radiance_core/interp1d.F90'),
+        Include(science_root / 'socrates/radiance_core/ir_source.F90'),
+        Include(science_root / 'socrates/radiance_core/layer_part_integ.F90'),
+        Include(science_root / 'socrates/radiance_core/legendre_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/legendre_weight.F90'),
+        Include(science_root / 'socrates/radiance_core/map_sub_bands_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/mcica_column.F90'),
+        Include(science_root / 'socrates/radiance_core/mcica_sample.F90'),
+        Include(science_root / 'socrates/radiance_core/mix_app_scat.F90'),
+        Include(science_root / 'socrates/radiance_core/mix_column.F90'),
+        Include(science_root / 'socrates/radiance_core/mixed_solar_source.F90'),
+        Include(science_root / 'socrates/radiance_core/monochromatic_gas_flux.F90'),
+        Include(science_root / 'socrates/radiance_core/monochromatic_ir_radiance.F90'),
+        Include(science_root / 'socrates/radiance_core/monochromatic_radiance.F90'),
+        Include(science_root / 'socrates/radiance_core/monochromatic_radiance_sph.F90'),
+        Include(science_root / 'socrates/radiance_core/monochromatic_radiance_tseq.F90'),
+        Include(science_root / 'socrates/radiance_core/opt_prop_aerosol.F90'),
+        Include(science_root / 'socrates/radiance_core/opt_prop_baran_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/opt_prop_fu_phf_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/opt_prop_ice_cloud.F90'),
+        Include(science_root / 'socrates/radiance_core/opt_prop_inhom_corr_cairns.F90'),
+        Include(science_root / 'socrates/radiance_core/opt_prop_pade_2_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/opt_prop_ukca_aerosol.F90'),
+        Include(science_root / 'socrates/radiance_core/opt_prop_water_cloud.F90'),
+        Include(science_root / 'socrates/radiance_core/overlap_coupled.F90'),
+        Include(science_root / 'socrates/radiance_core/planck_flux_band_mod.F90'),
+        Include(science_root / 'socrates/radiance_core/prsc_gather_spline.F90'),
+        Include(science_root / 'socrates/radiance_core/prsc_opt_prop.F90'),
+        Include(science_root / 'socrates/radiance_core/quicksort.F90'),
+        Include(science_root / 'socrates/radiance_core/rad_pcf.F90'),
+        Include(science_root / 'socrates/radiance_core/radiance_calc.F90'),
+        Include(science_root / 'socrates/radiance_core/read_spectrum.F90'),
+        Include(science_root / 'socrates/radiance_core/rebin_esft_terms.F90'),
+        Include(science_root / 'socrates/radiance_core/rescale_continuum.F90'),
+        Include(science_root / 'socrates/radiance_core/rescale_phase_fnc.F90'),
+        Include(science_root / 'socrates/radiance_core/rescale_tau_csr.F90'),
+        Include(science_root / 'socrates/radiance_core/rescale_tau_omega.F90'),
+        Include(science_root / 'socrates/radiance_core/scale_absorb.F90'),
+        Include(science_root / 'socrates/radiance_core/scale_wenyi.F90'),
+        Include(science_root / 'socrates/radiance_core/ses_rescale_contm.F90'),
+        Include(science_root / 'socrates/radiance_core/set_cloud_geometry.F90'),
+        Include(science_root / 'socrates/radiance_core/set_cloud_pointer.F90'),
+        Include(science_root / 'socrates/radiance_core/set_dirn_weights.F90'),
+        Include(science_root / 'socrates/radiance_core/set_level_weights.F90'),
+        Include(science_root / 'socrates/radiance_core/set_matrix_pentadiagonal.F90'),
+        Include(science_root / 'socrates/radiance_core/set_n_cloud_parameter.F90'),
+        Include(science_root / 'socrates/radiance_core/set_n_source_coeff.F90'),
+        Include(science_root / 'socrates/radiance_core/set_rad_layer.F90'),
+        Include(science_root / 'socrates/radiance_core/set_truncation.F90'),
+        Include(science_root / 'socrates/radiance_core/shell_sort.F90'),
+        Include(science_root / 'socrates/radiance_core/single_scat_sol.F90'),
+        Include(science_root / 'socrates/radiance_core/single_scattering.F90'),
+        Include(science_root / 'socrates/radiance_core/single_scattering_all.F90'),
+        Include(science_root / 'socrates/radiance_core/sol_scat_cos.F90'),
+        Include(science_root / 'socrates/radiance_core/solar_coefficient_basic.F90'),
+        Include(science_root / 'socrates/radiance_core/solar_source.F90'),
+        Include(science_root / 'socrates/radiance_core/solve_band_k_eqv.F90'),
+        Include(science_root / 'socrates/radiance_core/solve_band_k_eqv_scl.F90'),
+        Include(science_root / 'socrates/radiance_core/solve_band_one_gas.F90'),
+        Include(science_root / 'socrates/radiance_core/solve_band_random_overlap.F90'),
+        Include(science_root / 'socrates/radiance_core/solve_band_random_overlap_resort_rebin.F90'),
+        Include(science_root / 'socrates/radiance_core/solve_band_ses.F90'),
+        Include(science_root / 'socrates/radiance_core/solve_band_without_gas.F90'),
+        Include(science_root / 'socrates/radiance_core/solver_homogen_direct.F90'),
+        Include(science_root / 'socrates/radiance_core/solver_mix_direct.F90'),
+        Include(science_root / 'socrates/radiance_core/solver_mix_direct_hogan.F90'),
+        Include(science_root / 'socrates/radiance_core/solver_no_scat.F90'),
+        Include(science_root / 'socrates/radiance_core/solver_triple.F90'),
+        Include(science_root / 'socrates/radiance_core/solver_triple_app_scat.F90'),
+        Include(science_root / 'socrates/radiance_core/solver_triple_hogan.F90'),
+        Include(science_root / 'socrates/radiance_core/sph_matrix_solver.F90'),
+        Include(science_root / 'socrates/radiance_core/sph_solver.F90'),
+        Include(science_root / 'socrates/radiance_core/spherical_path.F90'),
+        Include(science_root / 'socrates/radiance_core/spherical_solar_source.F90'),
+        Include(science_root / 'socrates/radiance_core/spherical_trans_coeff.F90'),
+        Include(science_root / 'socrates/radiance_core/spline_evaluate.F90'),
+        Include(science_root / 'socrates/radiance_core/spline_fit.F90'),
+        Include(science_root / 'socrates/radiance_core/sum_k.F90'),
+        Include(science_root / 'socrates/radiance_core/trans_source_coeff.F90'),
+        Include(science_root / 'socrates/radiance_core/triple_column.F90'),
+        Include(science_root / 'socrates/radiance_core/triple_solar_source.F90'),
+        Include(science_root / 'socrates/radiance_core/two_coeff.F90'),
+        Include(science_root / 'socrates/radiance_core/two_coeff_basic.F90'),
+        Include(science_root / 'socrates/radiance_core/two_coeff_cloud.F90'),
+        Include(science_root / 'socrates/radiance_core/two_coeff_fast_lw.F90'),
+        Include(science_root / 'socrates/radiance_core/two_coeff_region.F90'),
+        Include(science_root / 'socrates/radiance_core/two_coeff_region_fast_lw.F90'),
+        Include(science_root / 'socrates/radiance_core/two_stream.F90'),
+
 
         Exclude(science_root / 'ukca'),
         Include(science_root / 'ukca/science'),
@@ -210,6 +389,8 @@ def file_filtering(config):
 if __name__ == '__main__':
     lfric_source = lfric_source_config.source_root / 'lfric'
     gpl_utils_source = gpl_utils_source_config.source_root / 'gpl_utils'
+
+    os.environ['PYTHONPATH']=str(lfric_source)+'/infrastructure/build/psyclone:${PYTHONPATH}'
 
     with BuildConfig(project_label='atm $compiler $two_stage') as state:
 
@@ -234,18 +415,12 @@ if __name__ == '__main__':
 
         # UM physics - versions as required by the LFRIC_REVISION in grab_lfric.py
 
-        fcm_export(state, src='fcm:um.xm_tr/src', dst_label='science/um', revision='vn13.4')
-        fcm_export(state, src='fcm:jules.xm_tr/src', dst_label='science/jules', revision='um13.4')
-        fcm_export(state, src='fcm:socrates.xm_tr/src', dst_label='science/socrates', revision='um13.4')
+        fcm_export(state, src='fcm:um.xm_tr/src', dst_label='science/um', revision='122243')
+        fcm_export(state, src='fcm:jules.xm_tr/src', dst_label='science/jules', revision='27111')
+        fcm_export(state, src='fcm:socrates.xm_tr/src', dst_label='science/socrates', revision='1483')
         fcm_export(state, src='fcm:shumlib.xm_tr/', dst_label='science/shumlib', revision='um13.4')
         fcm_export(state, src='fcm:casim.xm_tr/src', dst_label='science/casim', revision='um13.4')
-        fcm_export(state, src='fcm:ukca.xm_tr/src', dst_label='science/ukca', revision='um13.4')
-        #fcm_export(state, src='fcm:um.xm_tr/src', dst_label='science/um', revision='119527')
-        #fcm_export(state, src='fcm:jules.xm_tr/src', dst_label='science/jules', revision='um13.3')
-        #fcm_export(state, src='fcm:socrates.xm_tr/src', dst_label='science/socrates', revision='um13.3')
-        #fcm_export(state, src='fcm:shumlib.xm_tr/', dst_label='science/shumlib', revision='um13.3')
-        #fcm_export(state, src='fcm:casim.xm_tr/src', dst_label='science/casim', revision='10515')
-        #fcm_export(state, src='fcm:ukca.xm_tr/src', dst_label='science/ukca', revision='um13.3')
+        fcm_export(state, src='fcm:ukca.xm_tr/src', dst_label='science/ukca', revision='2833')
 
         # DRL: OpenMP fix courtesy of Martin Dix:
         #   https://code.metoffice.gov.uk/trac/um/changeset/121298/
