@@ -639,9 +639,6 @@ def file_filtering(config):
         Include(science_root / 'socrates/radiance_core/two_stream.F90'),
 
         Exclude(science_root / 'ukca'),
-        #Include(science_root / 'ukca/science'),
-        #Include(science_root / 'ukca/control/core'),
-        #Include(science_root / 'ukca/control/glomap_clim/interface'),
         Include(science_root / 'ukca/control/core/diagnostics/asad_chem_flux_diags.F90'),
         Include(science_root / 'ukca/control/core/diagnostics/asad_diags_output_ctl_mod.F90'),
         Include(science_root / 'ukca/control/core/diagnostics/asad_flux_dat.F90'),
@@ -951,15 +948,12 @@ if __name__ == '__main__':
 
         # UM physics - versions as required by the LFRIC_REVISION in grab_lfric.py
 
-        fcm_export(state, src='fcm:um.xm_tr/src', dst_label='science/um', revision='122243')
-        #grab_folder(state, src='/g/data/dp9/dl9118/fab-tmp/um_src', dst_label='science/um')
-        #fcm_export(state, src='fcm:um.xm_tr/src', dst_label='science/um', revision='vn13.4')
+        fcm_export(state, src='fcm:um.xm_tr/src', dst_label='science/um', revision='122581')
         fcm_export(state, src='fcm:jules.xm_tr/src', dst_label='science/jules', revision='27111')
         fcm_export(state, src='fcm:socrates.xm_tr/src', dst_label='science/socrates', revision='1483')
         fcm_export(state, src='fcm:shumlib.xm_tr/', dst_label='science/shumlib', revision='um13.4')
         fcm_export(state, src='fcm:casim.xm_tr/src', dst_label='science/casim', revision='um13.4')
         fcm_export(state, src='fcm:ukca.xm_tr/src', dst_label='science/ukca', revision='2833')
-        #fcm_export(state, src='fcm:ukca.xm_tr/src', dst_label='science/ukca', revision='um13.4')
 
         # DRL: OpenMP fix courtesy of Martin Dix:
         #   https://code.metoffice.gov.uk/trac/um/changeset/121298/
