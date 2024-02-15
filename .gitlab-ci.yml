@@ -16,7 +16,7 @@ fab build:
     tags:
         - gadi
     script:
-        - ./lfric_atm-fab-build.sh
+        - ci-qsub ./lfric_atm-fab-build.sh
     timeout: 4 hours
     variables:
         NCPU: 1
