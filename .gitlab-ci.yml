@@ -22,10 +22,10 @@ fab build:
         NCPU: 1
     artifacts:
         paths:
-            - example
-            - metadata
-            - lfric_atm.exe
-            - lfric_revision
+            - /scratch/hc46/hc46_gitlab/builds/0/bom/ngm/lfric/lfric_atm-fab/example
+            - /scratch/hc46/hc46_gitlab/builds/0/bom/ngm/lfric/lfric_atm-fab/metadata
+            - /scratch/hc46/hc46_gitlab/builds/0/bom/ngm/lfric/lfric_atm-fab/lfric_atm.exe
+            - /scratch/hc46/hc46_gitlab/builds/0/bom/ngm/lfric/lfric_atm-fab/lfric_revision
 
 fab run:
     stage: run
