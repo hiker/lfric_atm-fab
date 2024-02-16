@@ -5,7 +5,7 @@
 #PBS -l jobfs=100MB
 #PBS -q normal
 #PBS -P hc46
-#PBS -l walltime=4:00:00
+#PBS -l walltime=0:10:00
 #PBS -l storage=scratch/hc46
 #PBS -W umask=0022
 #PBS -l wd
