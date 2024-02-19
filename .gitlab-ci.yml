@@ -19,7 +19,7 @@ fab build:
         - ci-qsub ./lfric_atm-fab-build.sh
     timeout: 4 hours
     variables:
-        NCPU: 1
+        NCPU: 4
     artifacts:
         paths:
             - example
@@ -33,7 +33,7 @@ fab run:
         - gadi
     script:
         - ./lfric_atm-fab-run.sh
-    timeout: 4 hours
+    timeout: 1 hours
     variables:
         NCPU: 4
     artifacts:

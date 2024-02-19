@@ -9,14 +9,11 @@ import os
 from fab.build_config import BuildConfig
 from fab.steps.grab.fcm import fcm_export
 
-#TOKEN = os.getenv('CI_RUNNER_SHORT_TOKEN')
-#rev_file = '/scratch/hc46/hc46_gitlab/builds/'+TOKEN+'/0/bom/ngm/lfric/lfric_atm-fab/lfric_revision'
 rev_file = 'lfric_revision'
 
 file=open(rev_file,'r')
 LFRIC_REVISION=file.readline().strip('\n')
 file.close()
-#LFRIC_REVISION='46556'
 print('lfric revision: ' + LFRIC_REVISION)
 
 ROSE_PICKER_REVISION=LFRIC_REVISION
