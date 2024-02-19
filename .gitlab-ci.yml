@@ -32,13 +32,13 @@ fab run:
     tags:
         - gadi
     script:
-        - ./lfric_atm-fab-run.sh
+        - ci-qsub ./lfric_atm-fab-run.sh
     timeout: 1 hours
     variables:
         NCPU: 4
     artifacts:
         paths:
-            - PET0.lfric_atm.Log
+            - job.log
 
 fab check:
     stage: check
