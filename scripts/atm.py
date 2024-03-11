@@ -802,6 +802,7 @@ def file_filtering(config):
         Include(science_root / 'ukca/science/core/chemistry/ukca_chemistry_ctl_BE_mod.F90'),
         Include(science_root / 'ukca/science/core/chemistry/ukca_chemistry_ctl_col_mod.F90'),
         Include(science_root / 'ukca/science/core/chemistry/ukca_chemistry_ctl_tropraq_mod.F90'),
+        Include(science_root / 'ukca/science/core/chemistry/ukca_chemistry_ctl_full_mod.F90'),
         Include(science_root / 'ukca/science/core/chemistry/ukca_chemistry_setup.F90'),
         Include(science_root / 'ukca/science/core/chemistry/ukca_chemistry_cleanup.F90'),
         Include(science_root / 'ukca/science/core/chemistry/ukca_conserve_mod.F90'),
