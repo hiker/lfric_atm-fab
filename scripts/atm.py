@@ -949,8 +949,8 @@ if __name__ == '__main__':
 
         # UM physics - versions as required by the LFRIC_REVISION in grab_lfric.py
 
-        fcm_export(state, src='fcm:um.xm_tr/src', dst_label='science/um', revision='123015')
-        fcm_export(state, src='fcm:jules.xm_tr/src', dst_label='science/jules', revision='27996')
+        fcm_export(state, src='fcm:um.xm_tr/src', dst_label='science/um', revision='123059')
+        fcm_export(state, src='fcm:jules.xm_tr/src', dst_label='science/jules', revision='28020')
         fcm_export(state, src='fcm:socrates.xm_tr/src', dst_label='science/socrates', revision='1483')
         fcm_export(state, src='fcm:shumlib.xm_tr/', dst_label='science/shumlib', revision='um13.4')
         fcm_export(state, src='fcm:casim.xm_tr/src', dst_label='science/casim', revision='um13.4')
