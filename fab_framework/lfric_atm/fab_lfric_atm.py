@@ -22,6 +22,8 @@ from fab.steps.find_source_files import Exclude, Include
 sys.path.insert(0, "../infrastructure/build/fab")
 
 from fab_base import FabBase
+from get_revision import GetRevision
+
 from grab_lfric import gpl_utils_source_config
 
 from fcm_extract import FcmExtract
@@ -49,19 +51,17 @@ class FabMiniGungho(FabBase):
         for dir in dirs:
             grab_folder(self.config, src=self.lfric_root / dir, dst_label='')
 
-
-        um = "https://code.metoffice.gov.uk/svn/um/main/trunk/src"
-        #fcm_export(self.config, src=um, dst_label='science/um', revision='123015')
-        jules="https://code.metoffice.gov.uk/svn/jules/main/trunk/src"
-        #fcm_export(self.config, src=jules, dst_label='science/jules', revision='27996')
-        socrates = "https://code.metoffice.gov.uk/svn/socrates/main/trunk/src"
-        #fcm_export(self.config, src=socrates, dst_label='science/socrates', revision='1483')
-        shumlib = "https://code.metoffice.gov.uk/svn/utils/shumlib/trunk"
-        #fcm_export(self.config, src=shumlib, dst_label='science/shumlib', revision="7198")
-        casim = "https://code.metoffice.gov.uk/svn/monc/casim/trunk/src"
-        #fcm_export(self.config, src=casim, dst_label='science/casim', revision='10614')
-        ukca = "https://code.metoffice.gov.uk/svn/ukca/main/trunk/src"
-        #fcm_export(self.config, src=ukca, dst_label='science/ukca', revision="3196")
+        gr = GetRevision("./fcm-make/parameters.sh")
+        xm = "xm"
+        for lib, revision in gr.items():
+            # Shumlib has no src directory
+            if lib == "shumlib":
+                src = ""
+            else:
+                src = "/src"
+            print(f'fcm:{lib}.{xm}_tr{src}', f'science/{lib}', revision)
+            fcm_export(self.config, src=f'fcm:{lib}.{xm}_tr/{src}',
+                       dst_label=f'science/{lib}',revision=revision)
 
         # Copy the optimisation scripts into a separate directory
         dir = 'lfric_atm/optimisation'
