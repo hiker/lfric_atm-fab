@@ -26,12 +26,7 @@ class GetRevision(dict):
                 grp = re_revision.match(line)
                 if grp:
                     lib = grp.group(1).lower()
-                    # Try to convert
-                    try:
-                        version = int(grp.group(2))
-                    except ValueError:
-                        version = grp.group(2)
-                    self[lib] = version
+                    self[lib] = grp.group(2)
 
 
 # ============================================================================
