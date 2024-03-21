@@ -6,7 +6,17 @@ from a parameter.sh file.
 
 import re
 
+
 class GetRevision(dict):
+    '''A simple dictionary-like class that stores the version information
+    from a parameter.sh file:
+        export casim_rev=um13.4
+        export socrates_rev=1483
+    The information can be accessed as a dictionary, e.g.:
+        gr = GetRevision("./fcm-make/parameters.sh")
+        gr["casim"] --> "um13.4"
+        gr["socrates"] --> 1483  # Converted to an integer
+    '''
 
     def __init__(self, filename):
         super().__init__()
@@ -24,10 +34,8 @@ class GetRevision(dict):
                     self[lib] = version
 
 
-
 # ============================================================================
-
 if __name__ == "__main__":
     gr = GetRevision("./fcm-make/parameters.sh")
-    for lib, version in gr.items():
-        print(f"{lib} -> {version}")
+    for lib_name, version_info in gr.items():
+        print(f"{lib_name} -> {version_info}")
