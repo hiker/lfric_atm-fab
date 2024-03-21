@@ -77,9 +77,10 @@ class FabBase:
         elif compiler == "joerg":
             self.set_compiler_flags(
                 ['-ffree-line-length-none', '-fopenmp', '-g',
-                 '-Werror=character-truncation', '-Werror=unused-value',
-                 '-Werror=tabs',
-                 '-fdefault-real-8',
+                 '-Werror=character-truncation',
+                 #'-Werror=unused-value',
+                 #'-Werror=tabs',
+                 '-fdefault-real-8', '-fdefault-double-8',
                  # The lib directory contains mpi.mod
                  '-I', ('/home/joerg/work/spack/var/spack/environments/lfric-v0/'
                         '.spack-env/view/lib'),
