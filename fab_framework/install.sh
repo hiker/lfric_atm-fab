@@ -20,3 +20,6 @@ cp -r miniapps $LFRIC
 
 # Copy the script for lfric_atm
 cp -r lfric_atm $LFRIC
+
+# Copy the scripts for lfricinputs
+cp -r lfricinputs $LFRIC

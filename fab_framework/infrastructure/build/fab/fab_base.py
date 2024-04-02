@@ -144,8 +144,12 @@ class FabBase:
     def configurator(self):
         rose_meta = self.get_rose_meta()
         if rose_meta:
+            # Ideally we would want to get all source files created in
+            # the build directory, but then we need to know the list of
+            # files to add them to the list of files to process
             configurator(self.config, lfric_source=self.lfric_root,
                          gpl_utils_source=self.gpl_utils_source,
+                         config_dir=self.config.source_root,
                          rose_meta_conf=rose_meta)
 
     def preprocess_c(self, path_flags=None):
