@@ -17,11 +17,13 @@ class FcmExtract(dict):
     '''
 
     def __init__(self, filename):
+        # pylint: disable=too-many-branches, too-many-statements
+        # pylint: disable=too-many-locals
         super().__init__()
-
         re_comment = re.compile(r"( *#.*$)")
         re_include = re.compile(r"^ *include", re.I)
         re_location = re.compile(r"^ *extract.location\{diff\}\[.*\] *=")
+        re_files = re.compile(r"^ *(.*)_extract_files.* *= *(.*) *$")
         re_excl = re.compile(r"^ *extract\.path-excl\[(.*)\] *= *(.*) *$")
         re_incl = re.compile(r"^ *extract\.path-incl\[(.*)\] *= *(.*) *$")
 
@@ -50,6 +52,15 @@ class FcmExtract(dict):
                     continue
                 if re_location.match(line):
                     # Ignore location info
+                    continue
+                grp = re_files.match(line)
+                if grp:
+                    section = grp.group(1).lower()
+                    list_of_paths = [Path(i) for i in grp.group(2).split(" ")]
+                    if section in self:
+                        self[section].append(("include", list_of_paths))
+                    else:
+                        self[section] = [("include", list_of_paths)]
                     continue
                 grp = re_excl.match(line)
                 if grp:
