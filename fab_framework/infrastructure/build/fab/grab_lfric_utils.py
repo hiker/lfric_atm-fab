@@ -25,14 +25,9 @@ gpl_utils_source_config = BuildConfig(project_label=f'lfric source {ROSE_PICKER_
 if __name__ == '__main__':
 
     if len(sys.argv) > 1:
-        print ("Yep")
         with lfric_source_config:
             grab_folder(lfric_source_config, src=sys.argv[1])
     else:
-        with lfric_source_config:
-            fcm_export(
-                lfric_source_config, src='fcm:lfric.xm_tr', revision=LFRIC_REVISION, dst_label='lfric')
-
         with gpl_utils_source_config:
             fcm_export(
                 gpl_utils_source_config, src='fcm:lfric_gpl_utils.xm-tr', revision=ROSE_PICKER_REVISION, dst_label='gpl_utils')
