@@ -30,7 +30,7 @@ from fcm_extract import FcmExtract
 
 class FabLfricInputs(FabBase):
 
-    def __init__(self, name="lfric_inputs_lfric2um", root_symbol=None):
+    def __init__(self, name="lfric_inputs", root_symbol=None):
         super().__init__(name, gpl_utils_source_config, root_symbol=root_symbol)
 
         self.set_preprocessor_flags(

@@ -30,7 +30,7 @@ from fcm_extract import FcmExtract
 
 class FabLfricInputs(FabBase):
 
-    def __init__(self, name="lfric_inputs_um2lfric", root_symbol=None):
+    def __init__(self, name="lfric_inputs", root_symbol=None):
         super().__init__(name, gpl_utils_source_config, root_symbol=root_symbol)
 
         self.set_preprocessor_flags(
@@ -57,8 +57,8 @@ class FabLfricInputs(FabBase):
             grab_folder(self.config, src=self.lfric_root / dir,
                         dst_label=dir)
 
-        #fcm_export(self.config, src=f'fcm:shumlib.xm_tr',
-        #           dst_label=f'shumlib')
+        fcm_export(self.config, src=f'fcm:shumlib.xm_tr',
+                   dst_label=f'shumlib')
 
 
     def find_source_files(self):
@@ -94,7 +94,6 @@ class FabLfricInputs(FabBase):
 
 
     def get_rose_meta(self):
-        return None
         return (self.lfric_root / 'gungho' / 'rose-meta' /
                 'lfric-gungho' / 'HEAD' / 'rose-meta.conf')
 
