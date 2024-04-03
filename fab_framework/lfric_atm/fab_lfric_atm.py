@@ -24,7 +24,7 @@ sys.path.insert(0, "../infrastructure/build/fab")
 from fab_base import FabBase
 from get_revision import GetRevision
 
-from grab_lfric import gpl_utils_source_config
+from grab_lfric_utils import gpl_utils_source_config
 
 from fcm_extract import FcmExtract
 

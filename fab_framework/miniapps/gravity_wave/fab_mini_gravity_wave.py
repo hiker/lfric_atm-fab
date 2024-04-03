@@ -19,7 +19,7 @@ from fab.steps.grab.folder import grab_folder
 sys.path.insert(0, "../../infrastructure/build/fab")
 
 from fab_base import FabBase
-from grab_lfric import gpl_utils_source_config
+from grab_lfric_utils import gpl_utils_source_config
 
 
 class FabMiniGravityWave(FabBase):
