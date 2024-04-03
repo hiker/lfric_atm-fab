@@ -1,6 +1,6 @@
 In order to use the new FAB scripts on NCI, the following steps are required
 (besides making sure that the required software dependencies are available
-for compilation)
+for compilation and you already have a clean LFRic checkout)
 
 1. Load module python3/3.12.1
 
