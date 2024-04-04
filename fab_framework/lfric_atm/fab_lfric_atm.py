@@ -89,7 +89,6 @@ class FabMiniGungho(FabBase):
 
 
     def get_rose_meta(self):
-        return None
         return (self.lfric_root / 'lfric_atm' / 'rose-meta' /
                 'lfric-lfric_atm' / 'HEAD' / 'rose-meta.conf')
 
