@@ -9,9 +9,7 @@ for compilation and you already have a clean LFRic checkout)
 3. Make sure to have a recent version of PSyclone installed (ideally 2.5 or later,
    though older versions might work)
 
-4. export PSYCLONE_CONFIG=ROOT_OF_YOUR_LFRIC/etc/psyclone.cfg
-	(to be properly fixed later :) )
-   export PYTHONPATH=$PYTHONPATH:ROOT_OF_YOUR_LFRIC/infrastructure/build/psyclone
+4. export PYTHONPATH=$PYTHONPATH:ROOT_OF_YOUR_LFRIC/infrastructure/build/psyclone
     (add the psyclone_tools module)
 
 5. Export FAB_WORKSPACE if required

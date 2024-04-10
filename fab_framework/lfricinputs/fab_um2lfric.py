@@ -57,6 +57,11 @@ class FabLfricInputs(FabBase):
             grab_folder(self.config, src=self.lfric_root / dir,
                         dst_label=dir)
 
+        # Copy the PSyclone Config file into a separate directory
+        dir = "etc"
+        grab_folder(self.config, src=self.lfric_root / dir,
+                    dst_label='psyclone_config')
+
         fcm_export(self.config, src=f'fcm:shumlib.xm_tr',
                    dst_label=f'shumlib')
 

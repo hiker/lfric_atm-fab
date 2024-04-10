@@ -55,6 +55,7 @@ class FabBase:
         self._preprocessor_flags = []
         self._compiler_flags = []
         self._link_flags = []
+        self._psyclone_config = self._config.source_root / 'psyclone_config' / 'psyclone.cfg'
 
         compiler = "intel"
         if compiler == "intel":
@@ -166,10 +167,13 @@ class FabBase:
     def get_transformation_script(self):
         return ""
 
+    def get_psyclone_config(self):
+        return ["--config", self._psyclone_config]
+
     def psyclone(self):
         psyclone(self.config, kernel_roots=[self.config.build_output],
                  transformation_script=self.get_transformation_script(),
-                 cli_args=[])
+                 cli_args=self.get_psyclone_config())
 
     def analyse(self):
         analyse(self.config, root_symbol=self._root_symbol,

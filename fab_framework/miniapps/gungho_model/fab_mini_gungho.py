@@ -46,6 +46,11 @@ class FabMiniGungho(FabBase):
         grab_folder(self.config, src=self.lfric_root / dir,
                     dst_label='optimisation')
 
+        # Copy the PSyclone Config file into a separate directory
+        dir = "etc"
+        grab_folder(self.config, src=self.lfric_root / dir,
+                    dst_label='psyclone_config')
+
     def get_rose_meta(self):
         return (self.lfric_root / 'miniapps/gungho_model' / 'rose-meta' /
                 'lfric-gungho_model' / 'HEAD' / 'rose-meta.conf')
