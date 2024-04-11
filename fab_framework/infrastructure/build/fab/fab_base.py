@@ -23,6 +23,7 @@ from fab.steps.find_source_files import find_source_files, Exclude
 from fab.steps.link import link_exe
 from fab.steps.preprocess import preprocess_c, preprocess_fortran
 from fab.steps.psyclone import psyclone, preprocess_x90
+from fab.steps.grab.folder import grab_folder
 
 from lfric_common import configurator, fparser_workaround_stop_concatenation
 
@@ -130,7 +131,13 @@ class FabBase:
         self._link_flags = list_of_flags[:]
 
     def grab_files(self):
-        pass
+        dirs = ['infrastructure/source/', 'components/driver/source/',
+                'components/inventory/source/', 'components/science/source/',
+                'components/lfric-xios/source/']
+
+        # pylint: disable=redefined-builtin
+        for dir in dirs:
+            grab_folder(self.config, src=self.lfric_root / dir, dst_label='')
 
     def find_source_files(self, path_filters=None):
         if path_filters is None:

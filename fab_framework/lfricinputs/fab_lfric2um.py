@@ -39,16 +39,12 @@ class FabLfricInputs(FabBase):
              '-DCOUPLED', '-DUSE_MPI=YES'])
 
     def grab_files(self):
+        FabBase.grab_files(self)
         dirs = ['lfricinputs/source/lfric2um', 
                 'lfricinputs/source/common',
-                'infrastructure/source',
                 'um_physics/source',
                 'jules/source',
                 'socrates/source',
-                'components/driver/source',
-                'components/inventory/source',
-                'components/lfric-xios/source',
-                'components/science/source',
                 'gungho/source',
                 ]
 

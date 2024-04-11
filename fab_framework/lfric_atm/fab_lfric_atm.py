@@ -40,10 +40,8 @@ class FabMiniGungho(FabBase):
              '-DCOUPLED', '-DUSE_MPI=YES'])
 
     def grab_files(self):
-        dirs = ['infrastructure/source/', 'components/driver/source/',
-                'components/inventory/source/', 'components/science/source/',
-                'components/lfric-xios/source/',
-                'components/coupler-oasis/source/',
+        FabBase.grab_files(self)
+        dirs = ['components/coupler-oasis/source/',
                 'gungho/source/', 
                 'um_physics/source/', 'socrates/source/', 'jules/source/',
                 'lfric_atm/source']

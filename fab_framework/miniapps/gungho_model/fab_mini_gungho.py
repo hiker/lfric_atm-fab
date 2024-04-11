@@ -33,10 +33,8 @@ class FabMiniGungho(FabBase):
              '-DR_TRAN_PRECISION=64', '-DUSE_XIOS'])
 
     def grab_files(self):
-        dirs = ['infrastructure/source/', 'components/driver/source/',
-                'components/inventory/source/', 'components/science/source/',
-                'components/lfric-xios/source/',
-                'miniapps/gungho_model/source/', 'gungho/source/']
+        FabBase.grab_files(self)
+        dirs = ['miniapps/gungho_model/source/', 'gungho/source/']
         # pylint: disable=redefined-builtin
         for dir in dirs:
             grab_folder(self.config, src=self.lfric_root / dir, dst_label='')

@@ -33,10 +33,8 @@ class FabMiniGravityWave(FabBase):
              '-DR_TRAN_PRECISION=64', '-DUSE_XIOS'])
 
     def grab_files(self):
-        dirs = ['infrastructure/source/', 'components/driver/source/',
-                'components/inventory/source/', 'components/science/source/',
-                'components/lfric-xios/source/',
-                'miniapps/gravity_wave/source/', 'gungho/source/']
+        FabBase.grab_files(self)
+        dirs = ['miniapps/gravity_wave/source/', 'gungho/source/']
 
         # pylint: disable=redefined-builtin
         for dir in dirs:
