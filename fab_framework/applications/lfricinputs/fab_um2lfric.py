@@ -5,7 +5,7 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for lfric_atm. It relies on the FabBase class
+'''A FAB build script for lfricinputs-um2lfric. It relies on the FabBase class
 contained in the infrastructure directory.
 '''
 
@@ -20,11 +20,10 @@ from fab.steps.find_source_files import Exclude, Include
 
 # Until we sort out the build environment, add the directory that stores the
 # base class of our FAB builds:
-sys.path.insert(0, "../infrastructure/build/fab")
+sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
 
 from fab_base import FabBase
-from get_revision import GetRevision
-from grab_lfric_utils import gpl_utils_source_config
+from grab_lfric import gpl_utils_source_config
 
 from fcm_extract import FcmExtract
 
@@ -40,32 +39,27 @@ class FabLfricInputs(FabBase):
 
     def grab_files(self):
         FabBase.grab_files(self)
-        dirs = ['lfricinputs/source/lfric2um', 
-                'lfricinputs/source/common',
-                'um_physics/source',
-                'jules/source',
-                'socrates/source',
-                'gungho/source',
+        dirs = ['applications/lfricinputs/source/um2lfric', 
+                'applications/lfricinputs/source/common',
+                'science/um_physics_interface/source/',
+                'science/jules_interface/source/',
+                'science/socrates_interface/source/',
+                'science/gungho/source',
                 ]
 
         # pylint: disable=redefined-builtin
         for dir in dirs:
-            grab_folder(self.config, src=self.lfric_root / dir,
+            grab_folder(self.config, src=self.lfric_apps_root / dir,
                         dst_label=dir)
-
-        # Copy the PSyclone Config file into a separate directory
-        dir = "etc"
-        grab_folder(self.config, src=self.lfric_root / dir,
-                    dst_label='psyclone_config')
 
         fcm_export(self.config, src=f'fcm:shumlib.xm_tr',
                    dst_label=f'shumlib')
 
-        
-    def find_source_files(self):
-        """Based on lfric_atm/fcm-make/extract.cfg"""
 
-        shumlib_extract = FcmExtract(self.lfric_root / "lfricinputs" /
+    def find_source_files(self):
+        """Based on $LFRIC_APPS_ROOT/applications/lfricinputs/fcm-make"""
+
+        shumlib_extract = FcmExtract(self.lfric_apps_root / "applications" / "lfricinputs" /
                                      "fcm-make" / "util" / "common" /
                                      "extract-shumlib.cfg")
         shumlib_root = self.config.source_root / 'science'
@@ -78,9 +72,13 @@ class FabLfricInputs(FabBase):
                     for path in list_of_paths:
                         path_filters.append(Include(shumlib_root / section / path))
 
-        infra_extract = FcmExtract(self.lfric_root / "lfricinputs" /
+        infra_extract = FcmExtract(self.lfric_apps_root / "applications" / "lfricinputs" /
                                    "fcm-make" / "util" / "common" /
-                                   "extract-lfric.cfg")
+                                   "extract-lfric-core.cfg")
+        
+        infra_extract.update( FcmExtract(self.lfric_apps_root / "applications" / "lfricinputs" /
+                                   "fcm-make" / "util" / "common" /
+                                   "extract-lfric-apps.cfg") )
 
         for section, source_file_info in infra_extract.items():
             for (list_type, list_of_paths) in source_file_info:
@@ -95,7 +93,7 @@ class FabLfricInputs(FabBase):
 
 
     def get_rose_meta(self):
-        return (self.lfric_root / 'gungho' / 'rose-meta' /
+        return (self.lfric_apps_root / 'science' / 'gungho' / 'rose-meta' /
                 'lfric-gungho' / 'HEAD' / 'rose-meta.conf')
 
     def preprocess_c(self):
@@ -129,5 +127,5 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_lfric_inputs = FabLfricInputs(root_symbol="lfric2um")
+    fab_lfric_inputs = FabLfricInputs(root_symbol="um2lfric")
     fab_lfric_inputs.build()

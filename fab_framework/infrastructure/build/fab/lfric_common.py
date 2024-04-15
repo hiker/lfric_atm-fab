@@ -11,12 +11,12 @@ logger = logging.getLogger('fab')
 
 # todo: is this part of psyclone? if so, put  it in the psyclone step module?
 @step
-def configurator(config, lfric_source: Path, gpl_utils_source: Path, rose_meta_conf: Path, config_dir=None):
+def configurator(config, lfric_core_source: Path, lfric_apps_source: Path, gpl_utils_source: Path, rose_meta_conf: Path, config_dir=None):
 
     rose_picker_tool = gpl_utils_source / 'rose_picker/rose_picker'
-    gen_namelist_tool = lfric_source / 'infrastructure/build/tools/GenerateNamelist'
-    gen_loader_tool = lfric_source / 'infrastructure/build/tools/GenerateLoader'
-    gen_feigns_tool = lfric_source / 'infrastructure/build/tools/GenerateFeigns'
+    gen_namelist_tool = lfric_core_source / 'infrastructure/build/tools/GenerateNamelist'
+    gen_loader_tool = lfric_core_source / 'infrastructure/build/tools/GenerateLoader'
+    gen_feigns_tool = lfric_core_source / 'infrastructure/build/tools/GenerateFeigns'
 
     config_dir = config_dir or config.source_root / 'configuration'
 
@@ -34,7 +34,8 @@ def configurator(config, lfric_source: Path, gpl_utils_source: Path, rose_meta_c
         command=[
             str(rose_picker_tool), str(rose_meta_conf),
             '-directory', str(config_dir),
-            '-include_dirs', lfric_source],
+            '-include_dirs', lfric_apps_source,
+            '-include_dirs', lfric_core_source],
         env=env,
     )
 

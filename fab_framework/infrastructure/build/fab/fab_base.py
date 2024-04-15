@@ -44,15 +44,16 @@ class FabBase:
 
     def __init__(self, name, gpl_utils_config, root_symbol=None):
         this_file = Path(__file__)
-        # The root directory of the LFRic installation
-        self._lfric_root = this_file.parents[3]
+        # The root directory of the LFRic Core installation
+        self._lfric_core_root = this_file.parents[3]
         if root_symbol:
             self._root_symbol = root_symbol
         else:
             self._root_symbol = name
         self._gpl_utils_source = gpl_utils_config.source_root / 'gpl_utils'
+        self._lfric_apps_root = gpl_utils_config.source_root / 'lfric_apps'
         self._config = BuildConfig(
-            project_label=f'{name}-$compiler', verbose=True)
+            project_label=f'{name}-$compiler', verbose=True, n_procs=16)
         self._preprocessor_flags = []
         self._compiler_flags = []
         self._link_flags = []
@@ -114,8 +115,12 @@ class FabBase:
         return self._config
 
     @property
-    def lfric_root(self):
-        return self._lfric_root
+    def lfric_core_root(self):
+        return self._lfric_core_root
+    
+    @property
+    def lfric_apps_root(self):
+        return self._lfric_apps_root
 
     @property
     def gpl_utils_source(self):
@@ -131,13 +136,21 @@ class FabBase:
         self._link_flags = list_of_flags[:]
 
     def grab_files(self):
-        dirs = ['infrastructure/source/', 'components/driver/source/',
-                'components/inventory/source/', 'components/science/source/',
-                'components/lfric-xios/source/']
+        dirs = ['infrastructure/source/',
+                'components/driver/source/',
+                'components/inventory/source/',
+                'components/science/source/',
+                'components/lfric-xios/source/',
+                ]
 
         # pylint: disable=redefined-builtin
         for dir in dirs:
-            grab_folder(self.config, src=self.lfric_root / dir, dst_label='')
+            grab_folder(self.config, src=self.lfric_core_root / dir, dst_label='')
+
+        # Copy the PSyclone Config file into a separate directory
+        dir = "etc"
+        grab_folder(self.config, src=self.lfric_core_root / dir,
+                    dst_label='psyclone_config')
 
     def find_source_files(self, path_filters=None):
         if path_filters is None:
@@ -155,7 +168,8 @@ class FabBase:
             # Ideally we would want to get all source files created in
             # the build directory, but then we need to know the list of
             # files to add them to the list of files to process
-            configurator(self.config, lfric_source=self.lfric_root,
+            configurator(self.config, lfric_core_source=self.lfric_core_root,
+                         lfric_apps_source=self.lfric_apps_root,
                          gpl_utils_source=self.gpl_utils_source,
                          config_dir=self.config.source_root,
                          rose_meta_conf=rose_meta)

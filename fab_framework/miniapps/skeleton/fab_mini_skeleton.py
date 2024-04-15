@@ -19,7 +19,7 @@ from fab.steps.grab.folder import grab_folder
 sys.path.insert(0, "../../infrastructure/build/fab")
 
 from fab_base import FabBase
-from grab_lfric_utils import gpl_utils_source_config
+from grab_lfric import gpl_utils_source_config
 
 
 class FabMiniSkeleton(FabBase):
@@ -38,15 +38,10 @@ class FabMiniSkeleton(FabBase):
 
         # pylint: disable=redefined-builtin
         for dir in dirs:
-            grab_folder(self.config, src=self.lfric_root / dir, dst_label='')
-
-        # Copy the PSyclone Config file into a separate directory
-        dir = "etc"
-        grab_folder(self.config, src=self.lfric_root / dir,
-                    dst_label='psyclone_config')
+            grab_folder(self.config, src=self.lfric_core_root / dir, dst_label='')
 
     def get_rose_meta(self):
-        return (self.lfric_root / 'miniapps' / 'skeleton' / 'rose-meta' /
+        return (self.lfric_core_root / 'miniapps' / 'skeleton' / 'rose-meta' /
                 'lfric-skeleton' / 'HEAD' / 'rose-meta.conf')
 
     def get_transformation_script(self):

@@ -5,12 +5,16 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 import os
+import sys
 
 from fab.build_config import BuildConfig
 from fab.steps.grab.fcm import fcm_export
+from fab.steps.grab.folder import grab_folder
 
-lfric_core_rev_file = '$FAB_WORKSPACE/lfric_core_revision'
-lfric_apps_rev_file = '$FAB_WORKSPACE/lfric_apps_revision'
+fab_workspace = os.getenv('FAB_WORKSPACE')
+
+lfric_core_rev_file = fab_workspace + '/lfric_core_revision'
+lfric_apps_rev_file = fab_workspace + '/lfric_apps_revision'
 
 file=open(lfric_core_rev_file,'r')
 LFRIC_CORE_REVISION=file.readline().strip('\n')
@@ -34,14 +38,20 @@ lfric_apps_source_config = BuildConfig(project_label=f'lfric source {LFRIC_CORE_
 gpl_utils_source_config = BuildConfig(project_label=f'lfric source {ROSE_PICKER_REVISION}')
 
 if __name__ == '__main__':
-    with lfric_core_source_config:
-        fcm_export(
-            lfric_core_source_config, src='fcm:lfric.xm_tr', revision=LFRIC_CORE_REVISION, dst_label='lfric_core')
-        
-    with lfric_apps_source_config:
-        fcm_export(
-            lfric_apps_source_config, src='fcm:lfric_apps.xm_tr', revision=LFRIC_APPS_REVISION, dst_label='lfric_apps')
 
-    with gpl_utils_source_config:
-        fcm_export(
-            gpl_utils_source_config, src='fcm:lfric_gpl_utils.xm-tr', revision=ROSE_PICKER_REVISION, dst_label='gpl_utils')
+    if len(sys.argv) > 1:
+        with lfric_core_source_config:
+            grab_folder(lfric_core_source_config, src=sys.argv[1])
+
+    else:
+        with lfric_core_source_config:
+            fcm_export(
+                lfric_core_source_config, src='fcm:lfric.xm_tr', revision=LFRIC_CORE_REVISION, dst_label='lfric_core')
+            
+        with lfric_apps_source_config:
+            fcm_export(
+                lfric_apps_source_config, src='fcm:lfric_apps.xm_tr', revision=LFRIC_APPS_REVISION, dst_label='lfric_apps')
+
+        with gpl_utils_source_config:
+            fcm_export(
+                gpl_utils_source_config, src='file:///g/data/ki32/mosrs/lfric/GPL-utilities/tags/v2.0.0/', revision=ROSE_PICKER_REVISION, dst_label='gpl_utils')

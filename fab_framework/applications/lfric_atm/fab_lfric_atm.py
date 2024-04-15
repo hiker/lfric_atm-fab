@@ -19,16 +19,16 @@ from fab.steps.find_source_files import Exclude, Include
 
 # Until we sort out the build environment, add the directory that stores the
 # base class of our FAB builds:
-sys.path.insert(0, "../infrastructure/build/fab")
+sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
 
 from fab_base import FabBase
 from get_revision import GetRevision
 
-from grab_lfric_utils import gpl_utils_source_config
+from grab_lfric import gpl_utils_source_config
 
 from fcm_extract import FcmExtract
 
-class FabMiniGungho(FabBase):
+class FabLFRicAtm(FabBase):
 
     def __init__(self, name="lfric_atm", root_symbol=None):
         super().__init__(name, gpl_utils_source_config,
@@ -41,15 +41,19 @@ class FabMiniGungho(FabBase):
 
     def grab_files(self):
         FabBase.grab_files(self)
-        dirs = ['components/coupler-oasis/source/',
-                'gungho/source/', 
-                'um_physics/source/', 'socrates/source/', 'jules/source/',
-                'lfric_atm/source']
+        dirs = ['science/coupled_interface/source/',
+                'science/gungho/source', 
+                'science/um_physics_interface/source/', 
+                'science/socrates_interface/source/', 
+                'science/jules_interface/source/',
+                'applications/lfric_atm/source',
+                'science/constants/source',
+                ]
         # pylint: disable=redefined-builtin
         for dir in dirs:
-            grab_folder(self.config, src=self.lfric_root / dir, dst_label='')
+            grab_folder(self.config, src=self.lfric_apps_root / dir, dst_label='')
 
-        gr = GetRevision("./fcm-make/parameters.sh")
+        gr = GetRevision("../../dependencies.sh")
         xm = "xm"
         for lib, revision in gr.items():
             # Shumlib has no src directory
@@ -62,19 +66,14 @@ class FabMiniGungho(FabBase):
                        dst_label=f'science/{lib}',revision=revision)
 
         # Copy the optimisation scripts into a separate directory
-        dir = 'lfric_atm/optimisation'
-        grab_folder(self.config, src=self.lfric_root / dir,
+        dir = 'applications/lfric_atm/optimisation'
+        grab_folder(self.config, src=self.lfric_apps_root / dir,
                     dst_label='optimisation')
 
-        # Copy the PSyclone Config file into a separate directory
-        dir = "etc"
-        grab_folder(self.config, src=self.lfric_root / dir,
-                    dst_label='psyclone_config')
-
     def find_source_files(self):
-        """Based on lfric_atm/fcm-make/extract.cfg"""
+        """Based on $LFRIC_APPS_ROOT/build/extract/extract.cfg"""
 
-        extract = FcmExtract(self.lfric_root / "lfric_atm" / "fcm-make" /
+        extract = FcmExtract(self.lfric_apps_root / "build" / "extract" /
                           "extract.cfg")
         
         science_root = self.config.source_root / 'science'
@@ -92,7 +91,7 @@ class FabMiniGungho(FabBase):
 
 
     def get_rose_meta(self):
-        return (self.lfric_root / 'lfric_atm' / 'rose-meta' /
+        return (self.lfric_apps_root / 'applications/lfric_atm' / 'rose-meta' /
                 'lfric-lfric_atm' / 'HEAD' / 'rose-meta.conf')
 
     def preprocess_c(self):
@@ -133,5 +132,5 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_mini_gungo = FabMiniGungho()
-    fab_mini_gungo.build()
+    fab_lfric_atm = FabLFRicAtm()
+    fab_lfric_atm.build()
