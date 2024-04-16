@@ -24,3 +24,4 @@ cp -r infrastructure $LFRIC_CORE
 
 # Copy the app build scripts into the applications directory
 cp -r applications $LFRIC_APPS
+cp -r miniapps $LFRIC_CORE

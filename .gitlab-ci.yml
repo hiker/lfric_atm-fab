@@ -20,12 +20,6 @@ fab build:
     timeout: 4 hours
     variables:
         NCPU: 4
-    artifacts:
-        paths:
-            - example
-            - metadata
-            - lfric_atm.exe
-            - lfric_revision
 
 fab run:
     stage: run
@@ -33,7 +27,7 @@ fab run:
         - gadi
     script:
         - ci-qsub ./lfric_atm-fab-run.sh
-    timeout: 1 hours
+    timeout: 2 hours
     variables:
         NCPU: 4
     artifacts:

@@ -1,16 +1,34 @@
 #!/bin/bash
 
-BIN_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/atm_ifort_1stage
-echo $BIN_DIR
+# print out current directory
+echo 'current dir'
+echo $PWD
 
-rev=$(rev < "lfric_revision")
-echo $rev
-
-CONFIG_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/lfric_source_${rev}/source/lfric/lfric_atm/example/
-echo $CONFIG_DIR
-
+# load the container
 module use /scratch/hc46/hc46_gitlab/ngm/modules/
 module load lfric-v0/intel-openmpi-lfric-fab
 
-cd example
-imagerun mpirun -np 1 ../lfric_atm.exe configuration.nml
+# print out revisions
+export lfric_core_rev=$(rev < "lfric_core_revision")
+echo "lfric_core_revison = ${lfric_core_rev}"
+
+export lfric_apps_rev=$(rev < "lfric_apps_revision")
+echo "lfric_apps_revison = ${lfric_apps_rev}"
+
+# run gungho_model
+export BIN_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/gungho_model-ifort
+echo "bin_dir = ${BIN_DIR}"
+
+export CONFIG_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/lfric_source_${lfric_core_rev}/source/lfric_apps/application/gungho_model/example/
+echo "config_dir = ${CONFIG_DIR}"
+
+imagerun mpirun -np 4 $BIN_DIR/gungho_model $CONFIG_DIR/configuration.nml
+
+# run lfric_atm
+export BIN_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/lfric_atm-ifort
+echo "bin_dir = ${BIN_DIR}"
+
+export CONFIG_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/lfric_source_${lfric_core_rev}/source/lfric_apps/application/lfric_atm/example/
+echo "config_dir = ${CONFIG_DIR}"
+
+imagerun mpirun -np 1 $BIN_DIR/lfric_atm $CONFIG_DIR/configuration.nml
