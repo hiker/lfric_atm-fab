@@ -14,7 +14,7 @@ echo $lfric_apps_rev > lfric_apps_revision
 
 # load the container
 module use /scratch/hc46/hc46_gitlab/ngm/modules/
-module load lfric-v0/intel-openmpi-master
+module load lfric-v0/intel-openmpi-fab-new-framework
 
 # grab the lfric sources
 export FAB_WORKSPACE=$PWD
