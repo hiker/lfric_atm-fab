@@ -17,16 +17,40 @@ module use /scratch/hc46/hc46_gitlab/ngm/modules/
 module load lfric-v0/intel-openmpi-fab-new-framework
 
 # grab the lfric sources
+echo "Start grabbing the lfric sources"
+
 export FAB_WORKSPACE=$PWD
 
 imagerun FAB_WORKSPACE=$PWD FC=ifort ./fab_framework/infrastructure/build/fab/grab_lfric.py
 
 echo "Grabbed the lfric sources successfully"
 
+echo 'current dir'
+
+ls
+
 # install the fab build scripts
-./fab_framework/install.sh $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps
+echo "Start installing the fab build scripts"
+
+cd fab_framework
+
+echo 'current dir'
+
+echo $PWD
+
+./install.sh $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps
 
 echo "Installed the fab build scripts"
+
+ls
+
+cd ../
+
+echo 'current dir'
+
+echo $PWD
+
+ls
 
 echo "Start building apps"
 
