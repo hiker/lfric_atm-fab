@@ -57,31 +57,31 @@ ls
 
 echo "Start building apps"
 
-export PYTHONPATH=/opt/spack/.local/lib/python3.12/site-packages/:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/psyclone:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/fab
+export PYTHONPATH=/opt/spack/.local/lib/python3.12/site-packages/:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/psyclone:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/fab:/opt/mamba/envs/container/lib
 
-# build skeleton
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/miniapps/skeleton/
-echo "current dir"
-echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_mini_skeleton.py
+# # build skeleton
+# cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/miniapps/skeleton/
+# echo "current dir"
+# echo $PWD
+# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_mini_skeleton.py
 
-echo "Built skeleton"
+# echo "Built skeleton"
 
-# build gungho_model
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/
-echo "current dir"
-echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py
+# # build gungho_model
+# cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/
+# echo "current dir"
+# echo $PWD
+# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py
 
-echo "Built gungho_model"
+# echo "Built gungho_model"
 
-# build gravity_wave
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gravity_wave/
-echo "current dir"
-echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py
+# # build gravity_wave
+# cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gravity_wave/
+# echo "current dir"
+# echo $PWD
+# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py
 
-echo "Built gravity_wave"
+# echo "Built gravity_wave"
 
 # build lfric_atm
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/
