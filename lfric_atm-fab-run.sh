@@ -6,6 +6,7 @@ set -o pipefail
 # print out current directory
 echo 'current dir'
 echo $PWD
+export FAB_WORKSPACE=$PWD
 
 # load the container
 module use /scratch/hc46/hc46_gitlab/ngm/modules/
@@ -20,16 +21,17 @@ echo "lfric_apps_revison = ${lfric_apps_rev}"
 
 # run gungho_model
 echo "Start running gungho_model"
-cd gungho_model_example
+cd ./run_applications/gungho_model/example
 imagerun mpirun -np 4 ../gungho_model configuration.nml
 
 echo "Finished running gungho_model"
+cd $FAB_WORKSPACE
 
-# # run lfric_atm
-# echo "Start running lfric_atm"
-# cd lfric_atm_example
-# imagerun mpirun -np 1 ../lfric_atm configuration.nml
+# run lfric_atm
+echo "Start running lfric_atm"
+cd ./run_applications/lfric_atm/example
+imagerun mpirun -np 1 ../lfric_atm configuration.nml
 
-# echo "Finished running lfric_atm"
+echo "Finished running lfric_atm"
 
-# echo "Finished all runs"
+echo "Finished all runs"

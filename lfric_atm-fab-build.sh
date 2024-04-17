@@ -83,13 +83,13 @@ echo "Built gungho_model"
 
 # echo "Built gravity_wave"
 
-# # build lfric_atm
-# cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/
-# echo "current dir"
-# echo $PWD
-# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_lfric_atm.py
+# build lfric_atm
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/
+echo "current dir"
+echo $PWD
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_lfric_atm.py
 
-# echo "Built lfric_atm"
+echo "Built lfric_atm"
 
 # # build lfric_inputs
 # cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfricinputs/
@@ -105,9 +105,11 @@ echo "current dir"
 echo $PWD
 echo "Finished building"
 
-cp $FAB_WORKSPACE/gungho_model-ifort/gungho_model .
-mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/example ./gungho_model_example
-echo "Finished copying and moving"
+mkdir -p run_applications/gungho_model
+cp $FAB_WORKSPACE/gungho_model-ifort/gungho_model ./run_applications/gungho_model/gungho_model
+mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/example ./run_applications/gungho_model/example
 
-# cp $FAB_WORKSPACE/lfric_atm-ifort/lfric_atm .
-# mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/example ./lfric_atm_example
+mkdir -p run_applications/lfric_atm
+cp $FAB_WORKSPACE/lfric_atm-ifort/lfric_atm ./run_applications/lfric_atm/lfric_atm
+mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/example ./run_applications/lfric_atm/example
+mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/metadata ./run_applications/lfric_atm/metadata

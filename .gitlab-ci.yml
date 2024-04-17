@@ -22,10 +22,7 @@ fab build:
         NCPU: 16
     artifacts:
         paths:
-            - gungho_model
-            - gungho_model_example/
-            # - lfric_atm
-            # - lfric_atm_example
+            - run_applications
             - lfric_core_revision
             - lfric_apps_revision
         expire_in: 1 day
