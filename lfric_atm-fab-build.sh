@@ -106,9 +106,7 @@ echo $PWD
 echo "Finished building"
 
 cp $FAB_WORKSPACE/gungho_model-ifort/gungho_model .
-cp $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/example .
-mv example gungho_model_example
+mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/example ./gungho_model_example
 
 cp $FAB_WORKSPACE/lfric_atm-ifort/lfric_atm .
-cp $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/example .
-mv example lfric_atm_example
+mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/example ./lfric_atm_example

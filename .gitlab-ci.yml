@@ -19,7 +19,7 @@ fab build:
         - ci-qsub ./lfric_atm-fab-build.sh
     timeout: 2 hours
     variables:
-        NCPU: 16
+        NCPU: 4
     artifacts:
         paths:
             - gungho_model

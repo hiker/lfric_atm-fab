@@ -53,7 +53,7 @@ class FabBase:
         self._gpl_utils_source = gpl_utils_config.source_root / 'gpl_utils'
         self._lfric_apps_root = gpl_utils_config.source_root / 'lfric_apps'
         self._config = BuildConfig(
-            project_label=f'{name}-$compiler', verbose=True, n_procs=16)
+            project_label=f'{name}-$compiler', verbose=True, n_procs=4)
         self._preprocessor_flags = []
         self._compiler_flags = []
         self._link_flags = []
