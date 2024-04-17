@@ -17,17 +17,21 @@ fab build:
         - gadi
     script:
         - ci-qsub ./lfric_atm-fab-build.sh
-    timeout: 4 hours
+    timeout: 2 hours
     variables:
-        NCPU: 4
+        NCPU: 16
     artifacts:
-        untracked: true
+        paths:
+            - gungho_model
+            - gungho_model_example/
+            - lfric_atm
+            - lfric_atm_example
+            - lfric_core_revision
+            - lfric_apps_revision
         expire_in: 1 day
 
 fab run:
     stage: run
-    dependencies:
-        - fab build
     tags:
         - gadi
     script:

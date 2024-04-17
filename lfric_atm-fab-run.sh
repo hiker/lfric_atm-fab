@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 set -o pipefail
 
 # print out current directory
@@ -20,27 +20,15 @@ echo "lfric_apps_revison = ${lfric_apps_rev}"
 
 # run gungho_model
 echo "Start running gungho_model"
-
-export BIN_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/gungho_model-ifort
-echo "bin_dir = ${BIN_DIR}"
-
-export CONFIG_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/lfric_source_${lfric_core_rev}/source/lfric_apps/application/gungho_model/example/
-echo "config_dir = ${CONFIG_DIR}"
-
-imagerun mpirun -np 4 $BIN_DIR/gungho_model $CONFIG_DIR/configuration.nml
+cd gungho_model_example
+imagerun mpirun -np 4 ../gungho_model configuration.nml
 
 echo "Finished running gungho_model"
 
 # run lfric_atm
 echo "Start running lfric_atm"
-
-export BIN_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/lfric_atm-ifort
-echo "bin_dir = ${BIN_DIR}"
-
-export CONFIG_DIR=/scratch/hc46/hc46_gitlab/builds/$CI_RUNNER_SHORT_TOKEN/0/bom/ngm/lfric/lfric_atm-fab/lfric_source_${lfric_core_rev}/source/lfric_apps/application/lfric_atm/example/
-echo "config_dir = ${CONFIG_DIR}"
-
-imagerun mpirun -np 1 $BIN_DIR/lfric_atm $CONFIG_DIR/configuration.nml
+cd lfric_atm_example
+imagerun mpirun -np 1 ../lfric_atm configuration.nml
 
 echo "Finished running lfric_atm"
 
