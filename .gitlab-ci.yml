@@ -21,19 +21,13 @@ fab build:
     variables:
         NCPU: 4
     artifacts:
-        paths:
-            - job.log
-            - lfric_apps_revision
-            - lfric_core_revision
-            - skeleton-ifort/ 
-            - gravity_wave-ifort
-            - gungho_model-ifort
-            - lfric_atm-ifort/
-            - lfric_inputs-ifort/
+        untracked: true
         expire_in: 1 day
 
 fab run:
     stage: run
+    dependencies:
+        - fab build
     tags:
         - gadi
     script:
