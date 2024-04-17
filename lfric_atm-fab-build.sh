@@ -67,13 +67,13 @@ export PYTHONPATH=/opt/spack/.local/lib/python3.12/site-packages/:$FAB_WORKSPACE
 
 # echo "Built skeleton"
 
-# build gungho_model
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/
-echo "current dir"
-echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py
+# # build gungho_model
+# cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/
+# echo "current dir"
+# echo $PWD
+# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py
 
-echo "Built gungho_model"
+# echo "Built gungho_model"
 
 # # build gravity_wave
 # cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gravity_wave/
@@ -105,9 +105,9 @@ echo "current dir"
 echo $PWD
 echo "Finished building"
 
-mkdir -p run_applications/gungho_model
-cp $FAB_WORKSPACE/gungho_model-ifort/gungho_model ./run_applications/gungho_model/gungho_model
-mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/example ./run_applications/gungho_model/example
+# mkdir -p run_applications/gungho_model
+# cp $FAB_WORKSPACE/gungho_model-ifort/gungho_model ./run_applications/gungho_model/gungho_model
+# mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/example ./run_applications/gungho_model/example
 
 mkdir -p run_applications/lfric_atm
 cp $FAB_WORKSPACE/lfric_atm-ifort/lfric_atm ./run_applications/lfric_atm/lfric_atm

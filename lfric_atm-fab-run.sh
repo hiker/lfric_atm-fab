@@ -19,12 +19,12 @@ echo "lfric_core_revison = ${lfric_core_rev}"
 export lfric_apps_rev=$(rev < "lfric_apps_revision")
 echo "lfric_apps_revison = ${lfric_apps_rev}"
 
-# run gungho_model
-echo "Start running gungho_model"
-cd ./run_applications/gungho_model/example
-imagerun mpirun -np 4 ../gungho_model configuration.nml
+# # run gungho_model
+# echo "Start running gungho_model"
+# cd ./run_applications/gungho_model/example
+# imagerun mpirun -np 4 ../gungho_model configuration.nml
 
-echo "Finished running gungho_model"
+# echo "Finished running gungho_model"
 cd $FAB_WORKSPACE
 
 # run lfric_atm
