@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -eu
+set -o pipefail
+
 # print out current directory
 echo 'current dir'
 echo $PWD
