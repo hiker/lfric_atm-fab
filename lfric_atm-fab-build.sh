@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -eu
+set -o pipefail
+
 echo 'current dir'
 echo $PWD
 
@@ -53,6 +56,8 @@ echo $PWD
 ls
 
 echo "Start building apps"
+
+export PYTHONPATH=$PYTHONPATH:/opt/spack/.local/lib/python3.12/site-packages/
 
 # build skeleton
 imagerun FAB_WORKSPACE=$PWD FC=ifort PYTHONPATH=$PYTHONPATH:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/psyclone $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/miniapps/skeleton/fab_mini_skeleton.py
