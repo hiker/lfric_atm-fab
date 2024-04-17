@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -e
 set -o pipefail
 
 # print out current directory
