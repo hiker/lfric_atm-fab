@@ -25,11 +25,11 @@ imagerun mpirun -np 4 ../gungho_model configuration.nml
 
 echo "Finished running gungho_model"
 
-# run lfric_atm
-echo "Start running lfric_atm"
-cd lfric_atm_example
-imagerun mpirun -np 1 ../lfric_atm configuration.nml
+# # run lfric_atm
+# echo "Start running lfric_atm"
+# cd lfric_atm_example
+# imagerun mpirun -np 1 ../lfric_atm configuration.nml
 
-echo "Finished running lfric_atm"
+# echo "Finished running lfric_atm"
 
-echo "Finished all runs"
+# echo "Finished all runs"
