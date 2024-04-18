@@ -89,4 +89,5 @@ echo "Built lfric_inputs"
 cd $FAB_FRAMEWORK_REPO
 echo "current dir"
 echo $PWD
+cp job.log $FAB_WORKSPACE/job_build.log
 echo "Finished building"

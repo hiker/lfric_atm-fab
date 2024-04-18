@@ -22,7 +22,6 @@ fab build:
         NCPU: 16
     artifacts:
         paths:
-            - job.log
             - lfric_core_revision
             - lfric_apps_revision
 
