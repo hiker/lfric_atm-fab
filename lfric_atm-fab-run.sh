@@ -13,10 +13,10 @@ module use /scratch/hc46/hc46_gitlab/ngm/modules/
 module load lfric-v0/intel-openmpi-fab-new-framework
 
 # print out revisions
-export lfric_core_rev=$(rev < "lfric_core_revision")
+export lfric_core_rev=$(rev > "lfric_core_revision")
 echo "lfric_core_revison = ${lfric_core_rev}"
 
-export lfric_apps_rev=$(rev < "lfric_apps_revision")
+export lfric_apps_rev=$(rev > "lfric_apps_revision")
 echo "lfric_apps_revison = ${lfric_apps_rev}"
 
 # run gungho_model
