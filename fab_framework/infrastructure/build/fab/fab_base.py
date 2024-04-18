@@ -204,9 +204,10 @@ class FabBase:
     def compile_c(self):
         compile_c(self.config, common_flags=["-c"])
 
-    def compile_fortran(self):
+    def compile_fortran(self, path_flags=None):
         compile_fortran(self.config,
-                        common_flags=["-c"]+self._compiler_flags)
+                        common_flags=["-c"]+self._compiler_flags,
+                        path_flags=path_flags)
 
     def archive_objects(self):
         archive_objects(self.config)
