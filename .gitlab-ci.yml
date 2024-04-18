@@ -22,10 +22,9 @@ fab build:
         NCPU: 16
     artifacts:
         paths:
-            - run_applications
+            - job.log
             - lfric_core_revision
             - lfric_apps_revision
-        expire_in: 1 day
 
 fab run:
     stage: run

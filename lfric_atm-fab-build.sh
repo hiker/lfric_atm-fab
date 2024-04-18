@@ -5,6 +5,7 @@ set -o pipefail
 
 echo 'current dir'
 echo $PWD
+export FAB_FRAMEWORK_REPO=$PWD
 
 # get the current lfric_core revision from the repo mirror
 lfric_core_rev=$(svn info file:///g/data/ki32/mosrs/lfric/LFRic/trunk | grep Revision | sed 's/.* //g')
@@ -22,66 +23,50 @@ module load lfric-v0/intel-openmpi-fab-new-framework
 # grab the lfric sources
 echo "Start grabbing the lfric sources"
 
-export FAB_WORKSPACE=$PWD
+mkdir /scratch/hc46/hc46_gitlab/lfric_fab
+export FAB_WORKSPACE=/scratch/hc46/hc46_gitlab/lfric_fab
 
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort ./fab_framework/infrastructure/build/fab/grab_lfric.py
-
 echo "Grabbed the lfric sources successfully"
-
-echo 'current dir'
-
-ls
 
 # install the fab build scripts
 echo "Start installing the fab build scripts"
-
 cd fab_framework
-
 echo 'current dir'
-
 echo $PWD
-
 ./install.sh $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps
-
 echo "Installed the fab build scripts"
 
-ls
-
 cd ../
-
 echo 'current dir'
-
 echo $PWD
-
-ls
-
 echo "Start building apps"
 
 export PYTHONPATH=/opt/spack/.local/lib/python3.12/site-packages/:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/psyclone:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/fab
 
-# # build skeleton
-# cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/miniapps/skeleton/
-# echo "current dir"
-# echo $PWD
-# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_mini_skeleton.py
+# build skeleton
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/miniapps/skeleton/
+echo "current dir"
+echo $PWD
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_mini_skeleton.py
 
-# echo "Built skeleton"
+echo "Built skeleton"
 
-# # build gungho_model
-# cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/
-# echo "current dir"
-# echo $PWD
-# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py
+# build gungho_model
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/
+echo "current dir"
+echo $PWD
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py
 
-# echo "Built gungho_model"
+echo "Built gungho_model"
 
-# # build gravity_wave
-# cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gravity_wave/
-# echo "current dir"
-# echo $PWD
-# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py
+# build gravity_wave
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gravity_wave/
+echo "current dir"
+echo $PWD
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py
 
-# echo "Built gravity_wave"
+echo "Built gravity_wave"
 
 # build lfric_atm
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/
@@ -91,25 +76,16 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_lfri
 
 echo "Built lfric_atm"
 
-# # build lfric_inputs
-# cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfricinputs/
-# echo "current dir"
-# echo $PWD
-# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_lfric2um.py
-# imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_um2lfric.py
+# build lfric_inputs
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfricinputs/
+echo "current dir"
+echo $PWD
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_lfric2um.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_um2lfric.py
 
-# echo "Built lfric_inputs"
+echo "Built lfric_inputs"
 
-cd $FAB_WORKSPACE
+cd $FAB_FRAMEWORK_REPO
 echo "current dir"
 echo $PWD
 echo "Finished building"
-
-# mkdir -p run_applications/gungho_model
-# cp $FAB_WORKSPACE/gungho_model-ifort/gungho_model ./run_applications/gungho_model/gungho_model
-# mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/example ./run_applications/gungho_model/example
-
-mkdir -p run_applications/lfric_atm
-cp $FAB_WORKSPACE/lfric_atm-ifort/lfric_atm ./run_applications/lfric_atm/lfric_atm
-mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/example ./run_applications/lfric_atm/example
-mv $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/metadata ./run_applications/lfric_atm/metadata
