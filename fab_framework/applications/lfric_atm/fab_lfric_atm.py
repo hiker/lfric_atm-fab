@@ -125,6 +125,10 @@ class FabLFRicAtm(FabBase):
         :rtype: Path
         '''
         return self.config.source_root / "optimisation/nci-gadi/global.py"
+    
+    def compile_fortran(self):
+        path_flags=[AddFlags('$output/science/um/atmosphere/large_scale_precipitation/*', ['-qno-openmp']),]
+        super().compile_fortran(path_flags=path_flags)
 
 
 # -----------------------------------------------------------------------------
