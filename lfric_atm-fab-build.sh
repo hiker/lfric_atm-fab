@@ -43,7 +43,7 @@ echo 'current dir'
 echo $PWD
 echo "Start building apps"
 
-export PYTHONPATH=/opt/spack/.local/lib/python3.12/site-packages/:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/psyclone:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/fab
+export PYTHONPATH=/opt/spack/.local/lib/python3.12/site-packages/:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/psyclone
 
 # build skeleton
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/miniapps/skeleton/
