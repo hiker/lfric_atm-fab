@@ -21,7 +21,7 @@ for line in fp:
         print('lfric_atm run succeeded')
         lfric_atm_failed = 0
 if gungho_failed == 0 and lfric_atm_failed == 0:
-    failed == 0 
+    failed = 0 
 fp.close()
 
 if failed:
@@ -29,5 +29,5 @@ if failed:
         print('gungho_model run failed')
     if lfric_atm_failed:
         print('lfric_atm run failed')
-
+        
 sys.exit(failed)
