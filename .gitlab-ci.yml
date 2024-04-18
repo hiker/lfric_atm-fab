@@ -34,7 +34,7 @@ fab run:
         - ci-qsub ./lfric_atm-fab-run.sh
     timeout: 2 hours
     variables:
-        NCPU: 4
+        NCPU: 6
     artifacts:
         paths:
             - job.log
