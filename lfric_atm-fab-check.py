@@ -14,7 +14,7 @@ for line in fp:
     line = line.split()
     if len(line) < 3:
         continue
-    if line[-2] == 'gungho_model' and line[-1] == 'completed.':
+    if line [-3] == 'Finished' and line[-2] == 'running' and line[-1] == 'gungho_model':
         print('gungho_model run succeeded')
         gungho_failed = 0    
     if line[-2] == 'lfric_atm' and line[-1] == 'completed.':
