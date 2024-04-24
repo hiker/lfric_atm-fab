@@ -10,8 +10,11 @@ applications to only modify very few settings to have a working FAB build
 script.
 '''
 
+import argparse
 import logging
+import os
 from pathlib import Path
+import sys
 
 from fab.build_config import BuildConfig
 from fab.steps.analyse import analyse
@@ -24,6 +27,7 @@ from fab.steps.link import link_exe
 from fab.steps.preprocess import preprocess_c, preprocess_fortran
 from fab.steps.psyclone import psyclone, preprocess_x90
 from fab.steps.grab.folder import grab_folder
+from fab.newtools import Categories, Linker, ToolBox, ToolRepository
 
 from lfric_common import configurator, fparser_workaround_stop_concatenation
 
@@ -43,6 +47,9 @@ class FabBase:
     '''
 
     def __init__(self, name, gpl_utils_config, root_symbol=None):
+        self._tool_box = ToolBox()
+        self.handle_command_line_options()
+
         this_file = Path(__file__)
         # The root directory of the LFRic installation
         self._lfric_root = this_file.parents[3]
@@ -51,51 +58,55 @@ class FabBase:
         else:
             self._root_symbol = name
         self._gpl_utils_source = gpl_utils_config.source_root / 'gpl_utils'
-        self._config = BuildConfig(
-            project_label=f'{name}-$compiler', verbose=True)
+
+        self._config = BuildConfig(tool_box=self._tool_box,
+                                   project_label=f'{name}-$compiler',
+                                   verbose=True)
         self._preprocessor_flags = []
         self._compiler_flags = []
         self._link_flags = []
-        self._psyclone_config = self._config.source_root / 'psyclone_config' / 'psyclone.cfg'
+        self._psyclone_config = (self._config.source_root / 'psyclone_config' /
+                                 'psyclone.cfg')
 
-        compiler = "intel"
-        if compiler == "intel":
+        compiler = self._tool_box[Categories.FORTRAN_COMPILER]
+        print(f"FC: {compiler} vendor: {compiler.vendor}")
+        if compiler.vendor == "intel":
             self.set_compiler_flags(
-                [
-                '-c', '-g', '-r8', '-mcmodel=medium', '-traceback',
-                '-Wall', '-Werror=conversion', '-Werror=unused-variable',
-                '-Werror=character-truncation',
-                '-Werror=unused-value', '-Werror=tabs',
-                '-assume nosource_include',
-                '-qopenmp', '-O2', '-std08', '-fp-model=strict', '-fpe0',
-                '-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=64', '-DR_TRAN_PRECISION=64',
-                '-DUSE_XIOS', '-DUSE_MPI=YES',
-            ])
+                ['-c', '-g', '-r8', '-mcmodel=medium', '-traceback',
+                 '-Wall', '-Werror=conversion', '-Werror=unused-variable',
+                 '-Werror=character-truncation',
+                 '-Werror=unused-value', '-Werror=tabs',
+                 '-assume nosource_include',
+                 '-qopenmp', '-O2', '-std08', '-fp-model=strict', '-fpe0',
+                 '-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=64',
+                 '-DR_TRAN_PRECISION=64',
+                 '-DUSE_XIOS', '-DUSE_MPI=YES',
+                 ])
             self.set_link_flags(
                 ['-fopenmp',
                  '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
                  '-lhdf5', '-lstdc++'])
 
-        elif compiler == "joerg":
+        elif compiler.vendor == "joerg":
             self.set_compiler_flags(
                 ['-ffree-line-length-none', '-fopenmp', '-g',
                  '-Werror=character-truncation',
-                 #'-Werror=unused-value',
-                 #'-Werror=tabs',
+                 # '-Werror=unused-value',
+                 # '-Werror=tabs',
                  '-fdefault-real-8', '-fdefault-double-8',
                  # The lib directory contains mpi.mod
-                 '-I', ('/home/joerg/work/spack/var/spack/environments/lfric-v0/'
-                        '.spack-env/view/lib'),
+                 '-I', ('/home/joerg/work/spack/var/spack/environments/'
+                        'lfric-v0/.spack-env/view/lib'),
                  # mod_wait.mod
-                 '-I', ('/home/joerg/work/spack/var/spack/environments/lfric-v0/'
-                        '.spack-env/view/include')])
+                 '-I', ('/home/joerg/work/spack/var/spack/environments/'
+                        'lfric-v0/.spack-env/view/include')])
             self.set_link_flags(
                 ['-fopenmp',
-                 '-L', ('/home/joerg/work/spack/var/spack/environments/lfric-v0/'
-                        '.spack-env/view/lib'),
+                 '-L', ('/home/joerg/work/spack/var/spack/environments/'
+                        'lfric-v0/.spack-env/view/lib'),
                  '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
                  '-lhdf5', '-lstdc++'])
-        else:
+        elif compiler.vendor == "gnu":
             self.set_compiler_flags(
                 ['-ffree-line-length-none', '-fopenmp', '-g',
                  '-Werror=character-truncation', '-Werror=unused-value',
@@ -106,6 +117,76 @@ class FabBase:
                 ['-fopenmp',
                  '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
                  '-lhdf5', '-lstdc++'])
+        else:
+            raise RuntimeError(f"Unknown compiler vendor '{compiler.vendor}'.")
+
+    def handle_command_line_options(self):
+        '''Handles command line options.'''
+        parser = argparse.ArgumentParser(
+            description=("A FAB-based build system. Note that if --vendor is "
+                         "specified, this will change the default for "
+                         "compiler and linker"),
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        parser.add_argument(
+            '--vendor', '-v', type=str, default=None,
+            help="Sets the default vendor for compiler and linker")
+        parser.add_argument(
+            '--fc', '-fc', type=str, default="$FC",
+            help="Name of the Fortran compiler to use")
+        parser.add_argument(
+            '--cc', '-cc', type=str, default="$CC",
+            help="Name of the C compiler to use")
+        parser.add_argument(
+            '--ld', '-ld', type=str, default="$LD",
+            help="Name of the linker to use")
+        self._args = parser.parse_args(sys.argv[1:])
+
+        tr = ToolRepository.get()
+        if self._args.vendor:
+            if self._args.vendor == "joerg":
+                tr.set_default_vendor("gnu")
+            else:
+                tr.set_default_vendor(self._args.vendor)
+            print(f"Setting vendor to '{self._args.vendor}'.")
+            # Vendor will overwrite use of env variables, so change the
+            # value of these arguments to be none so they will be ignored
+            if self._args.fc == "$FC":
+                self._args.fc = None
+            if self._args.cc == "$CC":
+                self._args.cc = None
+            if self._args.ld == "$LD":
+                self._args.ld = None
+        else:
+            # If no vendor is specified, if required set the defaults
+            # for compilers based on the environment variables.
+            if self._args.fc == "$FC":
+                self._args.fc = os.environ.get("FC")
+            if self._args.cc == "$CC":
+                self._args.cc = os.environ.get("CC")
+            if self._args.ld == "$LD":
+                self._args.ld = os.environ.get("LD")
+
+        # If no vendor was specified, and a special tool was requested,
+        # add it to the tool box:
+        if self._args.cc:
+            cc = tr.get_tool(Categories.C_COMPILER, self._args.cc)
+            self._tool_box.add_tool(cc)
+        if self._args.fc:
+            fc = tr.get_tool(Categories.FORTRAN_COMPILER, self._args.fc)
+            self._tool_box.add_tool(fc)
+        if self._args.ld:
+            ld = tr.get_tool(Categories.LINKER, self._args.ld)
+            self._tool_box.add_tool(ld)
+
+        fc = self._tool_box[Categories.FORTRAN_COMPILER]
+        # A hack for now :(
+        if self._args.vendor == "joerg":
+            fc = self._tool_box[Categories.FORTRAN_COMPILER]
+            fc._vendor = "joerg"
+
+        linker = Linker(exec_name="mpif90", compiler=fc)
+        self._tool_box.add_tool(linker)
+
     @property
     def config(self):
         ''':returns: the FAB BuildConfig instance.
@@ -198,7 +279,7 @@ class FabBase:
         archive_objects(self.config)
 
     def link(self):
-        link_exe(self.config, linker='mpifort', flags=self._link_flags)
+        link_exe(self.config, flags=self._link_flags)
 
     def build(self):
         # We need to use with to trigger the entrance/exit functionality,
@@ -220,3 +301,11 @@ class FabBase:
             self.compile_fortran()
             self.archive_objects()
             self.link()
+
+
+# ==========================================================================
+if __name__ == "__main__":
+    from grab_lfric_utils import gpl_utils_source_config
+    fab_base = FabBase(name="command-line-test",
+                       gpl_utils_config=gpl_utils_source_config,
+                       root_symbol=None)
