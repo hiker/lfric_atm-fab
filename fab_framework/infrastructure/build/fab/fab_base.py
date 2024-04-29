@@ -48,7 +48,8 @@ class FabBase:
 
     def __init__(self, name, gpl_utils_config, root_symbol=None):
         self._tool_box = ToolBox()
-        self.handle_command_line_options()
+        parser = self.define_command_line_options()
+        self.handle_command_line_options(parser)
 
         this_file = Path(__file__)
         # The root directory of the LFRic installation
@@ -67,12 +68,17 @@ class FabBase:
         self._link_flags = []
         self._psyclone_config = (self._config.source_root / 'psyclone_config' /
                                  'psyclone.cfg')
+        self.define_compiler_flags()
+        self.define_linker_flags()
 
+    def define_compiler_flags(self):
+        '''Top level function that sets (compiler- and site-specific)
+        compiler flags by calling self.set_compiler_flags
+        '''
         compiler = self._tool_box[Categories.FORTRAN_COMPILER]
-        print(f"FC: {compiler} vendor: {compiler.vendor}")
         if compiler.vendor == "intel":
             self.set_compiler_flags(
-                ['-c', '-g', '-r8', '-mcmodel=medium', '-traceback',
+                ['-g', '-r8', '-mcmodel=medium', '-traceback',
                  '-Wall', '-Werror=conversion', '-Werror=unused-variable',
                  '-Werror=character-truncation',
                  '-Werror=unused-value', '-Werror=tabs',
@@ -82,24 +88,40 @@ class FabBase:
                  '-DR_TRAN_PRECISION=64',
                  '-DUSE_XIOS', '-DUSE_MPI=YES',
                  ])
+        elif compiler.vendor in ["joerg", "gnu"]:
+            flags = ['-ffree-line-length-none', '-fopenmp', '-g',
+                     '-Werror=character-truncation', '-Werror=unused-value',
+                     '-Werror=tabs', '-fdefault-real-8', '-fdefault-double-8',
+                     ]
+            # Support Joerg's build environment
+            if compiler.vendor == "joerg":
+                flags.extend(
+                    [
+                     # The lib directory contains mpi.mod
+                     '-I', ('/home/joerg/work/spack/var/spack/environments/'
+                            'lfric-v0/.spack-env/view/lib'),
+                     # mod_wait.mod
+                     '-I', ('/home/joerg/work/spack/var/spack/environments/'
+                            'lfric-v0/.spack-env/view/include'),
+                     ])
+            self.set_compiler_flags(flags)
+        else:
+            raise RuntimeError(f"Unknown compiler vendor '{compiler.vendor}'.")
+
+    def define_linker_flags(self):
+        '''Top level function that sets (site-specific) linker flags
+        by calling self.set_link_flags.
+        '''
+        # The link flags will depend on the compiler, so use the compiler
+        # to set the flags.
+        compiler = self._tool_box[Categories.FORTRAN_COMPILER]
+        print("Setting compiler flags for", compiler)
+        if compiler.vendor == "intel":
             self.set_link_flags(
-                ['-fopenmp',
-                 '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
-                 '-lhdf5', '-lstdc++'])
+                ['-qopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
+                 '-lnetcdf', '-lhdf5', '-lstdc++'])
 
         elif compiler.vendor == "joerg":
-            self.set_compiler_flags(
-                ['-ffree-line-length-none', '-fopenmp', '-g',
-                 '-Werror=character-truncation',
-                 # '-Werror=unused-value',
-                 # '-Werror=tabs',
-                 '-fdefault-real-8', '-fdefault-double-8',
-                 # The lib directory contains mpi.mod
-                 '-I', ('/home/joerg/work/spack/var/spack/environments/'
-                        'lfric-v0/.spack-env/view/lib'),
-                 # mod_wait.mod
-                 '-I', ('/home/joerg/work/spack/var/spack/environments/'
-                        'lfric-v0/.spack-env/view/include')])
             self.set_link_flags(
                 ['-fopenmp',
                  '-L', ('/home/joerg/work/spack/var/spack/environments/'
@@ -107,26 +129,29 @@ class FabBase:
                  '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
                  '-lhdf5', '-lstdc++'])
         elif compiler.vendor == "gnu":
-            self.set_compiler_flags(
-                ['-ffree-line-length-none', '-fopenmp', '-g',
-                 '-Werror=character-truncation', '-Werror=unused-value',
-                 '-Werror=tabs',
-                 '-fdefault-real-8',
-                 ])
             self.set_link_flags(
-                ['-fopenmp',
-                 '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
+                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
                  '-lhdf5', '-lstdc++'])
         else:
             raise RuntimeError(f"Unknown compiler vendor '{compiler.vendor}'.")
 
-    def handle_command_line_options(self):
-        '''Handles command line options.'''
-        parser = argparse.ArgumentParser(
-            description=("A FAB-based build system. Note that if --vendor is "
-                         "specified, this will change the default for "
-                         "compiler and linker"),
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    def define_command_line_options(self, parser=None):
+        '''Defines command line options. Can be overwritten by a derived
+        class which can provide its own instance (to easily allow for a
+        different description).
+        :param parser: optional a pre-defined argument parser. If not, a
+            new instance will be created.
+        :type argparse: Optional[:py:class:`argparse.ArgumentParser`]
+        '''
+
+        if not parser:
+            # The formatter class makes sure to print default settings
+            parser = argparse.ArgumentParser(
+                description=("A FAB-based build system. Note that if --vendor "
+                             "is specified, this will change the default for "
+                             "compiler and linker"),
+                formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
         parser.add_argument(
             '--vendor', '-v', type=str, default=None,
             help="Sets the default vendor for compiler and linker")
@@ -139,6 +164,19 @@ class FabBase:
         parser.add_argument(
             '--ld', '-ld', type=str, default="$LD",
             help="Name of the linker to use")
+        return parser
+
+    def handle_command_line_options(self, parser):
+        '''Analyse the actual command line options using the specified parser.
+        The base implementation will handle the `--vendor` parameter, and
+        compiler/linker parameters (including the usage of environment
+        variables). Needs to be overwritten to handle additional options
+        specified by a derived script.
+
+        :param parser: the argument parser.
+        :type parser: :py:class:`argparse.ArgumentParser`
+        '''
+
         self._args = parser.parse_args(sys.argv[1:])
 
         tr = ToolRepository.get()
@@ -269,11 +307,10 @@ class FabBase:
                                  'xios', 'mod_wait'])
 
     def compile_c(self):
-        compile_c(self.config, common_flags=["-c"])
+        compile_c(self.config)
 
     def compile_fortran(self):
-        compile_fortran(self.config,
-                        common_flags=["-c"]+self._compiler_flags)
+        compile_fortran(self.config, common_flags=self._compiler_flags)
 
     def archive_objects(self):
         archive_objects(self.config)
