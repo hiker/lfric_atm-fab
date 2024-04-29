@@ -193,7 +193,7 @@ class FabBase:
 
     def psyclone(self):
         psyclone(self.config, kernel_roots=[self.config.build_output],
-                 transformation_script=self.get_transformation_script(),
+                 transformation_script=self.get_transformation_script,
                  cli_args=self.get_psyclone_config())
 
     def analyse(self):
