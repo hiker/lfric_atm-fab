@@ -137,8 +137,8 @@ class FabBase:
                  '-lhdf5', '-lstdc++'])
         elif compiler.vendor == "gnu":
             self.set_link_flags(
-                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
-                 '-lhdf5', '-lstdc++'])
+                ['-fopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
+                 '-lnetcdf', '-lhdf5', '-lstdc++'])
         else:
             raise RuntimeError(f"Unknown compiler vendor '{compiler.vendor}'.")
 
