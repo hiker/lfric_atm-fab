@@ -5,21 +5,19 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-import sys
+'''A simple grab script that downloads rose picker from the
+subversion repository.
+'''
+
 from fab.build_config import BuildConfig
 from fab.steps.grab.fcm import fcm_export
-from fab.steps.grab.folder import grab_folder
 from fab.newtools import ToolBox
 
 LFRIC_REVISION = 47450
 ROSE_PICKER_REVISION = 47450
 
 
-# these configs are interrogated by the build scripts
-# todo: doesn't need two separate configs, they use the same project workspace
-lfric_source_config = BuildConfig(
-    project_label=f'lfric source {LFRIC_REVISION}',
-    tool_box=ToolBox())
+# this config is used by the build scripts
 gpl_utils_source_config = BuildConfig(
     project_label=f'lfric source {ROSE_PICKER_REVISION}',
     tool_box=ToolBox())
@@ -27,11 +25,7 @@ gpl_utils_source_config = BuildConfig(
 
 if __name__ == '__main__':
 
-    if len(sys.argv) > 1:
-        with lfric_source_config:
-            grab_folder(lfric_source_config, src=sys.argv[1])
-    else:
-        with gpl_utils_source_config:
-            fcm_export(
-                gpl_utils_source_config, src='fcm:lfric_gpl_utils.xm-tr',
-                revision=ROSE_PICKER_REVISION, dst_label='gpl_utils')
+    with gpl_utils_source_config:
+        fcm_export(
+            gpl_utils_source_config, src='fcm:lfric_gpl_utils.xm-tr',
+            revision=ROSE_PICKER_REVISION, dst_label='gpl_utils')
