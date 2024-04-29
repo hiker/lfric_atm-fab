@@ -115,7 +115,14 @@ class FabBase:
         # The link flags will depend on the compiler, so use the compiler
         # to set the flags.
         compiler = self._tool_box[Categories.FORTRAN_COMPILER]
-        print("Setting compiler flags for", compiler)
+
+        # TODO: Unfortunately, for now we have to set openmp flags explicitly
+        # for linker. For now, all compiler flags are still set in the compile
+        # step only, so the linker (which adds compiler flags from the
+        # compiler instance) does not have these flags. Once the flags are
+        # moved from the compile step into the compiler object, the linker
+        # will be able to pick up openmp (and other compiler flags)
+        # automatically.
         if compiler.vendor == "intel":
             self.set_link_flags(
                 ['-qopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
