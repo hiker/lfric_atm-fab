@@ -188,7 +188,7 @@ class FabBase:
 
         self._args = parser.parse_args(sys.argv[1:])
 
-        tr = ToolRepository.get()
+        tr = ToolRepository()
         if self._args.vendor:
             if self._args.vendor == "joerg":
                 tr.set_default_vendor("gnu")
