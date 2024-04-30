@@ -10,6 +10,7 @@ import sys
 from fab.build_config import BuildConfig
 from fab.steps.grab.fcm import fcm_export
 from fab.steps.grab.folder import grab_folder
+from fab.newtools import ToolBox
 
 fab_workspace = os.getenv('FAB_WORKSPACE')
 
@@ -33,9 +34,15 @@ print('rose-picker revision: ' + ROSE_PICKER_REVISION)
 
 # these configs are interrogated by the build scripts
 # todo: doesn't need two separate configs, they use the same project workspace
-lfric_core_source_config = BuildConfig(project_label=f'lfric source {LFRIC_CORE_REVISION}')
-lfric_apps_source_config = BuildConfig(project_label=f'lfric source {LFRIC_CORE_REVISION}')
-gpl_utils_source_config = BuildConfig(project_label=f'lfric source {ROSE_PICKER_REVISION}')
+lfric_core_source_config = BuildConfig(project_label=f'lfric source {LFRIC_CORE_REVISION}',
+                                       tool_box=ToolBox(),
+                                      )
+lfric_apps_source_config = BuildConfig(project_label=f'lfric source {LFRIC_CORE_REVISION}',
+                                       tool_box=ToolBox(),
+                                      )
+gpl_utils_source_config = BuildConfig(project_label=f'lfric source {ROSE_PICKER_REVISION}',
+                                      tool_box=ToolBox()
+                                     )
 
 if __name__ == '__main__':
 
