@@ -57,7 +57,7 @@ echo "Built skeleton"
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC=icc PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py
 
 echo "Built gungho_model"
 
