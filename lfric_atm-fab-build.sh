@@ -49,7 +49,7 @@ export PYTHONPATH=/opt/spack/.local/lib/python3.12/site-packages/:$FAB_WORKSPACE
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/miniapps/skeleton/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_mini_skeleton.py --vendor=intel
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC= PYTHONPATH=$PYTHONPATH ./fab_mini_skeleton.py 
 
 echo "Built skeleton"
 
@@ -65,7 +65,7 @@ echo "Built gungho_model"
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gravity_wave/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py --vendor=intel
 
 echo "Built gravity_wave"
 
@@ -73,7 +73,7 @@ echo "Built gravity_wave"
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_lfric_atm.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric_atm.py --vendor=intel
 
 echo "Built lfric_atm"
 
@@ -81,8 +81,8 @@ echo "Built lfric_atm"
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfricinputs/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_lfric2um.py
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort PYTHONPATH=$PYTHONPATH ./fab_um2lfric.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric2um.py --vendor=intel
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_um2lfric.py --vendor=intel
 
 echo "Built lfric_inputs"
 
