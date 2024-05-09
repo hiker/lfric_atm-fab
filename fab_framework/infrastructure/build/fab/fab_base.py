@@ -28,6 +28,7 @@ from fab.steps.preprocess import preprocess_c, preprocess_fortran
 from fab.steps.psyclone import psyclone, preprocess_x90
 from fab.steps.grab.folder import grab_folder
 from fab.newtools import Categories, Linker, ToolBox, ToolRepository
+from fab.tools import run_command
 
 from lfric_common import configurator, fparser_workaround_stop_concatenation
 
@@ -173,6 +174,12 @@ class FabBase:
         parser.add_argument(
             '--ld', '-ld', type=str, default="$LD",
             help="Name of the linker to use")
+        parser.add_argument(
+            '--wrapper_compiler', '-wr_c', type=str, default=None,
+            help="Sets a wrapper for compiler")
+        parser.add_argument(
+            '--wrapper_linker', '-wr_l', type=str, default=None,
+            help="Sets a wrapper for linker")
         return parser
 
     def handle_command_line_options(self, parser):
@@ -225,13 +232,23 @@ class FabBase:
             ld = tr.get_tool(Categories.LINKER, self._args.ld)
             self._tool_box.add_tool(ld)
 
+        if self._args.wrapper_compiler:
+            self._tool_box[Categories.C_COMPILER].exec_name = \
+            self._args.wrapper_compiler
+            self._tool_box[Categories.FORTRAN_COMPILER].exec_name = \
+            self._args.wrapper_compiler
+
         fc = self._tool_box[Categories.FORTRAN_COMPILER]
         # A hack for now :(
         if self._args.vendor == "joerg":
             fc = self._tool_box[Categories.FORTRAN_COMPILER]
             fc._vendor = "joerg"
 
-        linker = Linker(exec_name="mpif90", compiler=fc)
+        if self._args.wrapper_linker:
+            linker = Linker(exec_name=self._args.wrapper_linker, compiler=fc)
+        else:
+            linker = Linker(compiler=fc)
+#        linker = Linker(exec_name="mpif90", compiler=fc)
         self._tool_box.add_tool(linker)
 
     @property
@@ -278,6 +295,16 @@ class FabBase:
         dir = "etc"
         grab_folder(self.config, src=self.lfric_core_root / dir,
                     dst_label='psyclone_config')
+        
+        # Get the implementation of the PSyData API for profiling when using TAU
+        if self._args.wrapper_compiler == 'tau_f90.sh' or \
+            self._args.wrapper_linker == 'tau_f90.sh':
+            _dst = self.config.source_root / 'psydata'
+            if not _dst.is_dir():
+                _dst.mkdir(parents=True)
+            run_command(['wget', '-N', 
+                         'https://raw.githubusercontent.com/stfc/PSyclone/master/lib/profiling/tau/tau_psy.f90'], 
+                         cwd=_dst)
 
     def find_source_files(self, path_filters=None):
         if path_filters is None:
@@ -317,11 +344,21 @@ class FabBase:
 
     def get_psyclone_config(self):
         return ["--config", self._psyclone_config]
+    
+    def get_psyclone_profiling_option(self):
+        return ["--profile", "kernels"]
 
     def psyclone(self):
+        psyclone_config = self.get_psyclone_config()
+        psyclone_profiling = self.get_psyclone_profiling_option()
+        if self._args.wrapper_compiler == 'tau_f90.sh' or \
+            self._args.wrapper_linker == 'tau_f90.sh':
+            psyclone_cli_args = psyclone_config + psyclone_profiling
+        else:
+            psyclone_cli_args = psyclone_config
         psyclone(self.config, kernel_roots=[self.config.build_output],
                  transformation_script=self.get_transformation_script(),
-                 cli_args=self.get_psyclone_config())
+                 cli_args=psyclone_cli_args)
 
     def analyse(self):
         analyse(self.config, root_symbol=self._root_symbol,
@@ -365,7 +402,7 @@ class FabBase:
 
 # ==========================================================================
 if __name__ == "__main__":
-    from grab_lfric_utils import gpl_utils_source_config
+    from grab_lfric import gpl_utils_source_config
     fab_base = FabBase(name="command-line-test",
                        gpl_utils_config=gpl_utils_source_config,
                        root_symbol=None)
