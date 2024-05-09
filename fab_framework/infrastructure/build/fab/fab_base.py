@@ -297,14 +297,19 @@ class FabBase:
                     dst_label='psyclone_config')
         
         # Get the implementation of the PSyData API for profiling when using TAU
-        if self._args.wrapper_compiler == 'tau_f90.sh' or \
-            self._args.wrapper_linker == 'tau_f90.sh':
-            _dst = self.config.source_root / 'psydata'
-            if not _dst.is_dir():
-                _dst.mkdir(parents=True)
-            run_command(['wget', '-N', 
-                         'https://raw.githubusercontent.com/stfc/PSyclone/master/lib/profiling/tau/tau_psy.f90'], 
-                         cwd=_dst)
+        
+        # wget requires internet, which gitlab runner does not have.
+        # So I temporarily store the tau_psy.f90 in this repo under `infrastructure/source/psydata``.
+        # During the install stage, this folder will be copied to lfric_core checkout.
+        # tau_psy.f90 will therefore be grabbed when `infrastructure/source`` is grabbed.
+        # if self._args.wrapper_compiler == 'tau_f90.sh' or \
+        #     self._args.wrapper_linker == 'tau_f90.sh':
+        #     _dst = self.config.source_root / 'psydata'
+        #     if not _dst.is_dir():
+        #         _dst.mkdir(parents=True)
+        #     run_command(['wget', '-N', 
+        #                   'https://raw.githubusercontent.com/stfc/PSyclone/master/lib/profiling/tau/tau_psy.f90'], 
+        #                   cwd=_dst)
 
     def find_source_files(self, path_filters=None):
         if path_filters is None:
