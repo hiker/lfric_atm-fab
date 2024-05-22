@@ -21,14 +21,12 @@ from fab.steps.grab.folder import grab_folder
 sys.path.insert(0, "../../infrastructure/build/fab")
 
 from fab_base import FabBase
-from grab_lfric import gpl_utils_source_config
 
 
 class FabMiniSkeleton(FabBase):
 
     def __init__(self, name="skeleton", root_symbol=None):
-        super().__init__(name, gpl_utils_source_config,
-                         root_symbol=root_symbol)
+        super().__init__(name, root_symbol=root_symbol)
 
         self.set_preprocessor_flags(
             ['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=64',

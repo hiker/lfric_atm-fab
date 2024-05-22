@@ -5,8 +5,8 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for applications/gravity_wave. It relies on the FabBase class
-contained in the infrastructure directory.
+'''A FAB build script for applications/gravity_wave. It relies on the FabBase
+class contained in the infrastructure directory.
 '''
 
 import logging
@@ -19,14 +19,12 @@ from fab.steps.grab.folder import grab_folder
 sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
 
 from fab_base import FabBase
-from grab_lfric import gpl_utils_source_config
 
 
 class FabGravityWave(FabBase):
 
     def __init__(self, name="gravity_wave", root_symbol=None):
-        super().__init__(name, gpl_utils_source_config,
-                         root_symbol=root_symbol)
+        super().__init__(name, root_symbol=root_symbol)
 
         self.set_preprocessor_flags(
             ['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=64',
@@ -34,17 +32,19 @@ class FabGravityWave(FabBase):
 
     def grab_files(self):
         FabBase.grab_files(self)
-        dirs = ['applications/gravity_wave/source/', 
+        dirs = ['applications/gravity_wave/source/',
                 'science/gungho/source',
                 ]
 
         # pylint: disable=redefined-builtin
         for dir in dirs:
-            grab_folder(self.config, src=self.lfric_apps_root / dir, dst_label='')
+            grab_folder(self.config, src=self.lfric_apps_root / dir,
+                        dst_label='')
 
     def get_rose_meta(self):
-        return (self.lfric_apps_root / 'applications' / 'gravity_wave' / 'rose-meta' /
-                'lfric-gravity_wave' / 'HEAD' / 'rose-meta.conf')
+        return (self.lfric_apps_root / 'applications' / 'gravity_wave'
+                / 'rose-meta' / 'lfric-gravity_wave' / 'HEAD'
+                / 'rose-meta.conf')
 
     def get_transformation_script(self):
         ''':returns: the transformation script to be used by PSyclone.

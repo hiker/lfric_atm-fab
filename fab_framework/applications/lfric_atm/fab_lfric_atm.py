@@ -24,15 +24,12 @@ sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
 from fab_base import FabBase
 from get_revision import GetRevision
 
-from grab_lfric import gpl_utils_source_config
-
 from fcm_extract import FcmExtract
 
 class FabLFRicAtm(FabBase):
 
     def __init__(self, name="lfric_atm", root_symbol=None):
-        super().__init__(name, gpl_utils_source_config,
-                         root_symbol=root_symbol)
+        super().__init__(name, root_symbol=root_symbol)
 
         self.set_preprocessor_flags(
             ['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=32',

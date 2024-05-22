@@ -1,83 +1,72 @@
 import logging
-import os
 import shutil
 from pathlib import Path
 
 from fab.steps import step
-from fab.tools import run_command
+from fab.tools import Categories, Tool
 
 logger = logging.getLogger('fab')
 
 
 # todo: is this part of psyclone? if so, put  it in the psyclone step module?
 @step
-def configurator(config, lfric_core_source: Path, lfric_apps_source: Path, gpl_utils_source: Path, rose_meta_conf: Path, config_dir=None):
+def configurator(config, lfric_core_source: Path, lfric_apps_source: Path,
+                 rose_meta_conf: Path,
+                 rose_picker: Tool,
+                 config_dir=None):
 
-    rose_picker_tool = gpl_utils_source / 'rose_picker/rose_picker'
-    gen_namelist_tool = lfric_core_source / 'infrastructure/build/tools/GenerateNamelist'
-    gen_loader_tool = lfric_core_source / 'infrastructure/build/tools/GenerateLoader'
-    gen_feigns_tool = lfric_core_source / 'infrastructure/build/tools/GenerateFeigns'
+    tools = lfric_core_source / 'infrastructure' / 'build' / 'tools'
+    gen_namelist_tool = tools / 'GenerateNamelist'
+    gen_loader_tool = tools / 'GenerateLoader'
+    gen_feigns_tool = tools / 'GenerateFeigns'
 
     config_dir = config_dir or config.source_root / 'configuration'
 
-    env = os.environ.copy()
-    rose_lfric_path = gpl_utils_source / 'lib/python'
-    if 'PYTHONPATH' in env:
-        env['PYTHONPATH'] += f':{rose_lfric_path}'
-    else:
-        env['PYTHONPATH'] = str(rose_lfric_path)
-
-    # "rose picker"
-    # creates rose-meta.json and config_namelists.txt in gungho/source/configuration
+    # rose picker
+    # -----------
+    # creates rose-meta.json and config_namelists.txt in
+    # gungho/source/configuration
     logger.info('rose_picker')
-    run_command(
-        command=[
-            str(rose_picker_tool), str(rose_meta_conf),
-            '-directory', str(config_dir),
-            '-include_dirs', lfric_apps_source,
-            '-include_dirs', lfric_core_source],
-        env=env,
-    )
 
-    # "build_config_loaders"
+    rose_picker.run(additional_parameters=[
+        str(rose_meta_conf),
+        '-directory', str(config_dir),
+        '-include_dirs', str(lfric_apps_source),
+        '-include_dirs', str(lfric_core_source)])
+
+    # build_config_loaders
+    # --------------------
     # builds a bunch of f90s from the json
     logger.info('GenerateNamelist')
-    run_command(
-        command=[
-            str(gen_namelist_tool),
-            '-verbose',
-            str(config_dir / 'rose-meta.json'),
-            '-directory', str(config_dir),
-            # '--norandom_enums'
-        ]
-    )
+    gnl = Tool("GenerateNamelist", exec_name=str(gen_namelist_tool),
+               category=Categories.MISC)
+    gnl.run(additional_parameters=['-verbose',
+                                   str(config_dir / 'rose-meta.json'),
+                                   '-directory', str(config_dir)])
 
     # create configuration_mod.f90 in source root
+    # -------------------------------------------
     logger.info('GenerateLoader')
-    names = [name.strip() for name in open(config_dir / 'config_namelists.txt').readlines()]
+    names = [name.strip() for name in
+             open(config_dir / 'config_namelists.txt').readlines()]
     configuration_mod_fpath = config.source_root / 'configuration_mod.f90'
-    run_command(
-        command=[
-            str(gen_loader_tool),
-            configuration_mod_fpath,
-            *names,
-        ]
-    )
+    gl = Tool("GenerateLoader", exec_name=str(gen_loader_tool),
+              category=Categories.MISC)
+    gl.run(additional_parameters=[str(configuration_mod_fpath), *names])
 
     # create feign_config_mod.f90 in source root
+    # ------------------------------------------
     logger.info('GenerateFeigns')
     feign_config_mod_fpath = config.source_root / 'feign_config_mod.f90'
-    run_command(
-        command=[
-            str(gen_feigns_tool),
-            str(config_dir / 'rose-meta.json'),
-            '-output', feign_config_mod_fpath,
-        ]
-    )
+    gft = Tool("GenerateFeignsTool", exec_name=str(gen_feigns_tool),
+               category=Categories.MISC)
+    gft.run(additional_parameters=[str(config_dir / 'rose-meta.json'),
+                                   '-output', str(feign_config_mod_fpath)])
 
     # put the generated source into an artefact
     # todo: we shouldn't need to do this, should we?
-    #       it's just going to be found in the source folder with everything else.
+    #       it's just going to be found in the source folder with
+    #       everything else.
     config._artefact_store['configurator_output'] = [
         configuration_mod_fpath,
         feign_config_mod_fpath
@@ -87,7 +76,8 @@ def configurator(config, lfric_core_source: Path, lfric_apps_source: Path, gpl_u
 @step
 def fparser_workaround_stop_concatenation(config):
     """
-    fparser can't handle string concat in a stop statement. This step is a workaround.
+    fparser can't handle string concat in a stop statement. This step is
+    a workaround.
 
     https://github.com/stfc/fparser/issues/330
 
