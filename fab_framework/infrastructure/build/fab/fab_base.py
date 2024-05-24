@@ -11,6 +11,7 @@ script.
 '''
 
 import argparse
+from importlib import import_module
 import logging
 import os
 from pathlib import Path
@@ -46,19 +47,37 @@ class FabBase:
     '''
 
     def __init__(self, name, root_symbol=None):
+        self._site = None
+        self._platform = None
+        self._target = None
+        # We have to determine the site-specific setup first, so that e.g.
+        # new compilers can be added before command line options are handled
+        # (which might request this new compiler). So first parse the command
+        # line for --site and --platform only:
+        self.define_site_platform_target()
+
+        # Now that site, platform and target are defined, import any
+        # site-specific settings
+        self.site_specific_setup()
+
+        # Define the tool box, which might be started to be filled
+        # when handling command line options:
         self._tool_box = ToolBox()
         parser = self.define_command_line_options()
         self.handle_command_line_options(parser)
 
+        self._site_config.update_toolbox(self._tool_box)
         this_file = Path(__file__)
         # The root directory of the LFRic Core installation
         self._lfric_core_root = this_file.parents[3]
+
+        # lfric_apps is 'next' to lfric_core
+        self._lfric_apps_root = self.lfric_core_root.parent / 'lfric_apps'
 
         if root_symbol:
             self._root_symbol = root_symbol
         else:
             self._root_symbol = name
-        self._lfric_apps_root = self.lfric_core_root.parent / 'lfric_apps'
         self._config = BuildConfig(tool_box=self._tool_box,
                                    project_label=f'{name}-$compiler',
                                    verbose=True,
@@ -71,6 +90,56 @@ class FabBase:
                                  'psyclone.cfg')
         self.define_compiler_flags()
         self.define_linker_flags()
+
+    def define_site_platform_target(self):
+        '''This method defines the attributes site, platform (and
+        target=site-platform) based on the command line option --site
+        and --platform (using $SITE and $PLATFORM as a default). If
+        site or platform is missing and the corresponding environment
+        variable is not set, 'default' will be used.
+        '''
+
+        # Use `argparser.parse_known_args` to just handle --site and
+        # --platform We also suppress help (all of which will be handled
+        # later, including proper help messages)
+        parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument("--site", "-s", type=str, default="$SITE")
+        parser.add_argument("--platform", "-p", type=str, default="$PLATFORM")
+
+        args = parser.parse_known_args()[0]   # Ignore [1]=unknown args
+        if args.site == "$SITE":
+            self._site = os.environ.get("SITE", "default")
+        elif args.site:
+            self._site = args.site
+        else:
+            self._site = "default"
+
+        if args.platform == "$PLATFORM":
+            self._platform = os.environ.get("PLATFORM", "default")
+        elif args.platform:
+            self._platform = args.platform
+        else:
+            self._platform = "default"
+
+        # Define target attribute for site&platform-specific files
+        self._target = f"{self._site}_{self._platform}"
+
+    def site_specific_setup(self):
+        '''Imports a site-specific config file. The location is based
+        on the attribute target (which is set to be site-platform).
+        '''
+        try:
+            config_module = import_module(f"{self.target}.config")
+        except ModuleNotFoundError:
+            # We log a warning, but proceed, since there is no need to
+            # have a site-specific file.
+            logger.warning(f"Cannot find site-specific module "
+                           f"'{self.target}.config'.")
+            self._site_config = None
+            return
+        print("IMPORTED", self.target)
+        # The constructor handles everything.
+        self._site_config = config_module.Config()
 
     def define_compiler_flags(self):
         '''Top level function that sets (compiler- and site-specific)
@@ -176,12 +245,12 @@ class FabBase:
             '--rose_picker', '-rp', type=str, default="v2.0.0",
             help="Version of rose_picker. Use 'system' to use an installed "
                  "version.")
-        parser.add_argument(
-            '--wrapper_compiler', '-wr_c', type=str, default=None,
-            help="Sets a wrapper for compiler")
-        parser.add_argument(
-            '--wrapper_linker', '-wr_l', type=str, default=None,
-            help="Sets a wrapper for linker")
+        parser.add_argument("--site", "-s", type=str,
+                            default="$SITE or 'default'",
+                            help="Name of the site to use.")
+        parser.add_argument("--platform", "-p", type=str,
+                            default="$PLATFORM or 'default'",
+                            help="Name of the platform of the site to use.")
         return parser
 
     def handle_command_line_options(self, parser):
@@ -194,7 +263,7 @@ class FabBase:
         :param parser: the argument parser.
         :type parser: :py:class:`argparse.ArgumentParser`
         '''
-
+        # pylint: disable=too-many-branches
         self._args = parser.parse_args(sys.argv[1:])
 
         tr = ToolRepository()
@@ -234,24 +303,13 @@ class FabBase:
             ld = tr.get_tool(Categories.LINKER, self._args.ld)
             self._tool_box.add_tool(ld)
 
-        if self._args.wrapper_compiler:
-            self._tool_box[Categories.C_COMPILER].exec_name = \
-                self._args.wrapper_compiler
-            self._tool_box[Categories.FORTRAN_COMPILER].exec_name = \
-                self._args.wrapper_compiler
-
         fc = self._tool_box[Categories.FORTRAN_COMPILER]
         # A hack for now :(
         if self._args.vendor == "joerg":
             fc = self._tool_box[Categories.FORTRAN_COMPILER]
             fc._vendor = "joerg"
 
-        if self._args.wrapper_linker:
-            linker = Linker(exec_name=self._args.wrapper_linker, compiler=fc)
-        else:
-            linker = Linker(compiler=fc)
-#        linker = Linker(exec_name="mpif90", compiler=fc)
-        self._tool_box.add_tool(linker)
+        self._tool_box.add_tool(Linker(compiler=fc))
 
     @property
     def config(self):
@@ -267,6 +325,11 @@ class FabBase:
     @property
     def lfric_apps_root(self):
         return self._lfric_apps_root
+
+    @property
+    def target(self):
+        ''':returns: the target (="site-platform").'''
+        return self._target
 
     def set_preprocessor_flags(self, list_of_flags):
         self._preprocessor_flags = list_of_flags[:]
@@ -287,26 +350,31 @@ class FabBase:
 
         # pylint: disable=redefined-builtin
         for dir in dirs:
-            grab_folder(self.config, src=self.lfric_core_root / dir, dst_label='')
+            grab_folder(self.config, src=self.lfric_core_root / dir,
+                        dst_label='')
 
         # Copy the PSyclone Config file into a separate directory
         dir = "etc"
         grab_folder(self.config, src=self.lfric_core_root / dir,
                     dst_label='psyclone_config')
 
-        # Get the implementation of the PSyData API for profiling when using TAU
-
-        # wget requires internet, which gitlab runner does not have.
-        # So I temporarily store the tau_psy.f90 in this repo under `infrastructure/source/psydata``.
-        # During the install stage, this folder will be copied to lfric_core checkout.
-        # tau_psy.f90 will therefore be grabbed when `infrastructure/source`` is grabbed.
-        # if self._args.wrapper_compiler == 'tau_f90.sh' or \
-        #     self._args.wrapper_linker == 'tau_f90.sh':
+        # Get the implementation of the PSyData API for profiling when using
+        # TAU. wget requires internet, which gitlab runner does not have.
+        # So I temporarily store the tau_psy.f90 in this repo under
+        # `infrastructure/source/psydata``. During the install stage, this
+        # folder will be copied to lfric_core checkout.
+        # tau_psy.f90 will therefore be grabbed when `infrastructure/source``
+        # is grabbed.
+        # compiler = self.config.tool_box[Categories.FORTRAN_COMPILER]
+        # linker = self.config.tool_box[Categories.LINKER]
+        # if "tau_f90.sh" in [compiler.exec_name, linker.exec_name]:
         #     _dst = self.config.source_root / 'psydata'
         #     if not _dst.is_dir():
         #         _dst.mkdir(parents=True)
-        #     run_command(['wget', '-N',
-        #                   'https://raw.githubusercontent.com/stfc/PSyclone/master/lib/profiling/tau/tau_psy.f90'],
+        #     wget = Tool("wget", "wget")
+        #     wget.run(additional_parameters=['-N',
+        #                   'https://raw.githubusercontent.com/stfc/PSyclone/'
+        #                   'master/lib/profiling/tau/tau_psy.f90'],
         #                   cwd=_dst)
 
     def find_source_files(self, path_filters=None):
@@ -358,13 +426,12 @@ class FabBase:
         return ["--profile", "kernels"]
 
     def psyclone(self):
-        psyclone_config = self.get_psyclone_config()
-        psyclone_profiling = self.get_psyclone_profiling_option()
-        if self._args.wrapper_compiler == 'tau_f90.sh' or \
-                self._args.wrapper_linker == 'tau_f90.sh':
-            psyclone_cli_args = psyclone_config + psyclone_profiling
-        else:
-            psyclone_cli_args = psyclone_config
+        psyclone_cli_args = self.get_psyclone_config()
+        compiler = self.config.tool_box[Categories.FORTRAN_COMPILER]
+        linker = self.config.tool_box[Categories.LINKER]
+        if "tau_f90.sh" in [compiler.exec_name, linker.exec_name]:
+            psyclone_cli_args.extend(self.get_psyclone_profiling_option())
+
         psyclone(self.config, kernel_roots=[self.config.build_output],
                  transformation_script=self.get_transformation_script(),
                  cli_args=psyclone_cli_args)
