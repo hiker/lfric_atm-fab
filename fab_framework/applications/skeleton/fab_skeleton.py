@@ -5,7 +5,7 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for miniapps/skeleton. It relies on the FabBase class
+'''A FAB build script for applications/skeleton. It relies on the FabBase class
 contained in the infrastructure directory.
 '''
 
@@ -21,7 +21,7 @@ sys.path.insert(0, "../../infrastructure/build/fab")
 from fab_base import FabBase
 
 
-class FabMiniSkeleton(FabBase):
+class FabSkeleton(FabBase):
 
     def __init__(self, name="skeleton", root_symbol=None):
         super().__init__(name, root_symbol=root_symbol)
@@ -45,7 +45,7 @@ class FabMiniSkeleton(FabBase):
                     dst_label='optimisation')
 
     def get_rose_meta(self):
-        return (self.lfric_core_root / 'miniapps' / 'skeleton' / 'rose-meta' /
+        return (self.lfric_core_root / 'applications' / 'skeleton' / 'rose-meta' /
                 'lfric-skeleton' / 'HEAD' / 'rose-meta.conf')
 
     def get_transformation_script(fpath, config):
@@ -67,5 +67,5 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_mini_skeleton = FabMiniSkeleton()
-    fab_mini_skeleton.build()
+    fab_skeleton = FabSkeleton()
+    fab_skeleton.build()
