@@ -348,7 +348,10 @@ class FabBase:
     def preprocess_x90(self):
         preprocess_x90(self.config, common_flags=self._preprocessor_flags)
 
-    def get_transformation_script(self):
+    def get_transformation_script(fpath, config):
+        ''':returns: the transformation script to be used by PSyclone.
+        :rtype: Path
+        '''
         return ""
 
     def get_psyclone_config(self):
@@ -366,7 +369,7 @@ class FabBase:
         else:
             psyclone_cli_args = psyclone_config
         psyclone(self.config, kernel_roots=[self.config.build_output],
-                 transformation_script=self.get_transformation_script(),
+                 transformation_script=self.get_transformation_script,
                  cli_args=psyclone_cli_args)
 
     def analyse(self):

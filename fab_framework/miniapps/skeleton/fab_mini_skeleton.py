@@ -32,21 +32,33 @@ class FabMiniSkeleton(FabBase):
 
     def grab_files(self):
         FabBase.grab_files(self)
-        dirs = ['miniapps/skeleton/source/']
+        dirs = ['applications/skeleton/source/']
 
         # pylint: disable=redefined-builtin
         for dir in dirs:
             grab_folder(self.config, src=self.lfric_core_root / dir,
                         dst_label='')
 
+        # Copy the optimisation scripts into a separate directory
+        dir = 'applications/skeleton/optimisation/'
+        grab_folder(self.config, src=self.lfric_core_root / dir,
+                    dst_label='optimisation')
+
     def get_rose_meta(self):
         return (self.lfric_core_root / 'miniapps' / 'skeleton' / 'rose-meta' /
                 'lfric-skeleton' / 'HEAD' / 'rose-meta.conf')
 
-    def get_transformation_script(self):
+    def get_transformation_script(fpath, config):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path
         '''
+        optimisation_path = config.source_root / 'optimisation' / 'nci-gadi'
+        local_transformation_script = optimisation_path / (fpath.relative_to(config.source_root).with_suffix('.py'))
+        if local_transformation_script.exists():
+            return local_transformation_script
+        global_transformation_script = optimisation_path / 'global.py'
+        if global_transformation_script.exists():
+            return global_transformation_script
         return ""
 
 

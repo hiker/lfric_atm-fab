@@ -46,12 +46,6 @@ class FabGravityWave(FabBase):
                 / 'rose-meta' / 'lfric-gravity_wave' / 'HEAD'
                 / 'rose-meta.conf')
 
-    def get_transformation_script(self):
-        ''':returns: the transformation script to be used by PSyclone.
-        :rtype: Path
-        '''
-        return ""
-
 
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
