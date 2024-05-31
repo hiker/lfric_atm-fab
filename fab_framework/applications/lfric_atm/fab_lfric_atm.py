@@ -117,6 +117,7 @@ class FabLFRicAtm(FabBase):
                     AddFlags(match="$source/science/*", flags=['-DLFRIC']) ]
         super().preprocess_fortran(path_flags=path_flags)
 
+    @staticmethod
     def get_transformation_script(fpath, config):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path

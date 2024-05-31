@@ -50,6 +50,7 @@ class FabGungho(FabBase):
                 / 'rose-meta' / 'lfric-gungho_model' / 'HEAD'
                 / 'rose-meta.conf')
 
+    @staticmethod
     def get_transformation_script(fpath, config):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path

@@ -348,6 +348,7 @@ class FabBase:
     def preprocess_x90(self):
         preprocess_x90(self.config, common_flags=self._preprocessor_flags)
 
+    @staticmethod
     def get_transformation_script(fpath, config):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path
