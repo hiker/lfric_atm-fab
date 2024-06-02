@@ -27,10 +27,10 @@ from fab.steps.link import link_exe
 from fab.steps.preprocess import preprocess_c, preprocess_fortran
 from fab.steps.psyclone import psyclone, preprocess_x90
 from fab.steps.grab.folder import grab_folder
-from fab.newtools import Categories, Linker, ToolBox, ToolRepository
-from fab.tools import run_command
+from fab.tools import Categories, Linker, ToolBox, ToolRepository
 
 from lfric_common import configurator, fparser_workaround_stop_concatenation
+from rose_picker_tool import get_rose_picker
 
 
 logger = logging.getLogger('fab')
@@ -42,12 +42,10 @@ class FabBase:
 
     :param str name: the name to be used for the workspace. Note that
         the name of the compiler will be added to it.
-    :param gpl_utils_config: a BuildConfig object which contains the
-        path to LFRic's gpl_utils, from which rose-picker is used.
     :param Optional[str] root_symbol:
     '''
 
-    def __init__(self, name, gpl_utils_config, root_symbol=None):
+    def __init__(self, name, root_symbol=None):
         self._tool_box = ToolBox()
         parser = self.define_command_line_options()
         self.handle_command_line_options(parser)
@@ -55,12 +53,12 @@ class FabBase:
         this_file = Path(__file__)
         # The root directory of the LFRic Core installation
         self._lfric_core_root = this_file.parents[3]
+
         if root_symbol:
             self._root_symbol = root_symbol
         else:
             self._root_symbol = name
-        self._gpl_utils_source = gpl_utils_config.source_root / 'gpl_utils'
-        self._lfric_apps_root = gpl_utils_config.source_root / 'lfric_apps'
+        self._lfric_apps_root = self.lfric_core_root.parent / 'lfric_apps'
         self._config = BuildConfig(tool_box=self._tool_box,
                                    project_label=f'{name}-$compiler',
                                    verbose=True,
@@ -175,6 +173,10 @@ class FabBase:
             '--ld', '-ld', type=str, default="$LD",
             help="Name of the linker to use")
         parser.add_argument(
+            '--rose_picker', '-rp', type=str, default="v2.0.0",
+            help="Version of rose_picker. Use 'system' to use an installed "
+                 "version.")
+        parser.add_argument(
             '--wrapper_compiler', '-wr_c', type=str, default=None,
             help="Sets a wrapper for compiler")
         parser.add_argument(
@@ -234,9 +236,9 @@ class FabBase:
 
         if self._args.wrapper_compiler:
             self._tool_box[Categories.C_COMPILER].exec_name = \
-            self._args.wrapper_compiler
+                self._args.wrapper_compiler
             self._tool_box[Categories.FORTRAN_COMPILER].exec_name = \
-            self._args.wrapper_compiler
+                self._args.wrapper_compiler
 
         fc = self._tool_box[Categories.FORTRAN_COMPILER]
         # A hack for now :(
@@ -261,14 +263,10 @@ class FabBase:
     @property
     def lfric_core_root(self):
         return self._lfric_core_root
-    
+
     @property
     def lfric_apps_root(self):
         return self._lfric_apps_root
-
-    @property
-    def gpl_utils_source(self):
-        return self._gpl_utils_source
 
     def set_preprocessor_flags(self, list_of_flags):
         self._preprocessor_flags = list_of_flags[:]
@@ -295,9 +293,9 @@ class FabBase:
         dir = "etc"
         grab_folder(self.config, src=self.lfric_core_root / dir,
                     dst_label='psyclone_config')
-        
+
         # Get the implementation of the PSyData API for profiling when using TAU
-        
+
         # wget requires internet, which gitlab runner does not have.
         # So I temporarily store the tau_psy.f90 in this repo under `infrastructure/source/psydata``.
         # During the install stage, this folder will be copied to lfric_core checkout.
@@ -307,8 +305,8 @@ class FabBase:
         #     _dst = self.config.source_root / 'psydata'
         #     if not _dst.is_dir():
         #         _dst.mkdir(parents=True)
-        #     run_command(['wget', '-N', 
-        #                   'https://raw.githubusercontent.com/stfc/PSyclone/master/lib/profiling/tau/tau_psy.f90'], 
+        #     run_command(['wget', '-N',
+        #                   'https://raw.githubusercontent.com/stfc/PSyclone/master/lib/profiling/tau/tau_psy.f90'],
         #                   cwd=_dst)
 
     def find_source_files(self, path_filters=None):
@@ -324,14 +322,20 @@ class FabBase:
     def configurator(self):
         rose_meta = self.get_rose_meta()
         if rose_meta:
+            # Get the right version of rose-picker, depending on
+            # command line option (defaulting to v2.0.0)
+            # TODO: Ideally we would just put this into the toolbox,
+            # but atm we can't put several tools of one category in
+            # (so ToolBox will need to support more than one MISC tool)
+            rp = get_rose_picker(self._args.rose_picker)
             # Ideally we would want to get all source files created in
             # the build directory, but then we need to know the list of
             # files to add them to the list of files to process
             configurator(self.config, lfric_core_source=self.lfric_core_root,
                          lfric_apps_source=self.lfric_apps_root,
-                         gpl_utils_source=self.gpl_utils_source,
                          config_dir=self.config.source_root,
-                         rose_meta_conf=rose_meta)
+                         rose_meta_conf=rose_meta,
+                         rose_picker=rp)
 
     def preprocess_c(self, path_flags=None):
         preprocess_c(self.config, common_flags=self._preprocessor_flags,
@@ -344,12 +348,16 @@ class FabBase:
     def preprocess_x90(self):
         preprocess_x90(self.config, common_flags=self._preprocessor_flags)
 
-    def get_transformation_script(self):
+    @staticmethod
+    def get_transformation_script(fpath, config):
+        ''':returns: the transformation script to be used by PSyclone.
+        :rtype: Path
+        '''
         return ""
 
     def get_psyclone_config(self):
         return ["--config", self._psyclone_config]
-    
+
     def get_psyclone_profiling_option(self):
         return ["--profile", "kernels"]
 
@@ -357,12 +365,12 @@ class FabBase:
         psyclone_config = self.get_psyclone_config()
         psyclone_profiling = self.get_psyclone_profiling_option()
         if self._args.wrapper_compiler == 'tau_f90.sh' or \
-            self._args.wrapper_linker == 'tau_f90.sh':
+                self._args.wrapper_linker == 'tau_f90.sh':
             psyclone_cli_args = psyclone_config + psyclone_profiling
         else:
             psyclone_cli_args = psyclone_config
         psyclone(self.config, kernel_roots=[self.config.build_output],
-                 transformation_script=self.get_transformation_script(),
+                 transformation_script=self.get_transformation_script,
                  cli_args=psyclone_cli_args)
 
     def analyse(self):
@@ -407,7 +415,5 @@ class FabBase:
 
 # ==========================================================================
 if __name__ == "__main__":
-    from grab_lfric import gpl_utils_source_config
     fab_base = FabBase(name="command-line-test",
-                       gpl_utils_config=gpl_utils_source_config,
                        root_symbol=None)

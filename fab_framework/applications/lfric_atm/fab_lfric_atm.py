@@ -24,15 +24,12 @@ sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
 from fab_base import FabBase
 from get_revision import GetRevision
 
-from grab_lfric import gpl_utils_source_config
-
 from fcm_extract import FcmExtract
 
 class FabLFRicAtm(FabBase):
 
     def __init__(self, name="lfric_atm", root_symbol=None):
-        super().__init__(name, gpl_utils_source_config,
-                         root_symbol=root_symbol)
+        super().__init__(name, root_symbol=root_symbol)
 
         self.set_preprocessor_flags(
             ['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=32',
@@ -120,11 +117,24 @@ class FabLFRicAtm(FabBase):
                     AddFlags(match="$source/science/*", flags=['-DLFRIC']) ]
         super().preprocess_fortran(path_flags=path_flags)
 
-    def get_transformation_script(self):
+    @staticmethod
+    def get_transformation_script(fpath, config):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path
         '''
-        return self.config.source_root / "optimisation/nci-gadi/global.py"
+        optimisation_path = config.source_root / 'optimisation' / 'nci-gadi'
+        for base_path in [config.source_root, config.build_output]:
+            try:
+                relative_path = fpath.relative_to(base_path)
+            except ValueError:
+                pass
+        local_transformation_script = optimisation_path / (relative_path.with_suffix('.py'))
+        if local_transformation_script.exists():
+            return local_transformation_script
+        global_transformation_script = optimisation_path / 'global.py'
+        if global_transformation_script.exists():
+            return global_transformation_script
+        return ""    
     
     def compile_fortran(self):
         path_flags=[AddFlags('$output/science/um/atmosphere/large_scale_precipitation/*', ['-qno-openmp']),]

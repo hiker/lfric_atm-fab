@@ -46,10 +46,10 @@ echo "Start building apps"
 export PYTHONPATH=/opt/spack/.local/lib/python3.12/site-packages/:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/psyclone
 
 # build skeleton
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/miniapps/skeleton/
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/applications/skeleton/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC= PYTHONPATH=$PYTHONPATH ./fab_mini_skeleton.py --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC= PYTHONPATH=$PYTHONPATH ./fab_skeleton.py --wrapper_linker='mpif90'
 
 echo "Built skeleton"
 

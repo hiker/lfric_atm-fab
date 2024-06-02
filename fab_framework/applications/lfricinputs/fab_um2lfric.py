@@ -10,7 +10,6 @@ contained in the infrastructure directory.
 '''
 
 import logging
-from pathlib import Path
 import sys
 
 from fab.steps.grab.fcm import fcm_export
@@ -23,14 +22,13 @@ from fab.steps.find_source_files import Exclude, Include
 sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
 
 from fab_base import FabBase
-from grab_lfric import gpl_utils_source_config
 
 from fcm_extract import FcmExtract
 
 class FabLfricInputs(FabBase):
 
     def __init__(self, name="lfric_inputs", root_symbol=None):
-        super().__init__(name, gpl_utils_source_config, root_symbol=root_symbol)
+        super().__init__(name, root_symbol=root_symbol)
 
         self.set_preprocessor_flags(
             ['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=32',
