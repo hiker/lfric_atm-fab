@@ -62,7 +62,7 @@ def configurator(config, lfric_core_source: Path,
              open(config_dir / 'config_namelists.txt').readlines()]
     configuration_mod_fpath = config_dir / 'configuration_mod.f90'
     gen_loader = Script(tools / 'GenerateLoader')
-    gen_loader.run(additional_parameters=[str(configuration_mod_fpath),
+    gen_loader.run(additional_parameters=[configuration_mod_fpath,
                                           *names])
 
     # create feign_config_mod.f90 in source root
@@ -90,6 +90,9 @@ def fparser_workaround_stop_concatenation(config):
     for file_path in config.artefact_store[ArtefactSet.FORTRAN_BUILD_FILES]:
         if file_path.name == 'feign_config_mod.f90':
             feign_path = file_path
+            break
+    else:
+        raise RuntimeError("Could not find 'feign_config_mod.f90'.")
 
     # rename "broken" version
     broken_version = feign_path.with_suffix('.broken')
