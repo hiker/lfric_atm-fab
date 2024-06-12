@@ -340,7 +340,6 @@ class FabBase:
             # files to add them to the list of files to process
             configurator(self.config, lfric_core_source=self.lfric_core_root,
                          lfric_apps_source=self.lfric_apps_root,
-                         config_dir=self.config.source_root,
                          rose_meta_conf=rose_meta,
                          rose_picker=rp)
 
