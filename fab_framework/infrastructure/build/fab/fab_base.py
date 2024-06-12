@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import sys
 
+from fab.artefacts import ArtefactSet, SuffixFilter
 from fab.build_config import BuildConfig
 from fab.steps.analyse import analyse
 from fab.steps.archive_objects import archive_objects
@@ -32,6 +33,7 @@ from fab.util import input_to_output_fpath
 
 from lfric_common import configurator, fparser_workaround_stop_concatenation
 from rose_picker_tool import get_rose_picker
+from templaterator import Templaterator
 
 
 logger = logging.getLogger('fab')
@@ -326,6 +328,30 @@ class FabBase:
     def get_rose_meta(self):
         return ""
 
+    def templaterator(self, config):
+        base_dir = self.lfric_core_root / "infrastructure" / "build" / "tools"
+
+        templaterator = Templaterator(base_dir/"Templaterator")
+        config.artefact_store["template_files"] = set()
+        t90_filter = SuffixFilter(ArtefactSet.ALL_SOURCE, [".t90", ".T90"])
+        template_files = t90_filter(config.artefact_store)
+        # Don't bother with parallelising this, atm there is only one file:
+        print("TEMPLATE", template_files)
+        for template_file in template_files:
+            out_dir = input_to_output_fpath(config=config,
+                                            input_path=template_file).parent
+            print("OUTDIR IS", out_dir)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            templ_r32 = {"kind": "real32", "type": "real"}
+            templ_r64 = {"kind": "real64", "type": "real"}
+            templ_i32 = {"kind": "int32", "type": "integer"}
+            for key_values in [templ_r32, templ_r64, templ_i32]:
+                out_file = out_dir / f"field_{key_values['kind']}_mod.f90"
+                templaterator.run(template_file, out_file,
+                                  key_values=key_values)
+                config.artefact_store.add(ArtefactSet.FORTRAN_BUILD_FILES,
+                                          out_file)
+
     def configurator(self):
         rose_meta = self.get_rose_meta()
         if rose_meta:
@@ -405,6 +431,7 @@ class FabBase:
             # generate more source files in source and source/configuration
             self.configurator()
             self.find_source_files()
+            self.templaterator(self.config)
             c_pragma_injector(self.config)
             self.preprocess_c()
             self.preprocess_fortran()
