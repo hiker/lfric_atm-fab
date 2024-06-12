@@ -27,7 +27,8 @@ from fab.steps.link import link_exe
 from fab.steps.preprocess import preprocess_c, preprocess_fortran
 from fab.steps.psyclone import psyclone, preprocess_x90
 from fab.steps.grab.folder import grab_folder
-from fab.tools import Categories, Linker, ToolBox, ToolRepository
+from fab.tools import Categories, Gfortran, Linker, ToolBox, ToolRepository
+from fab.util import input_to_output_fpath
 
 from lfric_common import configurator, fparser_workaround_stop_concatenation
 from rose_picker_tool import get_rose_picker
@@ -36,6 +37,9 @@ from rose_picker_tool import get_rose_picker
 logger = logging.getLogger('fab')
 logger.setLevel(logging.DEBUG)
 
+class Mpif90(Gfortran):
+    def __init__(self):
+        super().__init__(name="mpif90", exec_name="mpif90")
 
 class FabBase:
     '''This is the base class for all LFRic FAB scripts.
@@ -49,6 +53,9 @@ class FabBase:
         self._tool_box = ToolBox()
         parser = self.define_command_line_options()
         self.handle_command_line_options(parser)
+        fc = Mpif90()
+        self._tool_box.add_tool(fc)
+        self._tool_box.add_tool(Linker(compiler=fc))
 
         this_file = Path(__file__)
         # The root directory of the LFRic Core installation
@@ -348,8 +355,7 @@ class FabBase:
     def preprocess_x90(self):
         preprocess_x90(self.config, common_flags=self._preprocessor_flags)
 
-    @staticmethod
-    def get_transformation_script(fpath, config):
+    def get_transformation_script(self, fpath, config):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path
         '''

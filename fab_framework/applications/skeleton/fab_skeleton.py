@@ -48,8 +48,7 @@ class FabSkeleton(FabBase):
         return (self.lfric_core_root / 'applications' / 'skeleton' / 'rose-meta' /
                 'lfric-skeleton' / 'HEAD' / 'rose-meta.conf')
 
-    @staticmethod
-    def get_transformation_script(fpath, config):
+    def get_transformation_script(self, fpath, config):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path
         '''

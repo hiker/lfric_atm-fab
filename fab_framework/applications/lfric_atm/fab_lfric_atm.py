@@ -16,6 +16,7 @@ from fab.steps.grab.fcm import fcm_export
 from fab.steps.grab.folder import grab_folder
 from fab.build_config import AddFlags
 from fab.steps.find_source_files import Exclude, Include
+from fab.tools import Categories
 
 # Until we sort out the build environment, add the directory that stores the
 # base class of our FAB builds:
@@ -134,10 +135,17 @@ class FabLFRicAtm(FabBase):
         global_transformation_script = optimisation_path / 'global.py'
         if global_transformation_script.exists():
             return global_transformation_script
-        return ""    
-    
+        return ""
+
     def compile_fortran(self):
-        path_flags=[AddFlags('$output/science/um/atmosphere/large_scale_precipitation/*', ['-qno-openmp']),]
+        fc = self.config.tool_box[Categories.FORTRAN_COMPILER]
+        # TODO: needs a better solution, we are still hardcoding compilers here
+        if fc.vendor == "intel":
+            no_omp = '-qno-openmp'
+        else:
+            no_omp = '-fno-openmp'
+        path_flags=[AddFlags('$output/science/um/atmosphere/large_scale_precipitation/*',
+                             [no_omp]),]
         super().compile_fortran(path_flags=path_flags)
 
 
