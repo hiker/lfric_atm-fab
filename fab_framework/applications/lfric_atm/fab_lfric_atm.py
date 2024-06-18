@@ -16,7 +16,7 @@ from fab.steps.grab.fcm import fcm_export
 from fab.steps.grab.folder import grab_folder
 from fab.build_config import AddFlags
 from fab.steps.find_source_files import Exclude, Include
-from fab.tools import Categories
+from fab.tools import Category
 
 # Until we sort out the build environment, add the directory that stores the
 # base class of our FAB builds:
@@ -124,21 +124,25 @@ class FabLFRicAtm(FabBase):
         :rtype: Path
         '''
         optimisation_path = config.source_root / 'optimisation' / 'nci-gadi'
+        relative_path = None
         for base_path in [config.source_root, config.build_output]:
             try:
                 relative_path = fpath.relative_to(base_path)
             except ValueError:
                 pass
-        local_transformation_script = optimisation_path / (relative_path.with_suffix('.py'))
-        if local_transformation_script.exists():
-            return local_transformation_script
+        if relative_path:
+            local_transformation_script = (optimisation_path /
+                                           (relative_path.with_suffix('.py')))
+            if local_transformation_script.exists():
+                return local_transformation_script
+
         global_transformation_script = optimisation_path / 'global.py'
         if global_transformation_script.exists():
             return global_transformation_script
         return ""
 
     def compile_fortran(self):
-        fc = self.config.tool_box[Categories.FORTRAN_COMPILER]
+        fc = self.config.tool_box[Category.FORTRAN_COMPILER]
         # TODO: needs a better solution, we are still hardcoding compilers here
         if fc.vendor == "intel":
             no_omp = '-qno-openmp'

@@ -56,14 +56,18 @@ class FabGungho(FabBase):
         :rtype: Path
         '''
         optimisation_path = config.source_root / 'optimisation' / 'nci-gadi'
+        relative_path = None
         for base_path in [config.source_root, config.build_output]:
             try:
                 relative_path = fpath.relative_to(base_path)
             except ValueError:
                 pass
-        local_transformation_script = optimisation_path / (relative_path.with_suffix('.py'))
-        if local_transformation_script.exists():
-            return local_transformation_script
+        if relative_path:
+            local_transformation_script = (optimisation_path /
+                                           (relative_path.with_suffix('.py')))
+            if local_transformation_script.exists():
+                return local_transformation_script
+
         global_transformation_script = optimisation_path / 'global.py'
         if global_transformation_script.exists():
             return global_transformation_script
