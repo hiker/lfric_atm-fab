@@ -50,29 +50,6 @@ class FabGungho(FabBase):
                 / 'rose-meta' / 'lfric-gungho_model' / 'HEAD'
                 / 'rose-meta.conf')
 
-    @staticmethod
-    def get_transformation_script(fpath, config):
-        ''':returns: the transformation script to be used by PSyclone.
-        :rtype: Path
-        '''
-        optimisation_path = config.source_root / 'optimisation' / 'nci-gadi'
-        relative_path = None
-        for base_path in [config.source_root, config.build_output]:
-            try:
-                relative_path = fpath.relative_to(base_path)
-            except ValueError:
-                pass
-        if relative_path:
-            local_transformation_script = (optimisation_path /
-                                           (relative_path.with_suffix('.py')))
-            if local_transformation_script.exists():
-                return local_transformation_script
-
-        global_transformation_script = optimisation_path / 'global.py'
-        if global_transformation_script.exists():
-            return global_transformation_script
-        return ""
-
 
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
