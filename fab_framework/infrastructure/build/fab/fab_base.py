@@ -28,7 +28,7 @@ from fab.steps.link import link_exe
 from fab.steps.preprocess import preprocess_c, preprocess_fortran
 from fab.steps.psyclone import psyclone, preprocess_x90
 from fab.steps.grab.folder import grab_folder
-from fab.tools import Categories, Gfortran, Linker, ToolBox, ToolRepository
+from fab.tools import Category, Gfortran, Linker, ToolBox, ToolRepository
 from fab.util import input_to_output_fpath
 
 from lfric_common import configurator, fparser_workaround_stop_concatenation
@@ -85,8 +85,8 @@ class FabBase:
         '''Top level function that sets (compiler- and site-specific)
         compiler flags by calling self.set_compiler_flags
         '''
-        compiler = self._tool_box[Categories.FORTRAN_COMPILER]
-        if compiler.vendor == "intel":
+        compiler = self._tool_box[Category.FORTRAN_COMPILER]
+        if compiler.suite == "intel":
             self.set_compiler_flags(
                 ['-g', '-r8', '-mcmodel=medium', '-traceback',
                  '-Wall', '-Werror=conversion', '-Werror=unused-variable',
@@ -98,13 +98,13 @@ class FabBase:
                  '-DR_TRAN_PRECISION=64',
                  '-DUSE_XIOS', '-DUSE_MPI=YES',
                  ])
-        elif compiler.vendor in ["joerg", "gnu"]:
+        elif compiler.suite in ["joerg", "gnu"]:
             flags = ['-ffree-line-length-none', '-fopenmp', '-g',
                      '-Werror=character-truncation', '-Werror=unused-value',
                      '-Werror=tabs', '-fdefault-real-8', '-fdefault-double-8',
                      ]
             # Support Joerg's build environment
-            if compiler.vendor == "joerg":
+            if compiler.suite == "joerg":
                 flags.extend(
                     [
                      # The lib directory contains mpi.mod
@@ -116,7 +116,7 @@ class FabBase:
                      ])
             self.set_compiler_flags(flags)
         else:
-            raise RuntimeError(f"Unknown compiler vendor '{compiler.vendor}'.")
+            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
 
     def define_linker_flags(self):
         '''Top level function that sets (site-specific) linker flags
@@ -124,7 +124,7 @@ class FabBase:
         '''
         # The link flags will depend on the compiler, so use the compiler
         # to set the flags.
-        compiler = self._tool_box[Categories.FORTRAN_COMPILER]
+        compiler = self._tool_box[Category.FORTRAN_COMPILER]
 
         # TODO: Unfortunately, for now we have to set openmp flags explicitly
         # for linker. For now, all compiler flags are still set in the compile
@@ -133,24 +133,24 @@ class FabBase:
         # moved from the compile step into the compiler object, the linker
         # will be able to pick up openmp (and other compiler flags)
         # automatically.
-        if compiler.vendor == "intel":
+        if compiler.suite == "intel":
             self.set_link_flags(
                 ['-qopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
                  '-lnetcdf', '-lhdf5', '-lstdc++'])
 
-        elif compiler.vendor == "joerg":
+        elif compiler.suite == "joerg":
             self.set_link_flags(
                 ['-fopenmp',
                  '-L', ('/home/joerg/work/spack/var/spack/environments/'
                         'lfric-v0/.spack-env/view/lib'),
                  '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
                  '-lhdf5', '-lstdc++'])
-        elif compiler.vendor == "gnu":
+        elif compiler.suite == "gnu":
             self.set_link_flags(
                 ['-fopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
                  '-lnetcdf', '-lhdf5', '-lstdc++'])
         else:
-            raise RuntimeError(f"Unknown compiler vendor '{compiler.vendor}'.")
+            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
 
     def define_command_line_options(self, parser=None):
         '''Defines command line options. Can be overwritten by a derived
@@ -164,14 +164,14 @@ class FabBase:
         if not parser:
             # The formatter class makes sure to print default settings
             parser = argparse.ArgumentParser(
-                description=("A FAB-based build system. Note that if --vendor "
+                description=("A FAB-based build system. Note that if --suite "
                              "is specified, this will change the default for "
                              "compiler and linker"),
                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
         parser.add_argument(
-            '--vendor', '-v', type=str, default=None,
-            help="Sets the default vendor for compiler and linker")
+            '--suite', '-v', type=str, default=None,
+            help="Sets the default suite for compiler and linker")
         parser.add_argument(
             '--fc', '-fc', type=str, default="$FC",
             help="Name of the Fortran compiler to use")
@@ -195,7 +195,7 @@ class FabBase:
 
     def handle_command_line_options(self, parser):
         '''Analyse the actual command line options using the specified parser.
-        The base implementation will handle the `--vendor` parameter, and
+        The base implementation will handle the `--suite` parameter, and
         compiler/linker parameters (including the usage of environment
         variables). Needs to be overwritten to handle additional options
         specified by a derived script.
@@ -207,13 +207,13 @@ class FabBase:
         self._args = parser.parse_args(sys.argv[1:])
 
         tr = ToolRepository()
-        if self._args.vendor:
-            if self._args.vendor == "joerg":
-                tr.set_default_vendor("gnu")
+        if self._args.suite:
+            if self._args.suite == "joerg":
+                tr.set_default_suite("gnu")
             else:
-                tr.set_default_vendor(self._args.vendor)
-            print(f"Setting vendor to '{self._args.vendor}'.")
-            # Vendor will overwrite use of env variables, so change the
+                tr.set_default_suite(self._args.suite)
+            print(f"Setting suite to '{self._args.suite}'.")
+            # suite will overwrite use of env variables, so change the
             # value of these arguments to be none so they will be ignored
             if self._args.fc == "$FC":
                 self._args.fc = None
@@ -222,7 +222,7 @@ class FabBase:
             if self._args.ld == "$LD":
                 self._args.ld = None
         else:
-            # If no vendor is specified, if required set the defaults
+            # If no suite is specified, if required set the defaults
             # for compilers based on the environment variables.
             if self._args.fc == "$FC":
                 self._args.fc = os.environ.get("FC")
@@ -231,29 +231,29 @@ class FabBase:
             if self._args.ld == "$LD":
                 self._args.ld = os.environ.get("LD")
 
-        # If no vendor was specified, and a special tool was requested,
+        # If no suite was specified, and a special tool was requested,
         # add it to the tool box:
         if self._args.cc:
-            cc = tr.get_tool(Categories.C_COMPILER, self._args.cc)
+            cc = tr.get_tool(Category.C_COMPILER, self._args.cc)
             self._tool_box.add_tool(cc)
         if self._args.fc:
-            fc = tr.get_tool(Categories.FORTRAN_COMPILER, self._args.fc)
+            fc = tr.get_tool(Category.FORTRAN_COMPILER, self._args.fc)
             self._tool_box.add_tool(fc)
         if self._args.ld:
-            ld = tr.get_tool(Categories.LINKER, self._args.ld)
+            ld = tr.get_tool(Category.LINKER, self._args.ld)
             self._tool_box.add_tool(ld)
 
         if self._args.wrapper_compiler:
-            self._tool_box[Categories.C_COMPILER].exec_name = \
+            self._tool_box[Category.C_COMPILER].exec_name = \
                 self._args.wrapper_compiler
-            self._tool_box[Categories.FORTRAN_COMPILER].exec_name = \
+            self._tool_box[Category.FORTRAN_COMPILER].exec_name = \
                 self._args.wrapper_compiler
 
-        fc = self._tool_box[Categories.FORTRAN_COMPILER]
+        fc = self._tool_box[Category.FORTRAN_COMPILER]
         # A hack for now :(
-        if self._args.vendor == "joerg":
-            fc = self._tool_box[Categories.FORTRAN_COMPILER]
-            fc._vendor = "joerg"
+        if self._args.suite == "joerg":
+            fc = self._tool_box[Category.FORTRAN_COMPILER]
+            fc._suite = "joerg"
 
         if self._args.wrapper_linker:
             linker = Linker(exec_name=self._args.wrapper_linker, compiler=fc)
@@ -402,6 +402,7 @@ class FabBase:
             psyclone_cli_args = psyclone_config
         psyclone(self.config, kernel_roots=[self.config.build_output],
                  transformation_script=self.get_transformation_script,
+                 api="lfric",
                  cli_args=psyclone_cli_args)
 
     def analyse(self):

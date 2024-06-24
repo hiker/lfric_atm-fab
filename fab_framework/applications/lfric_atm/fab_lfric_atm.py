@@ -16,7 +16,7 @@ from fab.steps.grab.fcm import fcm_export
 from fab.steps.grab.folder import grab_folder
 from fab.build_config import AddFlags
 from fab.steps.find_source_files import Exclude, Include
-from fab.tools import Category
+from fab.tools import Categories
 
 # Until we sort out the build environment, add the directory that stores the
 # base class of our FAB builds:
@@ -142,7 +142,7 @@ class FabLFRicAtm(FabBase):
         return ""
 
     def compile_fortran(self):
-        fc = self.config.tool_box[Category.FORTRAN_COMPILER]
+        fc = self.config.tool_box[Categories.FORTRAN_COMPILER]
         # TODO: needs a better solution, we are still hardcoding compilers here
         if fc.vendor == "intel":
             no_omp = '-qno-openmp'

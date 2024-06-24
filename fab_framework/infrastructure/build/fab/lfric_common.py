@@ -5,7 +5,7 @@ from pathlib import Path
 from fab.artefacts import ArtefactSet
 from fab.steps import step
 from fab.steps.find_source_files import find_source_files
-from fab.tools import Categories, Tool
+from fab.tools import Category, Tool
 
 logger = logging.getLogger('fab')
 
@@ -16,7 +16,7 @@ class Script(Tool):
     '''
     def __init__(self, name: Path):
         super().__init__(name=name.name, exec_name=str(name),
-                         category=Categories.MISC)
+                         category=Category.MISC)
 
     def check_available(self):
         return True
@@ -70,7 +70,7 @@ def configurator(config, lfric_core_source: Path,
     logger.info('GenerateFeigns')
     feign_config_mod_fpath = config_dir / 'feign_config_mod.f90'
     gft = Tool("GenerateFeignsTool", exec_name=str(tools / 'GenerateFeigns'),
-               category=Categories.MISC)
+               category=Category.MISC)
     gft.run(additional_parameters=[rose_meta,
                                    '-output', feign_config_mod_fpath])
 

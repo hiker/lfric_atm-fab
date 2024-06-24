@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from fab.tools import Categories, Tool, ToolRepository
+from fab.tools import Category, Tool, ToolRepository
 from fab.util import get_fab_workspace
 
 logger = logging.getLogger('fab')
@@ -78,7 +78,7 @@ def get_rose_picker(tag: Optional[str] = "v2.0.0"):
     # If the tool is not available (the class will run `rose_picker -help`
     # to verify this ), install it
     if not rp.is_available:
-        fcm = ToolRepository().get_default(Categories.FCM)
+        fcm = ToolRepository().get_default(Category.FCM)
         # TODO: atm we are using fcm for the checkout, because using FCM
         # keywords is more portable. We cannot use a Fab config (since this
         # function is called from within a Fab build), so that means the
