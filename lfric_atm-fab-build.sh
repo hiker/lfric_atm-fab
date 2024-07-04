@@ -65,7 +65,7 @@ echo "Built gungho_model"
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gravity_wave/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py --vendor=intel --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py --suite=intel-classic --wrapper_linker='mpif90'
 
 echo "Built gravity_wave"
 
@@ -73,7 +73,7 @@ echo "Built gravity_wave"
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric_atm.py --vendor=intel --wrapper_linker='tau_f90.sh'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric_atm.py --suite=intel-classic --wrapper_linker='tau_f90.sh'
 
 echo "Built lfric_atm"
 
@@ -81,8 +81,8 @@ echo "Built lfric_atm"
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfricinputs/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric2um.py --vendor=intel --wrapper_linker='mpif90'
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_um2lfric.py --vendor=intel --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric2um.py --suite=intel-classic --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_um2lfric.py --suite=intel-classic --wrapper_linker='mpif90'
 
 echo "Built lfric_inputs"
 
