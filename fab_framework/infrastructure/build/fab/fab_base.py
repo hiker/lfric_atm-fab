@@ -55,9 +55,9 @@ class FabBase:
         self._tool_box = ToolBox()
         parser = self.define_command_line_options()
         self.handle_command_line_options(parser)
-        fc = Mpif90()
-        self._tool_box.add_tool(fc)
-        self._tool_box.add_tool(Linker(compiler=fc))
+#        fc = Mpif90()
+#        self._tool_box.add_tool(fc)
+#        self._tool_box.add_tool(Linker(compiler=fc))
 
         this_file = Path(__file__)
         # The root directory of the LFRic Core installation
@@ -86,7 +86,7 @@ class FabBase:
         compiler flags by calling self.set_compiler_flags
         '''
         compiler = self._tool_box[Category.FORTRAN_COMPILER]
-        if compiler.suite == "intel":
+        if compiler.suite == "intel-classic":
             self.set_compiler_flags(
                 ['-g', '-r8', '-mcmodel=medium', '-traceback',
                  '-Wall', '-Werror=conversion', '-Werror=unused-variable',
@@ -133,7 +133,7 @@ class FabBase:
         # moved from the compile step into the compiler object, the linker
         # will be able to pick up openmp (and other compiler flags)
         # automatically.
-        if compiler.suite == "intel":
+        if compiler.suite == "intel-classic":
             self.set_link_flags(
                 ['-qopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
                  '-lnetcdf', '-lhdf5', '-lstdc++'])
@@ -209,9 +209,9 @@ class FabBase:
         tr = ToolRepository()
         if self._args.suite:
             if self._args.suite == "joerg":
-                tr.set_default_suite("gnu")
+                tr.set_default_compiler_suite("gnu")
             else:
-                tr.set_default_suite(self._args.suite)
+                tr.set_default_compiler_suite(self._args.suite)
             print(f"Setting suite to '{self._args.suite}'.")
             # suite will overwrite use of env variables, so change the
             # value of these arguments to be none so they will be ignored
@@ -418,7 +418,7 @@ class FabBase:
             psyclone_cli_args = psyclone_config
         psyclone(self.config, kernel_roots=[self.config.build_output],
                  transformation_script=self.get_transformation_script,
-                 api="lfric",
+#                 api="dynamo0.3",
                  cli_args=psyclone_cli_args)
 
     def analyse(self):
