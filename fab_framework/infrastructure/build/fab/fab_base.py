@@ -418,7 +418,7 @@ class FabBase:
             psyclone_cli_args = psyclone_config
         psyclone(self.config, kernel_roots=[self.config.build_output],
                  transformation_script=self.get_transformation_script,
-#                 api="dynamo0.3",
+                 api="dynamo0.3",
                  cli_args=psyclone_cli_args)
 
     def analyse(self):
