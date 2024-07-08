@@ -36,11 +36,11 @@ gpl_utils_source_config = BuildConfig(project_label=f'lfric source {ROSE_PICKER_
 if __name__ == '__main__':
     with lfric_core_source_config:
         fcm_export(
-            lfric_core_source_config, src='fcm:lfric.xm_tr', revision=LFRIC_CORE_REVISION, dst_label='lfric_core')
+            lfric_core_source_config, src='fcm:lfric.xm_tr', revision=LFRIC_CORE_REVISION, dst_label='core')
         
     with lfric_apps_source_config:
         fcm_export(
-            lfric_apps_source_config, src='fcm:lfric_apps.xm_tr', revision=LFRIC_APPS_REVISION, dst_label='lfric_apps')
+            lfric_apps_source_config, src='fcm:lfric_apps.xm_tr', revision=LFRIC_APPS_REVISION, dst_label='apps')
 
     with gpl_utils_source_config:
         fcm_export(
