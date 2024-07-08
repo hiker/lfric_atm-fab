@@ -19,7 +19,7 @@ from fab.steps.find_source_files import Exclude, Include
 
 # Until we sort out the build environment, add the directory that stores the
 # base class of our FAB builds:
-sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
+sys.path.insert(0, "../../../core/infrastructure/build/fab")
 
 from fab_base import FabBase
 
