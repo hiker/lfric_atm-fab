@@ -67,7 +67,7 @@ class FabBase:
             self._root_symbol = root_symbol
         else:
             self._root_symbol = name
-        self._lfric_apps_root = self.lfric_core_root.parent / 'lfric_apps'
+        self._lfric_apps_root = self.lfric_core_root.parent / 'apps'
         self._config = BuildConfig(tool_box=self._tool_box,
                                    project_label=f'{name}-$compiler',
                                    verbose=True,
