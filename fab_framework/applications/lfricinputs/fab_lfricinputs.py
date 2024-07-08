@@ -128,9 +128,11 @@ if __name__ == '__main__':
     fab_lfric_inputs = FabLfricInputs(root_symbol= \
                                       ['um2lfric', 'lfric2um', 'scintelapi'])
     fab_lfric_inputs.build()
-    os.rename(os.path.join(os.environ.get('FAB_WORKSPACE'), "um2lfric"), \
-              os.path.join(os.environ.get('FAB_WORKSPACE'), "um2lfric.exe"))
-    os.rename(os.path.join(os.environ.get('FAB_WORKSPACE'), "lfric2um"), \
-              os.path.join(os.environ.get('FAB_WORKSPACE'), "lfric2um.exe"))
-    os.rename(os.path.join(os.environ.get('FAB_WORKSPACE'), "scintelapi"), \
-              os.path.join(os.environ.get('FAB_WORKSPACE'), "scintelapi.exe"))
+    fab_workspace_path = os.environ.get('FAB_WORKSPACE')
+    executable_folder_path = os.path.join(fab_workspace_path, os.listdir(fab_workspace_path)[0])
+    os.rename(os.path.join(executable_folder_path, "um2lfric"), \
+              os.path.join(executable_folder_path, "um2lfric.exe"))
+    os.rename(os.path.join(executable_folder_path, "lfric2um"), \
+              os.path.join(executable_folder_path, "lfric2um.exe"))
+    os.rename(os.path.join(executable_folder_path, "scintelapi"), \
+              os.path.join(executable_folder_path, "scintelapi.exe"))
