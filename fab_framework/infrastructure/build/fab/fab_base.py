@@ -107,8 +107,8 @@ class FabBase:
             #ifort.mk: bad interaction between array shape checking and
             # the matmul" intrinsic in at least some iterations of v19.
             runtime_flags = ['-check all,noshape', '-fpe0'] \
-                if compiler_version_comparison >= 190000 and \
-                    compiler_version_comparison < 190100 \
+                if compiler_version_comparison >= '190000' and \
+                    compiler_version_comparison < '190100' \
                         else ['-check all', '-fpe0']
             
             #ifort.mk: option for checking code meets Fortran standard - currently 2008
