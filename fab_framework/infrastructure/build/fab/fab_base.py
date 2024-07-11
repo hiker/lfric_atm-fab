@@ -86,18 +86,56 @@ class FabBase:
         compiler flags by calling self.set_compiler_flags
         '''
         compiler = self._tool_box[Category.FORTRAN_COMPILER]
+        # TODO: This should go into compiler.get_version in FAB
+        compiler_version_comparison = ''.join(f"{int(version_component):02d}" \
+                                              for version_component \
+                                                in compiler.get_version.split('.'))
+
         if compiler.suite == "intel-classic":
-            self.set_compiler_flags(
-                ['-g', '-r8', '-mcmodel=medium', '-traceback',
-                 '-Wall', '-Werror=conversion', '-Werror=unused-variable',
-                 '-Werror=character-truncation',
-                 '-Werror=unused-value', '-Werror=tabs',
-                 '-assume nosource_include',
-                 '-qopenmp', '-O2', '-std08', '-fp-model=strict', '-fpe0',
-                 '-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=64',
-                 '-DR_TRAN_PRECISION=64',
-                 '-DUSE_XIOS', '-DUSE_MPI=YES',
-                 ])
+            # The flag groups are mainly from infrastructure/build/fortran/ifort.mk
+            debug_flags = ['-g', '-traceback']
+            no_optimisation_flags = ['-O0']
+            safe_optimisation_flags = ['-O2', '-fp-model=strict']
+            risky_optimisation_flags = ['-O3', '-xhost']
+            openmp_arg_flags = ['-qopenmp']
+            warnings_flags = ['-warn all', '-warn errors', '-gen-interfaces', 'nosource']
+            unit_warnings_flags =['-warn all', '-gen-interfaces', 'nosource']
+            mpi_tests_flags = ['-DUSE_MPI=YES'] # build/tests.mk - for mpi unit tests
+            xios_tests_flags = ['-DUSE_XIOS'] # no found in makefiles, but was in FAB run_configs
+            init_flags = ['-ftrapuv']
+
+            #ifort.mk: bad interaction between array shape checking and
+            # the matmul" intrinsic in at least some iterations of v19.
+            runtime_flags = ['-check all,noshape', '-fpe0'] \
+                if compiler_version_comparison >= 190000 and \
+                    compiler_version_comparison < 190100 \
+                        else ['-check all', '-fpe0']
+            
+            #ifort.mk: option for checking code meets Fortran standard - currently 2008
+            fortran_standard_flags = ['-stand f08'] 
+            
+            #ifort.mk has some app and file-specific options for older intel compilers. 
+            #They have not been included here
+
+            compiler_flag_group = openmp_arg_flags + mpi_tests_flags + xios_tests_flags + \
+                                ['-DRDEF_PRECISION='+self._args.precision, 
+                                 '-DR_SOLVER_PRECISION='+self._args.precision,
+                                 '-DR_TRAN_PRECISION='+self._args.precision, 
+                                 '-DRR_BL_PRECISION='+self._args.precision] 
+                                # "-D" argument for precision-related pre-processor macros
+
+            if self._args.profile == 'full-debug':
+                compiler_flag_group += debug_flags + warnings_flags + init_flags \
+                                        + runtime_flags + no_optimisation_flags \
+                                        +fortran_standard_flags
+            elif self._args.profile == 'production':
+                compiler_flag_group += debug_flags + warnings_flags + risky_optimisation_flags
+            else: # 'fast-debug'
+                compiler_flag_group += debug_flags + warnings_flags + safe_optimisation_flags \
+                                        + fortran_standard_flags              
+            
+            self.set_compiler_flags(compiler_flag_group)
+            
         elif compiler.suite in ["joerg", "gnu"]:
             flags = ['-ffree-line-length-none', '-fopenmp', '-g',
                      '-Werror=character-truncation', '-Werror=unused-value',
@@ -191,6 +229,14 @@ class FabBase:
         parser.add_argument(
             '--wrapper_linker', '-wr_l', type=str, default=None,
             help="Sets a wrapper for linker")
+        parser.add_argument(
+            '--profile', '-pro', type=str, default="fast-debug",
+            help="Profie mode for compilation, choose from \
+                'fast-debug'(default), 'full-debug', 'production'")
+        parser.add_argument(
+            '--precision', '-pre', type=str, default="64",
+            help="Precision for reals, choose from \
+                '64'(default), '32'")
         return parser
 
     def handle_command_line_options(self, parser):
