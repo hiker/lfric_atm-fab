@@ -86,10 +86,10 @@ class FabBase:
         compiler flags by calling self.set_compiler_flags
         '''
         compiler = self._tool_box[Category.FORTRAN_COMPILER]
-        # TODO: This should go into compiler.get_version in FAB
+        # TODO: This should go into compiler.get_version() in FAB
         compiler_version_comparison = ''.join(f"{int(version_component):02d}" \
                                               for version_component \
-                                                in compiler.get_version.split('.'))
+                                                in compiler.get_version().split('.'))
 
         if compiler.suite == "intel-classic":
             # The flag groups are mainly from infrastructure/build/fortran/ifort.mk
