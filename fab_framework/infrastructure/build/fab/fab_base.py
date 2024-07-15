@@ -78,9 +78,28 @@ class FabBase:
         self._link_flags = []
         self._psyclone_config = (self._config.source_root / 'psyclone_config' /
                                  'psyclone.cfg')
+        self.define_preprocessor_flags()
         self.define_compiler_flags()
         self.define_linker_flags()
+    
+    def define_preprocessor_flags(self):
+        '''Top level function that sets preprocessor flags 
+        by calling self.set_preprocessor_flags
+        '''
+        if self._args.precision:
+            precision_flags=['-DRDEF_PRECISION='+self._args.precision, 
+                             '-DR_SOLVER_PRECISION='+self._args.precision,
+                             '-DR_TRAN_PRECISION='+self._args.precision, 
+                             '-DR_BL_PRECISION='+self._args.precision] 
+        else:
+            precision_flags=['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=32',
+                             '-DR_TRAN_PRECISION=64', '-DR_BL_PRECISION=64'] 
+        
+        mpi_tests_flags = ['-DUSE_MPI=YES'] # build/tests.mk - for mpi unit tests
 
+        self.set_preprocessor_flags(precision_flags+['-DUSE_XIOS']) 
+        # -DUSE_XIOS is not found in makefile but in fab run_config and driver_io_mod.F90
+    
     def define_compiler_flags(self):
         '''Top level function that sets (compiler- and site-specific)
         compiler flags by calling self.set_compiler_flags
@@ -100,8 +119,6 @@ class FabBase:
             openmp_arg_flags = ['-qopenmp']
             warnings_flags = ['-warn all', '-warn errors', '-gen-interfaces', 'nosource']
             unit_warnings_flags =['-warn all', '-gen-interfaces', 'nosource']
-            mpi_tests_flags = ['-DUSE_MPI=YES'] # build/tests.mk - for mpi unit tests
-            xios_tests_flags = ['-DUSE_XIOS'] # no found in makefiles, but was in FAB run_configs
             init_flags = ['-ftrapuv']
 
             #ifort.mk: bad interaction between array shape checking and
@@ -117,12 +134,7 @@ class FabBase:
             #ifort.mk has some app and file-specific options for older intel compilers. 
             #They have not been included here
 
-            compiler_flag_group = openmp_arg_flags + mpi_tests_flags + xios_tests_flags + \
-                                ['-DRDEF_PRECISION='+self._args.precision, 
-                                 '-DR_SOLVER_PRECISION='+self._args.precision,
-                                 '-DR_TRAN_PRECISION='+self._args.precision, 
-                                 '-DRR_BL_PRECISION='+self._args.precision] 
-                                # "-D" argument for precision-related pre-processor macros
+            compiler_flag_group = openmp_arg_flags
 
             if self._args.profile == 'full-debug':
                 compiler_flag_group += debug_flags + warnings_flags + init_flags \
@@ -234,9 +246,9 @@ class FabBase:
             help="Profie mode for compilation, choose from \
                 'fast-debug'(default), 'full-debug', 'production'")
         parser.add_argument(
-            '--precision', '-pre', type=str, default="64",
-            help="Precision for reals, choose from \
-                '64'(default), '32'")
+            '--precision', '-pre', type=str, default=None,
+            help="Precision for reals, choose from '64', '32', \
+                default is R_SOLVER_PRECISION=32 while others are 64")
         return parser
 
     def handle_command_line_options(self, parser):
@@ -324,7 +336,7 @@ class FabBase:
         return self._lfric_apps_root
 
     def set_preprocessor_flags(self, list_of_flags):
-        self._preprocessor_flags = list_of_flags[:]
+        self._preprocessor_flags += list_of_flags
 
     def set_compiler_flags(self, list_of_flags):
         self._compiler_flags = list_of_flags[:]

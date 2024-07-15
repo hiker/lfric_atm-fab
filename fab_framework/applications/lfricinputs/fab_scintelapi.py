@@ -32,8 +32,7 @@ class FabLfricInputs(FabBase):
         super().__init__(name, root_symbol=root_symbol)
 
         self.set_preprocessor_flags(
-            ['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=32',
-             '-DR_TRAN_PRECISION=64', '-DUSE_XIOS', '-DUM_PHYSICS',
+            ['-DUM_PHYSICS',
              '-DCOUPLED', '-DUSE_MPI=YES'])
 
     def grab_files(self):
