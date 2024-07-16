@@ -125,7 +125,12 @@ class FabLFRicAtm(FabBase):
         else:
             no_omp = '-fno-openmp'
         path_flags=[AddFlags('$output/science/um/atmosphere/large_scale_precipitation/*',
-                             [no_omp]),]
+                             [no_omp]),
+                    AddFlags(match="$output/science/*", flags=['-r8']), ]
+        # TODO: A remove flag functionality based on profile option and precision is needed
+        if self._args.profile == 'full-debug':
+            self._compiler_flags.remove('-check all,noshape') if '-check all,noshape' in self._compiler_flags \
+                else self._compiler_flags.remove('-check all')
         super().compile_fortran(path_flags=path_flags)
 
 
