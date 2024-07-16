@@ -92,8 +92,31 @@ class FabBase:
                              '-DR_TRAN_PRECISION='+self._args.precision, 
                              '-DR_BL_PRECISION='+self._args.precision] 
         else:
-            precision_flags=['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=32',
-                             '-DR_TRAN_PRECISION=64', '-DR_BL_PRECISION=64'] 
+            precision_flags = []
+            r_def_precision = os.environ.get("RDEF_PRECISION")
+            r_solver_precision = os.environ.get("R_SOLVER_PRECISION")
+            r_tran_precision = os.environ.get("R_TRAN_PRECISION")
+            r_bl_precision = os.environ.get("R_BL_PRECISION")
+
+            if r_def_precision:
+                precision_flags += ['-DRDEF_PRECISION='+r_def_precision]
+            else:
+                precision_flags += ['-DRDEF_PRECISION=64']
+
+            if r_solver_precision:
+                precision_flags += ['-DR_SOLVER_PRECISION='+r_solver_precision]
+            else:
+                precision_flags += ['-DR_SOLVER_PRECISION=32']
+
+            if r_tran_precision:
+                precision_flags += ['-DR_TRAN_PRECISION='+r_tran_precision]
+            else:
+                precision_flags += ['-DR_TRAN_PRECISION=64']
+
+            if r_bl_precision:
+                precision_flags += ['-DR_BL_PRECISION='+r_bl_precision]
+            else:
+                precision_flags += ['-DR_BL_PRECISION=64']
         
         mpi_tests_flags = ['-DUSE_MPI=YES'] # build/tests.mk - for mpi unit tests
 
