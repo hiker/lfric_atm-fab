@@ -19,8 +19,8 @@ In order to use the new FAB scripts on NCI, you can follow these steps:
 
 6. Go into the app directory and start building  
 	(1)Skeleton:  
-	`cd PATH_TO_LFRIC_CORE/miniapps/skeleton`  
-	`imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_mini_skeleton.py --vendor=intel`  
+	`cd PATH_TO_LFRIC_CORE/applications/skeleton`  
+	`imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_skeleton.py --vendor=intel`  
 	(2)Gungho_model:  
 	`cd PATH_TO_LFRIC_APPS/applications/gungho_model`  
 	`imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py --vendor=intel`   

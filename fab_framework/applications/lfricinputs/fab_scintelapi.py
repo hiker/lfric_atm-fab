@@ -5,13 +5,13 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for lfricinputs-lfric2um. It relies on the FabBase class
+'''A FAB build script for lfricinputs-scintelapi. It relies on the FabBase class
 contained in the infrastructure directory.
 '''
 
 import logging
-from pathlib import Path
 import sys
+import os
 
 from fab.steps.grab.fcm import fcm_export
 from fab.steps.grab.folder import grab_folder
@@ -37,7 +37,7 @@ class FabLfricInputs(FabBase):
 
     def grab_files(self):
         FabBase.grab_files(self)
-        dirs = ['applications/lfricinputs/source/lfric2um', 
+        dirs = ['applications/lfricinputs/source/scintelapi', 
                 'applications/lfricinputs/source/common',
                 'science/um_physics_interface/source/',
                 'science/jules_interface/source/',
@@ -125,5 +125,6 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_lfric_inputs = FabLfricInputs(root_symbol="lfric2um")
+    fab_lfric_inputs = FabLfricInputs(root_symbol="scintelapi")
     fab_lfric_inputs.build()
+    os.rename(os.path.join(os.environ.get('FAB_WORKSPACE'), "scintelapi"), os.path.join(os.environ.get('FAB_WORKSPACE'), "scintelapi.exe"))

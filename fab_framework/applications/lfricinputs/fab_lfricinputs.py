@@ -5,13 +5,13 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for lfricinputs-lfric2um. It relies on the FabBase class
+'''A FAB build script for lfricinputs. It relies on the FabBase class
 contained in the infrastructure directory.
 '''
 
 import logging
-from pathlib import Path
 import sys
+import os
 
 from fab.steps.grab.fcm import fcm_export
 from fab.steps.grab.folder import grab_folder
@@ -37,8 +37,7 @@ class FabLfricInputs(FabBase):
 
     def grab_files(self):
         FabBase.grab_files(self)
-        dirs = ['applications/lfricinputs/source/lfric2um', 
-                'applications/lfricinputs/source/common',
+        dirs = ['applications/lfricinputs/source/',
                 'science/um_physics_interface/source/',
                 'science/jules_interface/source/',
                 'science/socrates_interface/source/',
@@ -53,7 +52,7 @@ class FabLfricInputs(FabBase):
         fcm_export(self.config, src=f'fcm:shumlib.xm_tr',
                    dst_label=f'shumlib')
 
-        
+
     def find_source_files(self):
         """Based on $LFRIC_APPS_ROOT/applications/lfricinputs/fcm-make"""
 
@@ -125,5 +124,14 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_lfric_inputs = FabLfricInputs(root_symbol="lfric2um")
+    fab_lfric_inputs = FabLfricInputs(root_symbol= \
+                                      ['um2lfric', 'lfric2um', 'scintelapi'])
     fab_lfric_inputs.build()
+    fab_workspace_path = os.environ.get('FAB_WORKSPACE')
+    executable_folder_path = os.path.join(fab_workspace_path, os.listdir(fab_workspace_path)[0])
+    os.rename(os.path.join(executable_folder_path, "um2lfric"), \
+              os.path.join(executable_folder_path, "um2lfric.exe"))
+    os.rename(os.path.join(executable_folder_path, "lfric2um"), \
+              os.path.join(executable_folder_path, "lfric2um.exe"))
+    os.rename(os.path.join(executable_folder_path, "scintelapi"), \
+              os.path.join(executable_folder_path, "scintelapi.exe"))

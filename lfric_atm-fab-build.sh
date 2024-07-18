@@ -35,7 +35,7 @@ echo "Start installing the fab build scripts"
 cd fab_framework
 echo 'current dir'
 echo $PWD
-./install.sh $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps
+./install.sh $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/core $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps
 echo "Installed the fab build scripts"
 
 cd ../
@@ -43,18 +43,18 @@ echo 'current dir'
 echo $PWD
 echo "Start building apps"
 
-export PYTHONPATH=/opt/spack/.local/lib/python3.12/site-packages/:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/infrastructure/build/psyclone
+export PYTHONPATH=/g/data/access/ngm/envs/lfric/202406/fab/source:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/core/infrastructure/build/psyclone
 
 # build skeleton
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_core/miniapps/skeleton/
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/core/applications/skeleton/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC= PYTHONPATH=$PYTHONPATH ./fab_mini_skeleton.py --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC= PYTHONPATH=$PYTHONPATH ./fab_skeleton.py --wrapper_linker='mpif90'
 
 echo "Built skeleton"
 
 # build gungho_model
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gungho_model/
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/gungho_model/
 echo "current dir"
 echo $PWD
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC=icc PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py --wrapper_linker='tau_f90.sh'
@@ -62,27 +62,27 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC=icc PYTHONPATH=$PYTHONPATH ./f
 echo "Built gungho_model"
 
 # build gravity_wave
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/gravity_wave/
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/gravity_wave/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py --vendor=intel --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py --suite=intel-classic --wrapper_linker='mpif90'
 
 echo "Built gravity_wave"
 
 # build lfric_atm
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfric_atm/
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/lfric_atm/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric_atm.py --vendor=intel --wrapper_linker='tau_f90.sh'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric_atm.py --suite=intel-classic --wrapper_linker='tau_f90.sh'
 
 echo "Built lfric_atm"
 
 # build lfric_inputs
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/lfric_apps/applications/lfricinputs/
+cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/lfricinputs/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric2um.py --vendor=intel --wrapper_linker='mpif90'
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_um2lfric.py --vendor=intel --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric2um.py --suite=intel-classic --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_um2lfric.py --suite=intel-classic --wrapper_linker='mpif90'
 
 echo "Built lfric_inputs"
 

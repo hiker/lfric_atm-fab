@@ -14,7 +14,7 @@ import sys
 
 # Until we sort out the build environment, add the directory that stores the
 # base class of our FAB builds:
-sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
+sys.path.insert(0, "../../../core/infrastructure/build/fab")
 
 from fab.steps.grab.folder import grab_folder
 
@@ -25,10 +25,6 @@ class FabGungho(FabBase):
 
     def __init__(self, name="gungho_model", root_symbol=None):
         super().__init__(name, root_symbol=root_symbol)
-
-        self.set_preprocessor_flags(
-            ['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=64',
-             '-DR_TRAN_PRECISION=64', '-DUSE_XIOS'])
 
     def grab_files(self):
         FabBase.grab_files(self)
@@ -49,12 +45,6 @@ class FabGungho(FabBase):
         return (self.lfric_apps_root / 'applications' / 'gungho_model'
                 / 'rose-meta' / 'lfric-gungho_model' / 'HEAD'
                 / 'rose-meta.conf')
-
-    def get_transformation_script(self):
-        ''':returns: the transformation script to be used by PSyclone.
-        :rtype: Path
-        '''
-        return self.config.source_root / "optimisation/nci-gadi/global.py"
 
 
 # -----------------------------------------------------------------------------

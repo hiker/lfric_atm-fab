@@ -16,10 +16,11 @@ from fab.steps.grab.fcm import fcm_export
 from fab.steps.grab.folder import grab_folder
 from fab.build_config import AddFlags
 from fab.steps.find_source_files import Exclude, Include
+from fab.tools import Category
 
 # Until we sort out the build environment, add the directory that stores the
 # base class of our FAB builds:
-sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
+sys.path.insert(0, "../../../core/infrastructure/build/fab")
 
 from fab_base import FabBase
 from get_revision import GetRevision
@@ -32,8 +33,7 @@ class FabLFRicAtm(FabBase):
         super().__init__(name, root_symbol=root_symbol)
 
         self.set_preprocessor_flags(
-            ['-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=32',
-             '-DR_TRAN_PRECISION=64', '-DUSE_XIOS', '-DUM_PHYSICS',
+            ['-DUM_PHYSICS',
              '-DCOUPLED', '-DUSE_MPI=YES'])
 
     def grab_files(self):
@@ -117,14 +117,20 @@ class FabLFRicAtm(FabBase):
                     AddFlags(match="$source/science/*", flags=['-DLFRIC']) ]
         super().preprocess_fortran(path_flags=path_flags)
 
-    def get_transformation_script(self):
-        ''':returns: the transformation script to be used by PSyclone.
-        :rtype: Path
-        '''
-        return self.config.source_root / "optimisation/nci-gadi/global.py"
-    
     def compile_fortran(self):
-        path_flags=[AddFlags('$output/science/um/atmosphere/large_scale_precipitation/*', ['-qno-openmp']),]
+        fc = self.config.tool_box[Category.FORTRAN_COMPILER]
+        # TODO: needs a better solution, we are still hardcoding compilers here
+        if fc.suite == "intel-classic":
+            no_omp = '-qno-openmp'
+        else:
+            no_omp = '-fno-openmp'
+        path_flags=[AddFlags('$output/science/um/atmosphere/large_scale_precipitation/*',
+                             [no_omp]),
+                    AddFlags(match="$output/science/*", flags=['-r8']), ]
+        # TODO: A remove flag functionality based on profile option and precision is needed
+        if self._args.profile == 'full-debug':
+            self._compiler_flags.remove('-check all,noshape') if '-check all,noshape' in self._compiler_flags \
+                else self._compiler_flags.remove('-check all')
         super().compile_fortran(path_flags=path_flags)
 
 

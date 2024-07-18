@@ -17,6 +17,7 @@ import os
 from pathlib import Path
 import sys
 
+from fab.artefacts import ArtefactSet, SuffixFilter
 from fab.build_config import BuildConfig
 from fab.steps.analyse import analyse
 from fab.steps.archive_objects import archive_objects
@@ -28,15 +29,20 @@ from fab.steps.link import link_exe
 from fab.steps.preprocess import preprocess_c, preprocess_fortran
 from fab.steps.psyclone import psyclone, preprocess_x90
 from fab.steps.grab.folder import grab_folder
-from fab.tools import Categories, Linker, ToolBox, ToolRepository
+from fab.tools import Category, Gfortran, Linker, ToolBox, ToolRepository
+from fab.util import input_to_output_fpath
 
 from lfric_common import configurator, fparser_workaround_stop_concatenation
 from rose_picker_tool import get_rose_picker
+from templaterator import Templaterator
 
 
 logger = logging.getLogger('fab')
 logger.setLevel(logging.DEBUG)
 
+class Mpif90(Gfortran):
+    def __init__(self):
+        super().__init__(name="mpif90", exec_name="mpif90")
 
 class FabBase:
     '''This is the base class for all LFRic FAB scripts.
@@ -65,19 +71,23 @@ class FabBase:
         self._tool_box = ToolBox()
         parser = self.define_command_line_options()
         self.handle_command_line_options(parser)
+#        fc = Mpif90()
+#        self._tool_box.add_tool(fc)
+#        self._tool_box.add_tool(Linker(compiler=fc))
 
         self._site_config.update_toolbox(self._tool_box)
         this_file = Path(__file__)
         # The root directory of the LFRic Core installation
         self._lfric_core_root = this_file.parents[3]
 
-        # lfric_apps is 'next' to lfric_core
-        self._lfric_apps_root = self.lfric_core_root.parent / 'lfric_apps'
-
         if root_symbol:
             self._root_symbol = root_symbol
         else:
             self._root_symbol = name
+
+        # lfric_apps is 'next' to lfric_core
+        self._lfric_apps_root = self.lfric_core_root.parent / 'apps'
+
         self._config = BuildConfig(tool_box=self._tool_box,
                                    project_label=f'{name}-$compiler',
                                    verbose=True,
@@ -88,8 +98,50 @@ class FabBase:
         self._link_flags = []
         self._psyclone_config = (self._config.source_root / 'psyclone_config' /
                                  'psyclone.cfg')
+        self.define_preprocessor_flags()
         self.define_compiler_flags()
         self.define_linker_flags()
+    
+    def define_preprocessor_flags(self):
+        '''Top level function that sets preprocessor flags 
+        by calling self.set_preprocessor_flags
+        '''
+        if self._args.precision:
+            precision_flags=['-DRDEF_PRECISION='+self._args.precision, 
+                             '-DR_SOLVER_PRECISION='+self._args.precision,
+                             '-DR_TRAN_PRECISION='+self._args.precision, 
+                             '-DR_BL_PRECISION='+self._args.precision] 
+        else:
+            precision_flags = []
+            r_def_precision = os.environ.get("RDEF_PRECISION")
+            r_solver_precision = os.environ.get("R_SOLVER_PRECISION")
+            r_tran_precision = os.environ.get("R_TRAN_PRECISION")
+            r_bl_precision = os.environ.get("R_BL_PRECISION")
+
+            if r_def_precision:
+                precision_flags += ['-DRDEF_PRECISION='+r_def_precision]
+            else:
+                precision_flags += ['-DRDEF_PRECISION=64']
+
+            if r_solver_precision:
+                precision_flags += ['-DR_SOLVER_PRECISION='+r_solver_precision]
+            else:
+                precision_flags += ['-DR_SOLVER_PRECISION=32']
+
+            if r_tran_precision:
+                precision_flags += ['-DR_TRAN_PRECISION='+r_tran_precision]
+            else:
+                precision_flags += ['-DR_TRAN_PRECISION=64']
+
+            if r_bl_precision:
+                precision_flags += ['-DR_BL_PRECISION='+r_bl_precision]
+            else:
+                precision_flags += ['-DR_BL_PRECISION=64']
+
+        mpi_tests_flags = ['-DUSE_MPI=YES'] # build/tests.mk - for mpi unit tests
+
+        self.set_preprocessor_flags(precision_flags+['-DUSE_XIOS'])
+        # -DUSE_XIOS is not found in makefile but in fab run_config and driver_io_mod.F90
 
     def define_site_platform_target(self):
         '''This method defines the attributes site, platform (and
@@ -100,13 +152,13 @@ class FabBase:
         '''
 
         # Use `argparser.parse_known_args` to just handle --site and
-        # --platform We also suppress help (all of which will be handled
+        # --platform. We also suppress help (all of which will be handled
         # later, including proper help messages)
         parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument("--site", "-s", type=str, default="$SITE")
         parser.add_argument("--platform", "-p", type=str, default="$PLATFORM")
 
-        args = parser.parse_known_args()[0]   # Ignore [1]=unknown args
+        args = parser.parse_known_args()[0]   # Ignore element [1]=unknown args
         if args.site == "$SITE":
             self._site = os.environ.get("SITE", "default")
         elif args.site:
@@ -145,26 +197,57 @@ class FabBase:
         '''Top level function that sets (compiler- and site-specific)
         compiler flags by calling self.set_compiler_flags
         '''
-        compiler = self._tool_box[Categories.FORTRAN_COMPILER]
-        if compiler.vendor == "intel":
-            self.set_compiler_flags(
-                ['-g', '-r8', '-mcmodel=medium', '-traceback',
-                 '-Wall', '-Werror=conversion', '-Werror=unused-variable',
-                 '-Werror=character-truncation',
-                 '-Werror=unused-value', '-Werror=tabs',
-                 '-assume nosource_include',
-                 '-qopenmp', '-O2', '-std08', '-fp-model=strict', '-fpe0',
-                 '-DRDEF_PRECISION=64', '-DR_SOLVER_PRECISION=64',
-                 '-DR_TRAN_PRECISION=64',
-                 '-DUSE_XIOS', '-DUSE_MPI=YES',
-                 ])
-        elif compiler.vendor in ["joerg", "gnu"]:
+        compiler = self._tool_box[Category.FORTRAN_COMPILER]
+        # TODO: This should go into compiler.get_version() in FAB
+        compiler_version_comparison = ''.join(f"{int(version_component):02d}" \
+                                              for version_component \
+                                                in compiler.get_version().split('.'))
+
+        if compiler.suite == "intel-classic":
+            # The flag groups are mainly from infrastructure/build/fortran/ifort.mk
+            debug_flags = ['-g', '-traceback']
+            no_optimisation_flags = ['-O0']
+            safe_optimisation_flags = ['-O2', '-fp-model=strict']
+            risky_optimisation_flags = ['-O3', '-xhost']
+            openmp_arg_flags = ['-qopenmp']
+            warnings_flags = ['-warn all', '-warn errors', '-gen-interfaces', 'nosource']
+            unit_warnings_flags =['-warn all', '-gen-interfaces', 'nosource']
+            init_flags = ['-ftrapuv']
+
+            #ifort.mk: bad interaction between array shape checking and
+            # the matmul" intrinsic in at least some iterations of v19.
+            runtime_flags = ['-check all,noshape', '-fpe0'] \
+                if compiler_version_comparison >= '190000' and \
+                    compiler_version_comparison < '190100' \
+                        else ['-check all', '-fpe0']
+            
+            #ifort.mk: option for checking code meets Fortran standard - currently 2008
+            fortran_standard_flags = ['-stand f08'] 
+            
+            #ifort.mk has some app and file-specific options for older intel compilers. 
+            #They have not been included here
+
+            compiler_flag_group = openmp_arg_flags
+
+            if self._args.profile == 'full-debug':
+                compiler_flag_group += debug_flags + warnings_flags + init_flags \
+                                        + runtime_flags + no_optimisation_flags \
+                                        +fortran_standard_flags
+            elif self._args.profile == 'production':
+                compiler_flag_group += debug_flags + warnings_flags + risky_optimisation_flags
+            else: # 'fast-debug'
+                compiler_flag_group += debug_flags + warnings_flags + safe_optimisation_flags \
+                                        + fortran_standard_flags              
+            
+            self.set_compiler_flags(compiler_flag_group)
+            
+        elif compiler.suite in ["joerg", "gnu"]:
             flags = ['-ffree-line-length-none', '-fopenmp', '-g',
                      '-Werror=character-truncation', '-Werror=unused-value',
                      '-Werror=tabs', '-fdefault-real-8', '-fdefault-double-8',
                      ]
             # Support Joerg's build environment
-            if compiler.vendor == "joerg":
+            if compiler.suite == "joerg":
                 flags.extend(
                     [
                      # The lib directory contains mpi.mod
@@ -176,7 +259,7 @@ class FabBase:
                      ])
             self.set_compiler_flags(flags)
         else:
-            raise RuntimeError(f"Unknown compiler vendor '{compiler.vendor}'.")
+            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
 
     def define_linker_flags(self):
         '''Top level function that sets (site-specific) linker flags
@@ -184,7 +267,7 @@ class FabBase:
         '''
         # The link flags will depend on the compiler, so use the compiler
         # to set the flags.
-        compiler = self._tool_box[Categories.FORTRAN_COMPILER]
+        compiler = self._tool_box[Category.FORTRAN_COMPILER]
 
         # TODO: Unfortunately, for now we have to set openmp flags explicitly
         # for linker. For now, all compiler flags are still set in the compile
@@ -193,24 +276,24 @@ class FabBase:
         # moved from the compile step into the compiler object, the linker
         # will be able to pick up openmp (and other compiler flags)
         # automatically.
-        if compiler.vendor == "intel":
+        if compiler.suite == "intel-classic":
             self.set_link_flags(
                 ['-qopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
                  '-lnetcdf', '-lhdf5', '-lstdc++'])
 
-        elif compiler.vendor == "joerg":
+        elif compiler.suite == "joerg":
             self.set_link_flags(
                 ['-fopenmp',
                  '-L', ('/home/joerg/work/spack/var/spack/environments/'
                         'lfric-v0/.spack-env/view/lib'),
                  '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
                  '-lhdf5', '-lstdc++'])
-        elif compiler.vendor == "gnu":
+        elif compiler.suite == "gnu":
             self.set_link_flags(
                 ['-fopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
                  '-lnetcdf', '-lhdf5', '-lstdc++'])
         else:
-            raise RuntimeError(f"Unknown compiler vendor '{compiler.vendor}'.")
+            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
 
     def define_command_line_options(self, parser=None):
         '''Defines command line options. Can be overwritten by a derived
@@ -224,14 +307,14 @@ class FabBase:
         if not parser:
             # The formatter class makes sure to print default settings
             parser = argparse.ArgumentParser(
-                description=("A FAB-based build system. Note that if --vendor "
+                description=("A FAB-based build system. Note that if --suite "
                              "is specified, this will change the default for "
                              "compiler and linker"),
                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
         parser.add_argument(
-            '--vendor', '-v', type=str, default=None,
-            help="Sets the default vendor for compiler and linker")
+            '--suite', '-v', type=str, default=None,
+            help="Sets the default suite for compiler and linker")
         parser.add_argument(
             '--fc', '-fc', type=str, default="$FC",
             help="Name of the Fortran compiler to use")
@@ -251,11 +334,25 @@ class FabBase:
         parser.add_argument("--platform", "-p", type=str,
                             default="$PLATFORM or 'default'",
                             help="Name of the platform of the site to use.")
+        parser.add_argument(
+            '--wrapper_compiler', '-wr_c', type=str, default=None,
+            help="Sets a wrapper for compiler")
+        parser.add_argument(
+            '--wrapper_linker', '-wr_l', type=str, default=None,
+            help="Sets a wrapper for linker")
+        parser.add_argument(
+            '--profile', '-pro', type=str, default="fast-debug",
+            help="Profie mode for compilation, choose from \
+                'fast-debug'(default), 'full-debug', 'production'")
+        parser.add_argument(
+            '--precision', '-pre', type=str, default=None,
+            help="Precision for reals, choose from '64', '32', \
+                default is R_SOLVER_PRECISION=32 while others are 64")
         return parser
 
     def handle_command_line_options(self, parser):
         '''Analyse the actual command line options using the specified parser.
-        The base implementation will handle the `--vendor` parameter, and
+        The base implementation will handle the `--suite` parameter, and
         compiler/linker parameters (including the usage of environment
         variables). Needs to be overwritten to handle additional options
         specified by a derived script.
@@ -267,13 +364,13 @@ class FabBase:
         self._args = parser.parse_args(sys.argv[1:])
 
         tr = ToolRepository()
-        if self._args.vendor:
-            if self._args.vendor == "joerg":
-                tr.set_default_vendor("gnu")
+        if self._args.suite:
+            if self._args.suite == "joerg":
+                tr.set_default_compiler_suite("gnu")
             else:
-                tr.set_default_vendor(self._args.vendor)
-            print(f"Setting vendor to '{self._args.vendor}'.")
-            # Vendor will overwrite use of env variables, so change the
+                tr.set_default_compiler_suite(self._args.suite)
+            print(f"Setting suite to '{self._args.suite}'.")
+            # suite will overwrite use of env variables, so change the
             # value of these arguments to be none so they will be ignored
             if self._args.fc == "$FC":
                 self._args.fc = None
@@ -282,7 +379,7 @@ class FabBase:
             if self._args.ld == "$LD":
                 self._args.ld = None
         else:
-            # If no vendor is specified, if required set the defaults
+            # If no suite is specified, if required set the defaults
             # for compilers based on the environment variables.
             if self._args.fc == "$FC":
                 self._args.fc = os.environ.get("FC")
@@ -291,23 +388,29 @@ class FabBase:
             if self._args.ld == "$LD":
                 self._args.ld = os.environ.get("LD")
 
-        # If no vendor was specified, and a special tool was requested,
+        # If no suite was specified, and a special tool was requested,
         # add it to the tool box:
         if self._args.cc:
-            cc = tr.get_tool(Categories.C_COMPILER, self._args.cc)
+            cc = tr.get_tool(Category.C_COMPILER, self._args.cc)
             self._tool_box.add_tool(cc)
         if self._args.fc:
-            fc = tr.get_tool(Categories.FORTRAN_COMPILER, self._args.fc)
+            fc = tr.get_tool(Category.FORTRAN_COMPILER, self._args.fc)
             self._tool_box.add_tool(fc)
         if self._args.ld:
-            ld = tr.get_tool(Categories.LINKER, self._args.ld)
+            ld = tr.get_tool(Category.LINKER, self._args.ld)
             self._tool_box.add_tool(ld)
 
-        fc = self._tool_box[Categories.FORTRAN_COMPILER]
+        if self._args.wrapper_compiler:
+            self._tool_box[Category.C_COMPILER].exec_name = \
+                self._args.wrapper_compiler
+            self._tool_box[Category.FORTRAN_COMPILER].exec_name = \
+                self._args.wrapper_compiler
+
+        fc = self._tool_box[Category.FORTRAN_COMPILER]
         # A hack for now :(
-        if self._args.vendor == "joerg":
-            fc = self._tool_box[Categories.FORTRAN_COMPILER]
-            fc._vendor = "joerg"
+        if self._args.suite == "joerg":
+            fc = self._tool_box[Category.FORTRAN_COMPILER]
+            fc._suite = "joerg"
 
         self._tool_box.add_tool(Linker(compiler=fc))
 
@@ -332,7 +435,7 @@ class FabBase:
         return self._target
 
     def set_preprocessor_flags(self, list_of_flags):
-        self._preprocessor_flags = list_of_flags[:]
+        self._preprocessor_flags += list_of_flags
 
     def set_compiler_flags(self, list_of_flags):
         self._compiler_flags = list_of_flags[:]
@@ -365,8 +468,8 @@ class FabBase:
         # folder will be copied to lfric_core checkout.
         # tau_psy.f90 will therefore be grabbed when `infrastructure/source``
         # is grabbed.
-        # compiler = self.config.tool_box[Categories.FORTRAN_COMPILER]
-        # linker = self.config.tool_box[Categories.LINKER]
+        # compiler = self.config.tool_box[Category.FORTRAN_COMPILER]
+        # linker = self.config.tool_box[Category.LINKER]
         # if "tau_f90.sh" in [compiler.exec_name, linker.exec_name]:
         #     _dst = self.config.source_root / 'psydata'
         #     if not _dst.is_dir():
@@ -387,6 +490,30 @@ class FabBase:
     def get_rose_meta(self):
         return ""
 
+    def templaterator(self, config):
+        base_dir = self.lfric_core_root / "infrastructure" / "build" / "tools"
+
+        templaterator = Templaterator(base_dir/"Templaterator")
+        config.artefact_store["template_files"] = set()
+        t90_filter = SuffixFilter(ArtefactSet.ALL_SOURCE, [".t90", ".T90"])
+        template_files = t90_filter(config.artefact_store)
+        # Don't bother with parallelising this, atm there is only one file:
+        print("TEMPLATE", template_files)
+        for template_file in template_files:
+            out_dir = input_to_output_fpath(config=config,
+                                            input_path=template_file).parent
+            print("OUTDIR IS", out_dir)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            templ_r32 = {"kind": "real32", "type": "real"}
+            templ_r64 = {"kind": "real64", "type": "real"}
+            templ_i32 = {"kind": "int32", "type": "integer"}
+            for key_values in [templ_r32, templ_r64, templ_i32]:
+                out_file = out_dir / f"field_{key_values['kind']}_mod.f90"
+                templaterator.run(template_file, out_file,
+                                  key_values=key_values)
+                config.artefact_store.add(ArtefactSet.FORTRAN_BUILD_FILES,
+                                          out_file)
+
     def configurator(self):
         rose_meta = self.get_rose_meta()
         if rose_meta:
@@ -401,7 +528,6 @@ class FabBase:
             # files to add them to the list of files to process
             configurator(self.config, lfric_core_source=self.lfric_core_root,
                          lfric_apps_source=self.lfric_apps_root,
-                         config_dir=self.config.source_root,
                          rose_meta_conf=rose_meta,
                          rose_picker=rp)
 
@@ -416,7 +542,26 @@ class FabBase:
     def preprocess_x90(self):
         preprocess_x90(self.config, common_flags=self._preprocessor_flags)
 
-    def get_transformation_script(self):
+    def get_transformation_script(self, fpath, config):
+        ''':returns: the transformation script to be used by PSyclone.
+        :rtype: Path
+        '''
+        optimisation_path = config.source_root / 'optimisation' / 'nci-gadi'
+        relative_path = None
+        for base_path in [config.source_root, config.build_output]:
+            try:
+                relative_path = fpath.relative_to(base_path)
+            except ValueError:
+                pass
+        if relative_path:
+            local_transformation_script = (optimisation_path /
+                                           (relative_path.with_suffix('.py')))
+            if local_transformation_script.exists():
+                return local_transformation_script
+
+        global_transformation_script = optimisation_path / 'global.py'
+        if global_transformation_script.exists():
+            return global_transformation_script
         return ""
 
     def get_psyclone_config(self):
@@ -427,13 +572,14 @@ class FabBase:
 
     def psyclone(self):
         psyclone_cli_args = self.get_psyclone_config()
-        compiler = self.config.tool_box[Categories.FORTRAN_COMPILER]
-        linker = self.config.tool_box[Categories.LINKER]
+        compiler = self.config.tool_box[Category.FORTRAN_COMPILER]
+        linker = self.config.tool_box[Category.LINKER]
         if "tau_f90.sh" in [compiler.exec_name, linker.exec_name]:
             psyclone_cli_args.extend(self.get_psyclone_profiling_option())
 
         psyclone(self.config, kernel_roots=[self.config.build_output],
-                 transformation_script=self.get_transformation_script(),
+                 transformation_script=self.get_transformation_script,
+                 api="dynamo0.3",
                  cli_args=psyclone_cli_args)
 
     def analyse(self):
@@ -463,6 +609,7 @@ class FabBase:
             # generate more source files in source and source/configuration
             self.configurator()
             self.find_source_files()
+            self.templaterator(self.config)
             c_pragma_injector(self.config)
             self.preprocess_c()
             self.preprocess_fortran()
