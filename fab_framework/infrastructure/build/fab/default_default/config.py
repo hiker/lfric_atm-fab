@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from fab.tools import Categories, Gcc, Gfortran, Icc, Ifort, ToolRepository
+from fab.tools import Category, Gcc, Gfortran, Icc, Ifort, ToolRepository
 
 
 class Mpif90Gnu(Gfortran):
@@ -52,7 +52,7 @@ class Config:
         # TODO: this is the wrong location I'd guess, I don't think
         # a startup script should setup a toolbox!
         tr = ToolRepository()
-        compiler = tr.get_tool(Categories.FORTRAN_COMPILER, "mpif90-gnu")
+        compiler = tr.get_tool(Category.FORTRAN_COMPILER, "mpif90-gnu")
         toolbox.add_tool(compiler)
-        linker = tr.get_tool(Categories.LINKER, "linker-mpif90-gnu")
+        linker = tr.get_tool(Category.LINKER, "linker-mpif90-gnu")
         toolbox.add_tool(linker)
