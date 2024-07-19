@@ -40,9 +40,12 @@ from templaterator import Templaterator
 logger = logging.getLogger('fab')
 logger.setLevel(logging.DEBUG)
 
+
 class Mpif90(Gfortran):
+    '''A simple wrapper around gfortran using mpif90.'''
     def __init__(self):
         super().__init__(name="mpif90", exec_name="mpif90")
+
 
 class FabBase:
     '''This is the base class for all LFRic FAB scripts.
@@ -51,7 +54,7 @@ class FabBase:
         the name of the compiler will be added to it.
     :param Optional[str] root_symbol:
     '''
-
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, name, root_symbol=None):
         self._site = None
         self._platform = None
@@ -101,16 +104,16 @@ class FabBase:
         self.define_preprocessor_flags()
         self.define_compiler_flags()
         self.define_linker_flags()
-    
+
     def define_preprocessor_flags(self):
-        '''Top level function that sets preprocessor flags 
+        '''Top level function that sets preprocessor flags
         by calling self.set_preprocessor_flags
         '''
         if self._args.precision:
-            precision_flags=['-DRDEF_PRECISION='+self._args.precision, 
-                             '-DR_SOLVER_PRECISION='+self._args.precision,
-                             '-DR_TRAN_PRECISION='+self._args.precision, 
-                             '-DR_BL_PRECISION='+self._args.precision] 
+            precision_flags = ['-DRDEF_PRECISION=' + self._args.precision,
+                               '-DR_SOLVER_PRECISION=' + self._args.precision,
+                               '-DR_TRAN_PRECISION=' + self._args.precision,
+                               '-DR_BL_PRECISION=' + self._args.precision]
         else:
             precision_flags = []
             r_def_precision = os.environ.get("RDEF_PRECISION")
@@ -138,10 +141,12 @@ class FabBase:
             else:
                 precision_flags += ['-DR_BL_PRECISION=64']
 
-        mpi_tests_flags = ['-DUSE_MPI=YES'] # build/tests.mk - for mpi unit tests
+        # build/tests.mk - for mpi unit tests
+        mpi_tests_flags = ['-DUSE_MPI=YES']
 
         self.set_preprocessor_flags(precision_flags+['-DUSE_XIOS'])
-        # -DUSE_XIOS is not found in makefile but in fab run_config and driver_io_mod.F90
+        # -DUSE_XIOS is not found in makefile but in fab run_config and
+        # driver_io_mod.F90
 
     def define_site_platform_target(self):
         '''This method defines the attributes site, platform (and
@@ -199,48 +204,53 @@ class FabBase:
         '''
         compiler = self._tool_box[Category.FORTRAN_COMPILER]
         # TODO: This should go into compiler.get_version() in FAB
-        compiler_version_comparison = ''.join(f"{int(version_component):02d}" \
-                                              for version_component \
-                                                in compiler.get_version().split('.'))
+        compiler_version_comparison = ''.join(
+            f"{int(version_component):02d}"
+            for version_component in compiler.get_version().split('.'))
 
         if compiler.suite == "intel-classic":
-            # The flag groups are mainly from infrastructure/build/fortran/ifort.mk
+            # The flag groups are mainly from infrastructure/build/fortran
+            # /ifort.mk
             debug_flags = ['-g', '-traceback']
             no_optimisation_flags = ['-O0']
             safe_optimisation_flags = ['-O2', '-fp-model=strict']
             risky_optimisation_flags = ['-O3', '-xhost']
             openmp_arg_flags = ['-qopenmp']
-            warnings_flags = ['-warn all', '-warn errors', '-gen-interfaces', 'nosource']
-            unit_warnings_flags =['-warn all', '-gen-interfaces', 'nosource']
+            warnings_flags = ['-warn all', '-warn errors', '-gen-interfaces',
+                              'nosource']
+            unit_warnings_flags = ['-warn all', '-gen-interfaces', 'nosource']
             init_flags = ['-ftrapuv']
 
-            #ifort.mk: bad interaction between array shape checking and
+            # ifort.mk: bad interaction between array shape checking and
             # the matmul" intrinsic in at least some iterations of v19.
-            runtime_flags = ['-check all,noshape', '-fpe0'] \
-                if compiler_version_comparison >= '190000' and \
-                    compiler_version_comparison < '190100' \
-                        else ['-check all', '-fpe0']
-            
-            #ifort.mk: option for checking code meets Fortran standard - currently 2008
-            fortran_standard_flags = ['-stand f08'] 
-            
-            #ifort.mk has some app and file-specific options for older intel compilers. 
-            #They have not been included here
+            if '190000' <= compiler_version_comparison < '190100':
+                runtime_flags = ['-check all,noshape', '-fpe0']
+            else:
+                runtime_flags = ['-check all', '-fpe0']
 
+            # ifort.mk: option for checking code meets Fortran standard
+            # - currently 2008
+            fortran_standard_flags = ['-stand f08']
+
+            # ifort.mk has some app and file-specific options for older
+            # intel compilers. They have not been included here
             compiler_flag_group = openmp_arg_flags
 
             if self._args.profile == 'full-debug':
-                compiler_flag_group += debug_flags + warnings_flags + init_flags \
-                                        + runtime_flags + no_optimisation_flags \
-                                        +fortran_standard_flags
+                compiler_flag_group += (debug_flags + warnings_flags +
+                                        init_flags + runtime_flags +
+                                        no_optimisation_flags +
+                                        fortran_standard_flags)
             elif self._args.profile == 'production':
-                compiler_flag_group += debug_flags + warnings_flags + risky_optimisation_flags
-            else: # 'fast-debug'
-                compiler_flag_group += debug_flags + warnings_flags + safe_optimisation_flags \
-                                        + fortran_standard_flags              
-            
+                compiler_flag_group += (debug_flags + warnings_flags +
+                                        risky_optimisation_flags)
+            else:  # 'fast-debug'
+                compiler_flag_group += (debug_flags + warnings_flags +
+                                        safe_optimisation_flags +
+                                        fortran_standard_flags)
+
             self.set_compiler_flags(compiler_flag_group)
-            
+
         elif compiler.suite in ["joerg", "gnu"]:
             flags = ['-ffree-line-length-none', '-fopenmp', '-g',
                      '-Werror=character-truncation', '-Werror=unused-value',
