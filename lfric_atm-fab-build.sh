@@ -35,7 +35,9 @@ echo "Start installing the fab build scripts"
 cd fab_framework
 echo 'current dir'
 echo $PWD
-./install.sh $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/core $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps
+export PATH_TO_CORE=$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/core
+export PATH_TO_APPS=$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps
+./install.sh $PATH_TO_CORE $PATH_TO_APPS
 echo "Installed the fab build scripts"
 
 cd ../
@@ -43,46 +45,46 @@ echo 'current dir'
 echo $PWD
 echo "Start building apps"
 
-export PYTHONPATH=/g/data/access/ngm/envs/lfric/202406/fab/source:$FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/core/infrastructure/build/psyclone
+export PYTHONPATH=/g/data/access/ngm/envs/lfric/202406/fab/source
 
 # build skeleton
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/core/applications/skeleton/
+cd $PATH_TO_CORE/applications/skeleton/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC= PYTHONPATH=$PYTHONPATH ./fab_skeleton.py --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel $PATH_TO_CORE/build.sh ./fab_skeleton.py
 
 echo "Built skeleton"
 
 # build gungho_model
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/gungho_model/
+cd $PATH_TO_APPS/applications/gungho_model/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort CC=icc PYTHONPATH=$PYTHONPATH ./fab_gungho_model.py --wrapper_linker='tau_f90.sh'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh ./fab_gungho_model.py
 
 echo "Built gungho_model"
 
 # build gravity_wave
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/gravity_wave/
+cd $PATH_TO_APPS/applications/gravity_wave/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_gravity_wave.py --suite=intel-classic --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH $PATH_TO_CORE/build.sh ./fab_gravity_wave.py --suite=intel-classic
 
 echo "Built gravity_wave"
 
 # build lfric_atm
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/lfric_atm/
+cd $PATH_TO_APPS/applications/lfric_atm/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric_atm.py --suite=intel-classic --wrapper_linker='tau_f90.sh'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh ./fab_lfric_atm.py
 
 echo "Built lfric_atm"
 
 # build lfric_inputs
-cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/lfricinputs/
+cd $PATH_TO_APPS/lfricinputs/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_lfric2um.py --suite=intel-classic --wrapper_linker='mpif90'
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH ./fab_um2lfric.py --suite=intel-classic --wrapper_linker='mpif90'
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel $PATH_TO_CORE/build.sh ./fab_lfric2um.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel $PATH_TO_CORE/build.sh ./fab_um2lfric.py
 
 echo "Built lfric_inputs"
 
