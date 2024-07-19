@@ -49,10 +49,11 @@ class Config:
             tr.add_tool(tool)
 
     def update_toolbox(self, toolbox):
-        # TODO: this is the wrong location I'd guess, I don't think
-        # a startup script should setup a toolbox!
-        tr = ToolRepository()
-        compiler = tr.get_tool(Category.FORTRAN_COMPILER, "mpif90-gnu")
-        toolbox.add_tool(compiler)
-        linker = tr.get_tool(Category.LINKER, "linker-mpif90-gnu")
-        toolbox.add_tool(linker)
+        '''This could be used to define different compiler flags etc.
+        For now do nothing.'''
+        # TODO: not sure if a site-specific script should actually ever
+        # update the toolbox - the toolbox is mostly defined based on
+        # command line parameters, and should not be modified.
+        # For now leave it here, and once we have fixed the support
+        # for compiler flags (with modes etc), this can be refactored.
+        pass
