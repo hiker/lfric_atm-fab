@@ -18,6 +18,7 @@ fab lint:
     tags:
         - gadi
     script:
+        - pip install pycodestyle
         - pycodestyle ./fab_framework
 
 fab build:
