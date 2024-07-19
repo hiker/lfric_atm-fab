@@ -29,7 +29,7 @@ from fab.steps.link import link_exe
 from fab.steps.preprocess import preprocess_c, preprocess_fortran
 from fab.steps.psyclone import psyclone, preprocess_x90
 from fab.steps.grab.folder import grab_folder
-from fab.tools import Category, Gfortran, Linker, ToolBox, ToolRepository
+from fab.tools import Category, ToolBox, ToolRepository
 from fab.util import input_to_output_fpath
 
 from lfric_common import configurator, fparser_workaround_stop_concatenation
@@ -39,12 +39,6 @@ from templaterator import Templaterator
 
 logger = logging.getLogger('fab')
 logger.setLevel(logging.DEBUG)
-
-
-class Mpif90(Gfortran):
-    '''A simple wrapper around gfortran using mpif90.'''
-    def __init__(self):
-        super().__init__(name="mpif90", exec_name="mpif90")
 
 
 class FabBase:
@@ -74,9 +68,6 @@ class FabBase:
         self._tool_box = ToolBox()
         parser = self.define_command_line_options()
         self.handle_command_line_options(parser)
-#        fc = Mpif90()
-#        self._tool_box.add_tool(fc)
-#        self._tool_box.add_tool(Linker(compiler=fc))
 
         self._site_config.update_toolbox(self._tool_box)
         this_file = Path(__file__)
@@ -415,14 +406,6 @@ class FabBase:
                 self._args.wrapper_compiler
             self._tool_box[Category.FORTRAN_COMPILER].exec_name = \
                 self._args.wrapper_compiler
-
-        fc = self._tool_box[Category.FORTRAN_COMPILER]
-        # A hack for now :(
-        if self._args.suite == "joerg":
-            fc = self._tool_box[Category.FORTRAN_COMPILER]
-            fc._suite = "joerg"
-
-        self._tool_box.add_tool(Linker(compiler=fc))
 
     @property
     def config(self):
