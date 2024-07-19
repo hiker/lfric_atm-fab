@@ -1,5 +1,6 @@
 stages:
     - clean
+    - lint
     - build
     - run
     - check
@@ -10,6 +11,14 @@ fab cleanup:
         - gadi
     script:
         - ./lfric_atm-fab-clean.sh
+
+fab lint:
+    stage: lint
+    allow_failure: true
+    tags:
+        - gadi
+    script:
+        - pycodestyle ./fab_framework
 
 fab build:
     stage: build
