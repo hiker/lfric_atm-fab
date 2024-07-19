@@ -370,6 +370,23 @@ class FabBase:
                 tr.set_default_compiler_suite("gnu")
             else:
                 tr.set_default_compiler_suite(self._args.suite)
+            # TODO:  for now define mpif90 as default
+            try:
+                fc = tr.get_tool(Category.FORTRAN_COMPILER,
+                                 f"mpif90-{self._args.suite}")
+            except KeyError:
+                fc = tr.get_default(Category.FORTRAN_COMPILER)
+
+            self._tool_box.add_tool(fc)
+
+            # TODO:  for now also define mpif90 as default linker
+            try:
+                ld = tr.get_tool(Category.LINKER,
+                                 f"linker-{fc.name}")
+            except KeyError:
+                ld = tr.get_default(Category.FORTRAN_COMPILER)
+            self._tool_box.add_tool(ld)
+
             print(f"Setting suite to '{self._args.suite}'.")
             # suite will overwrite use of env variables, so change the
             # value of these arguments to be none so they will be ignored
