@@ -80,7 +80,7 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel-cla
 echo "Built lfric_atm"
 
 # build lfric_inputs
-cd $PATH_TO_APPS/lfricinputs/
+cd $PATH_TO_APPS/applications/lfricinputs/
 echo "current dir"
 echo $PWD
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel $PATH_TO_CORE/build.sh ./fab_lfric2um.py
