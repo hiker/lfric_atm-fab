@@ -83,8 +83,8 @@ echo "Built lfric_atm"
 cd $PATH_TO_APPS/applications/lfricinputs/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel $PATH_TO_CORE/build.sh ./fab_lfric2um.py
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel $PATH_TO_CORE/build.sh ./fab_um2lfric.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel-classic $PATH_TO_CORE/build.sh ./fab_lfric2um.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel-classic $PATH_TO_CORE/build.sh ./fab_um2lfric.py
 
 echo "Built lfric_inputs"
 
