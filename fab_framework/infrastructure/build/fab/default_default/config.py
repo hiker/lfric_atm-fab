@@ -15,6 +15,12 @@ class Mpif90Intel(Ifort):
                          exec_name="mpif90")
 
 
+class MpiccIntel(Icc):
+    def __init__(self):
+        super().__init__(name="mpicc-intel-classic",
+                         exec_name="mpicc")
+
+
 class TauGnuFortran(Gfortran):
     def __init__(self):
         super().__init__(name="tau-gnu-fortran",
