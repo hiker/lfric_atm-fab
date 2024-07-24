@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from fab.tools import Category, Gcc, Gfortran, Icc, Ifort, ToolRepository
+from fab.tools import Gcc, Gfortran, Icc, Ifort, ToolRepository
 
 
 class Mpif90Gnu(Gfortran):
@@ -11,7 +11,7 @@ class Mpif90Gnu(Gfortran):
 
 class Mpif90Intel(Ifort):
     def __init__(self):
-        super().__init__(name="mpif90-intel",
+        super().__init__(name="mpif90-intel-classic",
                          exec_name="mpif90")
 
 
