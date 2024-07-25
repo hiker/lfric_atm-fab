@@ -11,16 +11,11 @@ contained in the infrastructure directory.
 
 import logging
 import shutil
-import sys
 
 from fab.artefacts import ArtefactSet
 from fab.steps import run_mp, step
 from fab.steps.grab.folder import grab_folder
 from fab.util import file_checksum, log_or_dot, TimerLogger
-
-# Until we sort out the build environment, add the directory that stores the
-# base class of our FAB builds:
-#sys.path.insert(0, "../../../lfric_core/infrastructure/build/fab")
 
 from fab.steps.grab.folder import grab_folder
 

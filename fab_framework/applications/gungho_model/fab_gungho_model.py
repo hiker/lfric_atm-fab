@@ -10,11 +10,6 @@ contained in the infrastructure directory.
 '''
 
 import logging
-import sys
-
-# Until we sort out the build environment, add the directory that stores the
-# base class of our FAB builds:
-sys.path.insert(0, "../../../core/infrastructure/build/fab")
 
 from fab.steps.grab.folder import grab_folder
 
