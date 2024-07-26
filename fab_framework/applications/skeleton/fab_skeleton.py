@@ -5,25 +5,24 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for applications/skeleton. It relies on the FabBase class
+'''A FAB build script for applications/skeleton. It relies on the LFRicBase class
 contained in the infrastructure directory.
 '''
 
 import logging
-import sys
 
 from fab.steps.grab.folder import grab_folder
 
-from fab_base import FabBase
+from lfric_base import LFRicBase
 
 
-class FabSkeleton(FabBase):
+class FabSkeleton(LFRicBase):
 
     def __init__(self, name="skeleton", root_symbol=None):
         super().__init__(name, root_symbol=root_symbol)
 
     def grab_files(self):
-        FabBase.grab_files(self)
+        super().grab_files()
         dirs = ['applications/skeleton/source/']
 
         # pylint: disable=redefined-builtin

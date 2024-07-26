@@ -5,7 +5,7 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for lfricinputs-scintelapi. It relies on the FabBase class
+'''A FAB build script for lfricinputs-scintelapi. It relies on the LFRicBase class
 contained in the infrastructure directory.
 '''
 
@@ -17,21 +17,21 @@ from fab.steps.grab.folder import grab_folder
 from fab.build_config import AddFlags
 from fab.steps.find_source_files import Exclude, Include
 
-from fab_base import FabBase
+from lfric_base import LFRicBase
 
 from fcm_extract import FcmExtract
 
-class FabLfricInputs(FabBase):
+class FabLfricInputs(LFRicBase):
 
     def __init__(self, name="lfric_inputs", root_symbol=None):
         super().__init__(name, root_symbol=root_symbol)
 
-        self.set_preprocessor_flags(
+        self.set_flags(
             ['-DUM_PHYSICS',
-             '-DCOUPLED', '-DUSE_MPI=YES'])
+             '-DCOUPLED', '-DUSE_MPI=YES'], self._preprocessor_flags)
 
     def grab_files(self):
-        FabBase.grab_files(self)
+        super().grab_files()
         dirs = ['applications/lfricinputs/source/scintelapi', 
                 'applications/lfricinputs/source/common',
                 'science/um_physics_interface/source/',
@@ -122,4 +122,3 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     fab_lfric_inputs = FabLfricInputs(root_symbol="scintelapi")
     fab_lfric_inputs.build()
-    os.rename(os.path.join(os.environ.get('FAB_WORKSPACE'), "scintelapi"), os.path.join(os.environ.get('FAB_WORKSPACE'), "scintelapi.exe"))

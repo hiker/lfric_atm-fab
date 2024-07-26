@@ -5,7 +5,7 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for lfric_atm. It relies on the FabBase class
+'''A FAB build script for lfric_atm. It relies on the LFRicBase class
 contained in the infrastructure directory.
 '''
 
@@ -17,22 +17,22 @@ from fab.build_config import AddFlags
 from fab.steps.find_source_files import Exclude, Include
 from fab.tools import Category
 
-from fab_base import FabBase
+from lfric_base import LFRicBase
 from get_revision import GetRevision
 
 from fcm_extract import FcmExtract
 
-class FabLFRicAtm(FabBase):
+class FabLFRicAtm(LFRicBase):
 
     def __init__(self, name="lfric_atm", root_symbol=None):
         super().__init__(name, root_symbol=root_symbol)
 
-        self.set_preprocessor_flags(
+        self.set_flags(
             ['-DUM_PHYSICS',
-             '-DCOUPLED', '-DUSE_MPI=YES'])
+             '-DCOUPLED', '-DUSE_MPI=YES'], self._preprocessor_flags)
 
     def grab_files(self):
-        FabBase.grab_files(self)
+        super().grab_files()
         dirs = ['science/coupled_interface/source/',
                 'science/gungho/source', 
                 'science/um_physics_interface/source/', 
