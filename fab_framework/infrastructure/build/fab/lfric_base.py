@@ -41,7 +41,7 @@ class LFRicBase(FabBase):
         super().__init__(name, root_symbol=root_symbol)
 
         this_file = Path(__file__)
-        # The root directory of the LFRic Core 
+        # The root directory of the LFRic Core
         self._lfric_core_root = this_file.parents[3]
         # lfric_apps is 'next' to lfric_core
         self._lfric_apps_root = self.lfric_core_root.parent / 'apps'
@@ -88,7 +88,8 @@ class LFRicBase(FabBase):
         # build/tests.mk - for mpi unit tests
         mpi_tests_flags = ['-DUSE_MPI=YES']
 
-        self.set_flags(precision_flags+['-DUSE_XIOS'], self._preprocessor_flags)
+        self.set_flags(precision_flags+['-DUSE_XIOS'],
+                       self._preprocessor_flags)
         # -DUSE_XIOS is not found in makefile but in fab run_config and
         # driver_io_mod.F90
 
@@ -398,4 +399,4 @@ if __name__ == "__main__":
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
     lfric_base = LFRicBase(name="command-line-test",
-                       root_symbol=None)
+                           root_symbol=None)

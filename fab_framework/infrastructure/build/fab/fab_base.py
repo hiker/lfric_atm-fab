@@ -5,9 +5,8 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''This is an OO basic interface to FAB. It allows typical 
-applications to only modify very few settings to have a working FAB build
-script.
+'''This is an OO basic interface to FAB. It allows typical applications to
+only modify very few settings to have a working FAB build script.
 '''
 
 import argparse
@@ -152,7 +151,7 @@ class FabBase:
 
         else:
             raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
-        
+
         return compiler
 
     def define_linker_flags(self):
@@ -164,7 +163,7 @@ class FabBase:
         compiler = self._tool_box[Category.FORTRAN_COMPILER]
 
         self.set_flags([], self._link_flags)
-        
+
         return compiler
 
     def define_command_line_options(self, parser=None):
@@ -282,10 +281,10 @@ class FabBase:
     def target(self):
         ''':returns: the target (="site-platform").'''
         return self._target
-    
+
     def set_flags(self, list_of_flags, flag_group):
         for flag in list_of_flags:
-            if not flag in flag_group:
+            if flag not in flag_group:
                 flag_group.append(flag)
 
     def grab_files(self):

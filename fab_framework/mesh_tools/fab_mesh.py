@@ -37,8 +37,9 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_mesh_tool = FabMeshTool(name="mesh_tools", root_symbol= \
-                                ['cubedsphere_mesh_generator', \
-                                 'planar_mesh_generator', \
+    fab_mesh_tool = FabMeshTool(name="mesh_tools",
+                                root_symbol=[
+                                    'cubedsphere_mesh_generator',
+                                    'planar_mesh_generator',
                                     'summarise_ugrid'])
     fab_mesh_tool.build()

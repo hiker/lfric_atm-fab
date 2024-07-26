@@ -22,8 +22,9 @@ from get_revision import GetRevision
 
 from fcm_extract import FcmExtract
 
+
 class FabLFRicAtm(LFRicBase):
-        
+
     def define_preprocessor_flags(self):
         super().define_preprocessor_flags()
 
@@ -34,16 +35,18 @@ class FabLFRicAtm(LFRicBase):
     def grab_files(self):
         super().grab_files()
         dirs = ['science/coupled_interface/source/',
-                'science/gungho/source', 
-                'science/um_physics_interface/source/', 
-                'science/socrates_interface/source/', 
+                'science/gungho/source',
+                'science/um_physics_interface/source/',
+                'science/socrates_interface/source/',
                 'science/jules_interface/source/',
                 'applications/lfric_atm/source',
                 'science/constants/source',
                 ]
         # pylint: disable=redefined-builtin
         for dir in dirs:
-            grab_folder(self.config, src=self.lfric_apps_root / dir, dst_label='')
+            grab_folder(self.config,
+                        src=self.lfric_apps_root / dir,
+                        dst_label='')
 
         gr = GetRevision("../../dependencies.sh")
         xm = "xm"
@@ -55,7 +58,7 @@ class FabLFRicAtm(LFRicBase):
                 src = "/src"
             print(f'fcm:{lib}.{xm}_tr{src}', f'science/{lib}', revision)
             fcm_export(self.config, src=f'fcm:{lib}.{xm}_tr/{src}',
-                       dst_label=f'science/{lib}',revision=revision)
+                       dst_label=f'science/{lib}', revision=revision)
 
         # Copy the optimisation scripts into a separate directory
         dir = 'applications/lfric_atm/optimisation'
@@ -66,8 +69,8 @@ class FabLFRicAtm(LFRicBase):
         """Based on $LFRIC_APPS_ROOT/build/extract/extract.cfg"""
 
         extract = FcmExtract(self.lfric_apps_root / "build" / "extract" /
-                          "extract.cfg")
-        
+                             "extract.cfg")
+
         science_root = self.config.source_root / 'science'
         path_filters = []
         for section, source_file_info in extract.items():
@@ -76,40 +79,51 @@ class FabLFRicAtm(LFRicBase):
                     path_filters.append(Exclude(science_root / section))
                 else:
                     # Remove the 'src' which is the first part of the name
-                    new_paths = [i.relative_to(i.parents[-2]) for i in list_of_paths]
+                    new_paths = [i.relative_to(i.parents[-2])
+                                 for i in list_of_paths]
                     for path in new_paths:
-                        path_filters.append(Include(science_root / section / path))
+                        path_filters.append(Include(science_root /
+                                                    section / path))
         super().find_source_files(path_filters=path_filters)
-
 
     def get_rose_meta(self):
         return (self.lfric_apps_root / 'applications/lfric_atm' / 'rose-meta' /
                 'lfric-lfric_atm' / 'HEAD' / 'rose-meta.conf')
 
     def preprocess_c(self):
-        path_flags=[AddFlags(match="$source/science/um/*", flags=['-I$relative/include',
-                                                                  '-I/$source/science/um/include/other/',
-                                                                  '-I$source/science/shumlib/common/src',
-                                                                  '-I$source/science/shumlib/shum_thread_utils/src',]),
-                    AddFlags(match="$source/science/jules/*", flags=['-DUM_JULES', '-I$output']),
-                    AddFlags(match="$source/science/shumlib/*", flags=['-DSHUMLIB_LIBNAME=libshum',
-                                                                       '-I$output',
-                                                                       '-I$source/science/shumlib/common/src',
-                                                                       '-I$source/science/shumlib/shum_thread_utils/src',
-                                                                       '-I$relative'],),
-                    AddFlags(match="$source/science/8", flags=['-DLFRIC']) ]
+        path_flags = [AddFlags(match="$source/science/um/*",
+                               flags=['-I$relative/include',
+                                      '-I/$source/science/um/include/other/',
+                                      '-I$source/science/shumlib/common/src',
+                                      '-I$source/science/shumlib/\
+                                        shum_thread_utils/src',]),
+                      AddFlags(match="$source/science/jules/*",
+                               flags=['-DUM_JULES', '-I$output']),
+                      AddFlags(match="$source/science/shumlib/*",
+                               flags=['-DSHUMLIB_LIBNAME=libshum',
+                                      '-I$output',
+                                      '-I$source/science/shumlib/common/src',
+                                      '-I$source/science/shumlib/\
+                                        shum_thread_utils/src',
+                                      '-I$relative'],),
+                      AddFlags(match="$source/science/8",
+                               flags=['-DLFRIC'])]
         super().preprocess_c(path_flags=path_flags)
 
-
     def preprocess_fortran(self):
-        path_flags=[AddFlags(match="$source/science/um/*", flags=['-I$relative/include',
-                                                                  '-I$source/shumlib/shum_thread_utils/src/']),
-                    AddFlags(match="$source/science/jules/*", flags=['-DUM_JULES', '-I$output']),
-                    AddFlags(match="$source/science/shumlib/*", flags=['-DSHUMLIB_LIBNAME=libshum',
-                                                                       '-I$output',
-                                                                       '-I$source/shumlib/common/src',
-                                                                       '-I$relative'],),
-                    AddFlags(match="$source/science/*", flags=['-DLFRIC']) ]
+        path_flags = [AddFlags(match="$source/science/um/*",
+                               flags=['-I$relative/include',
+                                      '-I$source/shumlib/\
+                                        shum_thread_utils/src/']),
+                      AddFlags(match="$source/science/jules/*",
+                               flags=['-DUM_JULES', '-I$output']),
+                      AddFlags(match="$source/science/shumlib/*",
+                               flags=['-DSHUMLIB_LIBNAME=libshum',
+                                      '-I$output',
+                                      '-I$source/shumlib/common/src',
+                                      '-I$relative'],),
+                      AddFlags(match="$source/science/*",
+                               flags=['-DLFRIC'])]
         super().preprocess_fortran(path_flags=path_flags)
 
     def compile_fortran(self):
@@ -119,12 +133,15 @@ class FabLFRicAtm(LFRicBase):
             no_omp = '-qno-openmp'
         else:
             no_omp = '-fno-openmp'
-        path_flags=[AddFlags('$output/science/um/atmosphere/large_scale_precipitation/*',
-                             [no_omp]),
-                    AddFlags(match="$output/science/*", flags=['-r8']), ]
-        # TODO: A remove flag functionality based on profile option and precision is needed
+        path_flags = [AddFlags(
+            '$output/science/um/atmosphere/large_scale_precipitation/*',
+            [no_omp]),
+            AddFlags(match="$output/science/*", flags=['-r8']),]
+        # TODO: A remove flag functionality based on profile option
+        # and precision is needed
         if self._args.profile == 'full-debug':
-            self._compiler_flags.remove('-check all,noshape') if '-check all,noshape' in self._compiler_flags \
+            self._compiler_flags.remove('-check all,noshape') \
+                if '-check all,noshape' in self._compiler_flags \
                 else self._compiler_flags.remove('-check all')
         super().compile_fortran(path_flags=path_flags)
 

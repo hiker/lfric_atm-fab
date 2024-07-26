@@ -5,8 +5,8 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for applications/skeleton. It relies on the LFRicBase class
-contained in the infrastructure directory.
+'''A FAB build script for applications/skeleton. It relies on
+the LFRicBase class contained in the infrastructure directory.
 '''
 
 import logging
@@ -33,8 +33,8 @@ class FabSkeleton(LFRicBase):
                     dst_label='optimisation')
 
     def get_rose_meta(self):
-        return (self.lfric_core_root / 'applications' / 'skeleton' / 'rose-meta' /
-                'lfric-skeleton' / 'HEAD' / 'rose-meta.conf')
+        return (self.lfric_core_root / 'applications' / 'skeleton' /
+                'rose-meta' / 'lfric-skeleton' / 'HEAD' / 'rose-meta.conf')
 
 
 # -----------------------------------------------------------------------------

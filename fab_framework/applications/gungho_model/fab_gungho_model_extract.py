@@ -29,10 +29,13 @@ class FabGunghoExtract(FabGungho):
                             f'no-private-{fpath.stem}.{hash}{fpath.suffix}')
 
         if no_private_fpath.exists():
-            log_or_dot(logger, f'Removing private using prebuild: {no_private_fpath}')
+            log_or_dot(logger,
+                       f'Removing private using prebuild: \
+                        {no_private_fpath}')
             shutil.copy(no_private_fpath, fpath)
         else:
-            log_or_dot(logger, f'Removing private using fparser remove_private')
+            log_or_dot(logger,
+                       f'Removing private using fparser remove_private')
             from remove_private import remove_private
             from psyclone.line_length import FortLineLength
             fll = FortLineLength()
@@ -59,12 +62,12 @@ class FabGunghoExtract(FabGungho):
         self.remove_private()
         super().psyclone()
 
-
     def get_transformation_script(self, fpath, config):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path
         '''
         return config.source_root / 'optimisation' / 'extract' / 'global.py'
+
 
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
