@@ -14,18 +14,12 @@ import shutil
 
 from fab.artefacts import ArtefactSet
 from fab.steps import run_mp, step
-from fab.steps.grab.folder import grab_folder
 from fab.util import file_checksum, log_or_dot, TimerLogger
-
-from fab.steps.grab.folder import grab_folder
 
 from fab_gungho_model import FabGungho
 
 
 class FabGunghoExtract(FabGungho):
-
-    def __init__(self, name="gungho_model_extract", root_symbol=None):
-        super().__init__(name, root_symbol=root_symbol)
 
     @staticmethod
     def remove_one_private(args):

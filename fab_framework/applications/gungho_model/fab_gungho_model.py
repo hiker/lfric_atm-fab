@@ -18,9 +18,6 @@ from lfric_base import LFRicBase
 
 class FabGungho(LFRicBase):
 
-    def __init__(self, name="gungho_model", root_symbol=None):
-        super().__init__(name, root_symbol=root_symbol)
-
     def grab_files(self):
         super().grab_files()
         dirs = ['applications/gungho_model/source/',
@@ -47,5 +44,5 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_gungo = FabGungho()
+    fab_gungo = FabGungho(name="gungho_model")
     fab_gungo.build()

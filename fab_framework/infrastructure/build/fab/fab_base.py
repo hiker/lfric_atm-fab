@@ -73,10 +73,6 @@ class FabBase:
         self._compiler_flags = []
         self._link_flags = []
 
-        self.define_preprocessor_flags()
-        self.define_compiler_flags()
-        self.define_linker_flags()
-
     def define_site_platform_target(self):
         '''This method defines the attributes site, platform (and
         target=site-platform) based on the command line option --site
@@ -330,12 +326,15 @@ class FabBase:
             self.grab_files()
             self.find_source_files()
             c_pragma_injector(self.config)
+            self.define_preprocessor_flags()
             self.preprocess_c()
             self.preprocess_fortran()
             self.analyse()
+            self.define_compiler_flags()
             self.compile_c()
             self.compile_fortran()
             self.archive_objects()
+            self.define_linker_flags()
             self.link()
 
 

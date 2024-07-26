@@ -18,9 +18,6 @@ from lfric_base import LFRicBase
 
 class FabGravityWave(LFRicBase):
 
-    def __init__(self, name="gravity_wave", root_symbol=None):
-        super().__init__(name, root_symbol=root_symbol)
-
     def grab_files(self):
         super().grab_files()
         dirs = ['applications/gravity_wave/source/',
@@ -43,5 +40,5 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_gravity_wave = FabGravityWave()
+    fab_gravity_wave = FabGravityWave(name="gravity_wave")
     fab_gravity_wave.build()

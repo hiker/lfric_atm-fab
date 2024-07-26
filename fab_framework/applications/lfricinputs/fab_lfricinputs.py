@@ -23,8 +23,8 @@ from fcm_extract import FcmExtract
 
 class FabLfricInputs(LFRicBase):
 
-    def __init__(self, name="lfric_inputs", root_symbol=None):
-        super().__init__(name, root_symbol=root_symbol)
+    def define_preprocessor_flags(self):
+        super().define_preprocessor_flags()
 
         self.set_flags(
             ['-DUM_PHYSICS',
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_lfric_inputs = FabLfricInputs(root_symbol= \
+    fab_lfric_inputs = FabLfricInputs(name="lfric_inputs", root_symbol= \
                                       ['um2lfric', 'lfric2um', 'scintelapi'])
     fab_lfric_inputs.build()
     fab_workspace_path = os.environ.get('FAB_WORKSPACE')

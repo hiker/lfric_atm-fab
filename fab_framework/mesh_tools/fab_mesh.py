@@ -18,9 +18,6 @@ from lfric_base import LFRicBase
 
 class FabMeshTool(LFRicBase):
 
-    def __init__(self, name="mesh_tools", root_symbol=None):
-        super().__init__(name, root_symbol=root_symbol)
-
     def grab_files(self):
         super().grab_files()
         dirs = ['mesh_tools/source/']
@@ -40,7 +37,7 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_mesh_tool = FabMeshTool(root_symbol= \
+    fab_mesh_tool = FabMeshTool(name="mesh_tools", root_symbol= \
                                 ['cubedsphere_mesh_generator', \
                                  'planar_mesh_generator', \
                                     'summarise_ugrid'])

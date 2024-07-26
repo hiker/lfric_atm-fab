@@ -18,9 +18,6 @@ from lfric_base import LFRicBase
 
 class FabSkeleton(LFRicBase):
 
-    def __init__(self, name="skeleton", root_symbol=None):
-        super().__init__(name, root_symbol=root_symbol)
-
     def grab_files(self):
         super().grab_files()
         dirs = ['applications/skeleton/source/']
@@ -45,5 +42,5 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_skeleton = FabSkeleton()
+    fab_skeleton = FabSkeleton(name="skeleton")
     fab_skeleton.build()

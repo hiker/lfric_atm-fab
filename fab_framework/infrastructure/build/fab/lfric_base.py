@@ -39,7 +39,7 @@ class LFRicBase(FabBase):
     # pylint: disable=too-many-instance-attributes
     def __init__(self, name, root_symbol=None):
         super().__init__(name, root_symbol=root_symbol)
-        
+
         this_file = Path(__file__)
         # The root directory of the LFRic Core 
         self._lfric_core_root = this_file.parents[3]
@@ -377,15 +377,18 @@ class LFRicBase(FabBase):
             self.find_source_files()
             self.templaterator(self.config)
             c_pragma_injector(self.config)
+            self.define_preprocessor_flags()
             self.preprocess_c()
             self.preprocess_fortran()
             self.preprocess_x90()
             self.psyclone()
             fparser_workaround_stop_concatenation(self.config)
             self.analyse()
+            self.define_compiler_flags()
             self.compile_c()
             self.compile_fortran()
             self.archive_objects()
+            self.define_linker_flags()
             self.link()
 
 
