@@ -1,4 +1,4 @@
 [submodule "fab"]
 	path = fab
-	url = git@github.com:hiker/fab_new.git
+	url = https://github.com/hiker/fab_new.git
 	branch = bom_master
