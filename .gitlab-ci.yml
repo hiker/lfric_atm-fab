@@ -30,6 +30,7 @@ fab build:
     timeout: 2 hours
     variables:
         NCPU: 16
+        GIT_SUBMODULE_STRATEGY: recursive
     artifacts:
         paths:
             - lfric_core_revision

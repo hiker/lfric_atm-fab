@@ -45,7 +45,12 @@ echo 'current dir'
 echo $PWD
 echo "Start building apps"
 
-export PYTHONPATH=/g/data/access/ngm/envs/lfric/202406/fab/source
+# Make sure the fab submodule exist:
+if [[ ! -d $PWD/fab/source ]]; then
+	echo "Error initialising the Fab submodule, $PWD/fab/source does not exist"
+	exit 1
+fi
+export PYTHONPATH=$PWD/fab/source
 
 # build skeleton
 cd $PATH_TO_CORE/applications/skeleton/
