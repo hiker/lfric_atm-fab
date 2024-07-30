@@ -45,7 +45,7 @@ echo 'current dir'
 echo $PWD
 echo "Start building apps"
 
-export PYTHONPATH=/g/data/access/ngm/envs/lfric/202406/fab/source
+export PYTHONPATH=$PWD/fab/source
 
 # build skeleton
 cd $PATH_TO_CORE/applications/skeleton/
