@@ -45,6 +45,12 @@ echo 'current dir'
 echo $PWD
 echo "Start building apps"
 
+# Initialise the FAB submodule
+git submodule init
+if [[ ! -d $PWD/fab ]]; then
+	echo "Error initialising the Fab submodule, $PWD/fab does not exist"
+	exit 1
+fi
 export PYTHONPATH=$PWD/fab/source
 
 # build skeleton
