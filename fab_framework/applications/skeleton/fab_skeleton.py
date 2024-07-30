@@ -5,25 +5,21 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for applications/skeleton. It relies on the FabBase class
-contained in the infrastructure directory.
+'''A FAB build script for applications/skeleton. It relies on
+the LFRicBase class contained in the infrastructure directory.
 '''
 
 import logging
-import sys
 
 from fab.steps.grab.folder import grab_folder
 
-from fab_base import FabBase
+from lfric_base import LFRicBase
 
 
-class FabSkeleton(FabBase):
-
-    def __init__(self, name="skeleton", root_symbol=None):
-        super().__init__(name, root_symbol=root_symbol)
+class FabSkeleton(LFRicBase):
 
     def grab_files(self):
-        FabBase.grab_files(self)
+        super().grab_files()
         dirs = ['applications/skeleton/source/']
 
         # pylint: disable=redefined-builtin
@@ -37,8 +33,8 @@ class FabSkeleton(FabBase):
                     dst_label='optimisation')
 
     def get_rose_meta(self):
-        return (self.lfric_core_root / 'applications' / 'skeleton' / 'rose-meta' /
-                'lfric-skeleton' / 'HEAD' / 'rose-meta.conf')
+        return (self.lfric_core_root / 'applications' / 'skeleton' /
+                'rose-meta' / 'lfric-skeleton' / 'HEAD' / 'rose-meta.conf')
 
 
 # -----------------------------------------------------------------------------
@@ -46,5 +42,5 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_skeleton = FabSkeleton()
+    fab_skeleton = FabSkeleton(name="skeleton")
     fab_skeleton.build()

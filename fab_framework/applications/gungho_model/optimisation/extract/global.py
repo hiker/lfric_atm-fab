@@ -27,13 +27,13 @@ def trans(psy):
     '''
     extract = LFRicExtractTrans()
     redundant_computation_setval(psy)
-    #colour_loops(psy)
-    #openmp_parallelise_loops(psy)
+    # colour_loops(psy)
+    # openmp_parallelise_loops(psy)
     view_transformed_schedule(psy)
     for invoke in psy.invokes.invoke_list:
         schedule = invoke.schedule
         for kern in schedule.walk(LFRicLoop):
             try:
-                extract.apply(kern,{"create_driver": True} )
+                extract.apply(kern, {"create_driver": True})
             except NotImplementedError:
                 pass
