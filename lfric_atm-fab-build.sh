@@ -45,9 +45,7 @@ echo 'current dir'
 echo $PWD
 echo "Start building apps"
 
-# Initialise the FAB submodule
-git submodule init
-git submodule update
+# Make sure the fab submodule exist:
 if [[ ! -d $PWD/fab/source ]]; then
 	echo "Error initialising the Fab submodule, $PWD/fab/source does not exist"
 	exit 1
