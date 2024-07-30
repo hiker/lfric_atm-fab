@@ -72,6 +72,18 @@ class FabBase:
         self._compiler_flags = []
         self._link_flags = []
 
+    @property
+    def target(self):
+        ''':returns: the target (="site-platform").'''
+        return self._target
+
+    @property
+    def config(self):
+        ''':returns: the FAB BuildConfig instance.
+        :rtype: :py:class:`fab.BuildConfig`
+        '''
+        return self._config
+
     def define_site_platform_target(self):
         '''This method defines the attributes site, platform (and
         target=site-platform) based on the command line option --site
@@ -121,50 +133,6 @@ class FabBase:
         print("IMPORTED", self.target)
         # The constructor handles everything.
         self._site_config = config_module.Config()
-
-    def define_preprocessor_flags(self):
-        '''Top level function that sets preprocessor flags
-        by calling self.set_flags
-        '''
-        preprocessor_flags = []
-        self.set_flags(preprocessor_flags, self._preprocessor_flags)
-
-    def define_compiler_flags(self):
-        '''Top level function that sets (compiler- and site-specific)
-        compiler flags by calling self.set_flags
-        '''
-        compiler = self._tool_box[Category.FORTRAN_COMPILER]
-
-        if compiler.suite == "intel-classic":
-
-            debug_flags = ['-g', '-traceback']
-            compiler_flags = debug_flags
-
-            self.set_flags(compiler_flags, self._compiler_flags)
-
-        elif compiler.suite in ["joerg", "gnu"]:
-
-            debug_flags = ['-g']
-            compiler_flags = debug_flags
-
-            self.set_flags(compiler_flags, self._compiler_flags)
-
-        else:
-            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
-
-        return compiler
-
-    def define_linker_flags(self):
-        '''Top level function that sets (site-specific) linker flags
-        by calling self.set_flags.
-        '''
-        # The link flags will depend on the compiler, so use the compiler
-        # to set the flags.
-        compiler = self._tool_box[Category.FORTRAN_COMPILER]
-
-        self.set_flags([], self._link_flags)
-
-        return compiler
 
     def define_command_line_options(self, parser=None):
         '''Defines command line options. Can be overwritten by a derived
@@ -270,17 +238,49 @@ class FabBase:
             ld = tr.get_tool(Category.LINKER, self._args.ld)
             self._tool_box.add_tool(ld)
 
-    @property
-    def config(self):
-        ''':returns: the FAB BuildConfig instance.
-        :rtype: :py:class:`fab.BuildConfig`
+    def define_preprocessor_flags(self):
+        '''Top level function that sets preprocessor flags
+        by calling self.set_flags
         '''
-        return self._config
+        preprocessor_flags = []
+        self.set_flags(preprocessor_flags, self._preprocessor_flags)
 
-    @property
-    def target(self):
-        ''':returns: the target (="site-platform").'''
-        return self._target
+    def define_compiler_flags(self):
+        '''Top level function that sets (compiler- and site-specific)
+        compiler flags by calling self.set_flags
+        '''
+        compiler = self._tool_box[Category.FORTRAN_COMPILER]
+
+        if compiler.suite == "intel-classic":
+
+            debug_flags = ['-g', '-traceback']
+            compiler_flags = debug_flags
+
+            self.set_flags(compiler_flags, self._compiler_flags)
+
+        elif compiler.suite in ["joerg", "gnu"]:
+
+            debug_flags = ['-g']
+            compiler_flags = debug_flags
+
+            self.set_flags(compiler_flags, self._compiler_flags)
+
+        else:
+            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
+
+        return compiler
+
+    def define_linker_flags(self):
+        '''Top level function that sets (site-specific) linker flags
+        by calling self.set_flags.
+        '''
+        # The link flags will depend on the compiler, so use the compiler
+        # to set the flags.
+        compiler = self._tool_box[Category.FORTRAN_COMPILER]
+
+        self.set_flags([], self._link_flags)
+
+        return compiler
 
     def set_flags(self, list_of_flags, flag_group):
         for flag in list_of_flags:

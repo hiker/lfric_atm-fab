@@ -49,6 +49,38 @@ class LFRicBase(FabBase):
         self._psyclone_config = (self.config.source_root / 'psyclone_config' /
                                  'psyclone.cfg')
 
+    def define_command_line_options(self, parser=None):
+        '''Defines command line options. Can be overwritten by a derived
+        class which can provide its own instance (to easily allow for a
+        different description).
+        :param parser: optional a pre-defined argument parser. If not, a
+            new instance will be created.
+        :type argparse: Optional[:py:class:`argparse.ArgumentParser`]
+        '''
+        parser = super().define_command_line_options()
+
+        parser.add_argument(
+            '--rose_picker', '-rp', type=str, default="v2.0.0",
+            help="Version of rose_picker. Use 'system' to use an installed "
+                 "version.")
+        parser.add_argument(
+            '--profile', '-pro', type=str, default="fast-debug",
+            help="Profie mode for compilation, choose from \
+                'fast-debug'(default), 'full-debug', 'production'")
+        parser.add_argument(
+            '--precision', '-pre', type=str, default=None,
+            help="Precision for reals, choose from '64', '32', \
+                default is R_SOLVER_PRECISION=32 while others are 64")
+        return parser
+
+    @property
+    def lfric_core_root(self):
+        return self._lfric_core_root
+
+    @property
+    def lfric_apps_root(self):
+        return self._lfric_apps_root
+
     def define_preprocessor_flags(self):
         '''Top level function that sets preprocessor flags
         by calling self.set_flags
@@ -199,38 +231,6 @@ class LFRicBase(FabBase):
         else:
             raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
 
-    def define_command_line_options(self, parser=None):
-        '''Defines command line options. Can be overwritten by a derived
-        class which can provide its own instance (to easily allow for a
-        different description).
-        :param parser: optional a pre-defined argument parser. If not, a
-            new instance will be created.
-        :type argparse: Optional[:py:class:`argparse.ArgumentParser`]
-        '''
-        parser = super().define_command_line_options()
-
-        parser.add_argument(
-            '--rose_picker', '-rp', type=str, default="v2.0.0",
-            help="Version of rose_picker. Use 'system' to use an installed "
-                 "version.")
-        parser.add_argument(
-            '--profile', '-pro', type=str, default="fast-debug",
-            help="Profie mode for compilation, choose from \
-                'fast-debug'(default), 'full-debug', 'production'")
-        parser.add_argument(
-            '--precision', '-pre', type=str, default=None,
-            help="Precision for reals, choose from '64', '32', \
-                default is R_SOLVER_PRECISION=32 while others are 64")
-        return parser
-
-    @property
-    def lfric_core_root(self):
-        return self._lfric_core_root
-
-    @property
-    def lfric_apps_root(self):
-        return self._lfric_apps_root
-
     def grab_files(self):
         dirs = ['infrastructure/source/',
                 'components/driver/source/',
@@ -269,14 +269,32 @@ class LFRicBase(FabBase):
         #                   cwd=_dst)
 
     def find_source_files(self, path_filters=None):
+        self.configurator()
+
         if path_filters is None:
             path_filters = []
         find_source_files(self.config,
                           path_filters=([Exclude('unit-test', '/test/')] +
                                         path_filters))
 
-    def get_rose_meta(self):
-        return ""
+        self.templaterator(self.config)
+
+    def configurator(self):
+        rose_meta = self.get_rose_meta()
+        if rose_meta:
+            # Get the right version of rose-picker, depending on
+            # command line option (defaulting to v2.0.0)
+            # TODO: Ideally we would just put this into the toolbox,
+            # but atm we can't put several tools of one category in
+            # (so ToolBox will need to support more than one MISC tool)
+            rp = get_rose_picker(self._args.rose_picker)
+            # Ideally we would want to get all source files created in
+            # the build directory, but then we need to know the list of
+            # files to add them to the list of files to process
+            configurator(self.config, lfric_core_source=self.lfric_core_root,
+                         lfric_apps_source=self.lfric_apps_root,
+                         rose_meta_conf=rose_meta,
+                         rose_picker=rp)
 
     def templaterator(self, config):
         base_dir = self.lfric_core_root / "infrastructure" / "build" / "tools"
@@ -302,25 +320,37 @@ class LFRicBase(FabBase):
                 config.artefact_store.add(ArtefactSet.FORTRAN_BUILD_FILES,
                                           out_file)
 
-    def configurator(self):
-        rose_meta = self.get_rose_meta()
-        if rose_meta:
-            # Get the right version of rose-picker, depending on
-            # command line option (defaulting to v2.0.0)
-            # TODO: Ideally we would just put this into the toolbox,
-            # but atm we can't put several tools of one category in
-            # (so ToolBox will need to support more than one MISC tool)
-            rp = get_rose_picker(self._args.rose_picker)
-            # Ideally we would want to get all source files created in
-            # the build directory, but then we need to know the list of
-            # files to add them to the list of files to process
-            configurator(self.config, lfric_core_source=self.lfric_core_root,
-                         lfric_apps_source=self.lfric_apps_root,
-                         rose_meta_conf=rose_meta,
-                         rose_picker=rp)
+    def get_rose_meta(self):
+        return ""
+
+    def analyse(self):
+        self.preprocess_x90()
+        self.psyclone()
+        fparser_workaround_stop_concatenation(self.config)
+        analyse(self.config, root_symbol=self._root_symbol,
+                ignore_mod_deps=['netcdf', 'MPI', 'yaxt', 'pfunit_mod',
+                                 'xios', 'mod_wait'])
 
     def preprocess_x90(self):
         preprocess_x90(self.config, common_flags=self._preprocessor_flags)
+
+    def psyclone(self):
+        psyclone_cli_args = self.get_psyclone_config()
+        compiler = self.config.tool_box[Category.FORTRAN_COMPILER]
+        linker = self.config.tool_box[Category.LINKER]
+        if "tau_f90.sh" in [compiler.exec_name, linker.exec_name]:
+            psyclone_cli_args.extend(self.get_psyclone_profiling_option())
+
+        psyclone(self.config, kernel_roots=[self.config.build_output],
+                 transformation_script=self.get_transformation_script,
+                 api="dynamo0.3",
+                 cli_args=psyclone_cli_args)
+
+    def get_psyclone_config(self):
+        return ["--config", self._psyclone_config]
+
+    def get_psyclone_profiling_option(self):
+        return ["--profile", "kernels"]
 
     def get_transformation_script(self, fpath, config):
         ''':returns: the transformation script to be used by PSyclone.
@@ -343,54 +373,6 @@ class LFRicBase(FabBase):
         if global_transformation_script.exists():
             return global_transformation_script
         return ""
-
-    def get_psyclone_config(self):
-        return ["--config", self._psyclone_config]
-
-    def get_psyclone_profiling_option(self):
-        return ["--profile", "kernels"]
-
-    def psyclone(self):
-        psyclone_cli_args = self.get_psyclone_config()
-        compiler = self.config.tool_box[Category.FORTRAN_COMPILER]
-        linker = self.config.tool_box[Category.LINKER]
-        if "tau_f90.sh" in [compiler.exec_name, linker.exec_name]:
-            psyclone_cli_args.extend(self.get_psyclone_profiling_option())
-
-        psyclone(self.config, kernel_roots=[self.config.build_output],
-                 transformation_script=self.get_transformation_script,
-                 api="dynamo0.3",
-                 cli_args=psyclone_cli_args)
-
-    def analyse(self):
-        analyse(self.config, root_symbol=self._root_symbol,
-                ignore_mod_deps=['netcdf', 'MPI', 'yaxt', 'pfunit_mod',
-                                 'xios', 'mod_wait'])
-
-    def build(self):
-        # We need to use with to trigger the entrance/exit functionality,
-        # but otherwise the config object is used from this object, so no
-        # need to use it anywhere.
-        with self._config as _:
-            self.grab_files()
-            # generate more source files in source and source/configuration
-            self.configurator()
-            self.find_source_files()
-            self.templaterator(self.config)
-            c_pragma_injector(self.config)
-            self.define_preprocessor_flags()
-            self.preprocess_c()
-            self.preprocess_fortran()
-            self.preprocess_x90()
-            self.psyclone()
-            fparser_workaround_stop_concatenation(self.config)
-            self.analyse()
-            self.define_compiler_flags()
-            self.compile_c()
-            self.compile_fortran()
-            self.archive_objects()
-            self.define_linker_flags()
-            self.link()
 
 
 # ==========================================================================

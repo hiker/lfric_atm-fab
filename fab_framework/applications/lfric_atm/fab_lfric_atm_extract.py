@@ -29,8 +29,8 @@ class FabLFRicAtmExtract(FabLFRicAtm):
                             f'no-private-{fpath.stem}.{hash}{fpath.suffix}')
 
         if no_private_fpath.exists():
-            log_or_dot(logger, f'Removing private using prebuild: \
-                       {no_private_fpath}')
+            log_or_dot(logger, f'Removing private using prebuild: '
+                               f'{no_private_fpath}')
             shutil.copy(no_private_fpath, fpath)
         else:
             log_or_dot(logger, "Removing private using fparser remove_private")
