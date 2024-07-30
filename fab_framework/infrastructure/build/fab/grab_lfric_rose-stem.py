@@ -5,25 +5,22 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-import sys
 import os
 
 from pathlib import Path
 
 from fab.build_config import BuildConfig
 from fab.steps.grab.fcm import fcm_export
-from fab.steps.grab.folder import grab_folder
 from fab.tools import ToolBox
-from fab.util import get_fab_workspace
 
 fab_workspace = Path(os.getenv("SOURCE_ROOT"))
 
 lfric_core_source_config = BuildConfig(
-    project_label='grab_lfric_source', tool_box=ToolBox(), fab_workspace=fab_workspace
-    )
+    project_label='grab_lfric_source', tool_box=ToolBox(),
+    fab_workspace=fab_workspace)
 lfric_apps_source_config = BuildConfig(
-    project_label='grab_lfric_source', tool_box=ToolBox(), fab_workspace=fab_workspace
-    )
+    project_label='grab_lfric_source', tool_box=ToolBox(),
+    fab_workspace=fab_workspace)
 
 if __name__ == '__main__':
 

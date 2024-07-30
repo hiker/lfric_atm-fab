@@ -18,6 +18,7 @@ from fab.util import file_checksum, log_or_dot, TimerLogger
 
 from fab_lfric_atm import FabLFRicAtm
 
+
 class FabLFRicAtmExtract(FabLFRicAtm):
 
     @staticmethod
@@ -28,7 +29,8 @@ class FabLFRicAtmExtract(FabLFRicAtm):
                             f'no-private-{fpath.stem}.{hash}{fpath.suffix}')
 
         if no_private_fpath.exists():
-            log_or_dot(logger, f'Removing private using prebuild: {no_private_fpath}')
+            log_or_dot(logger, f'Removing private using prebuild: '
+                               f'{no_private_fpath}')
             shutil.copy(no_private_fpath, fpath)
         else:
             log_or_dot(logger, "Removing private using fparser remove_private")
@@ -63,6 +65,7 @@ class FabLFRicAtmExtract(FabLFRicAtm):
         :rtype: Path
         '''
         return config.source_root / 'optimisation' / 'extract' / 'global.py'
+
 
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':

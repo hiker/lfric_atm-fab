@@ -5,7 +5,7 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for applications/gravity_wave. It relies on the FabBase
+'''A FAB build script for applications/gravity_wave. It relies on the LFRicBase
 class contained in the infrastructure directory.
 '''
 
@@ -13,16 +13,13 @@ import logging
 
 from fab.steps.grab.folder import grab_folder
 
-from fab_base import FabBase
+from lfric_base import LFRicBase
 
 
-class FabGravityWave(FabBase):
-
-    def __init__(self, name="gravity_wave", root_symbol=None):
-        super().__init__(name, root_symbol=root_symbol)
+class FabGravityWave(LFRicBase):
 
     def grab_files(self):
-        FabBase.grab_files(self)
+        super().grab_files()
         dirs = ['applications/gravity_wave/source/',
                 'science/gungho/source',
                 ]
@@ -43,5 +40,5 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_gravity_wave = FabGravityWave()
+    fab_gravity_wave = FabGravityWave(name="gravity_wave")
     fab_gravity_wave.build()

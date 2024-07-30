@@ -5,7 +5,7 @@
 #  which you should have received as part of this distribution
 # ##############################################################################
 
-'''A FAB build script for gungho_model. It relies on the FabBase class
+'''A FAB build script for gungho_model. It relies on the LFRicBase class
 contained in the infrastructure directory.
 '''
 
@@ -13,16 +13,13 @@ import logging
 
 from fab.steps.grab.folder import grab_folder
 
-from fab_base import FabBase
+from lfric_base import LFRicBase
 
 
-class FabGungho(FabBase):
-
-    def __init__(self, name="gungho_model", root_symbol=None):
-        super().__init__(name, root_symbol=root_symbol)
+class FabGungho(LFRicBase):
 
     def grab_files(self):
-        FabBase.grab_files(self)
+        super().grab_files()
         dirs = ['applications/gungho_model/source/',
                 'science/gungho/source',
                 ]
@@ -47,5 +44,5 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('fab')
     logger.setLevel(logging.DEBUG)
-    fab_gungo = FabGungho()
+    fab_gungo = FabGungho(name="gungho_model")
     fab_gungo.build()
