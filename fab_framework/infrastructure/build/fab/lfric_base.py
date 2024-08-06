@@ -130,10 +130,6 @@ class LFRicBase(FabBase):
         compiler flags by calling self.set_flags
         '''
         compiler = super().define_compiler_flags()
-        # TODO: This should go into compiler.get_version() in FAB
-        compiler_version_comparison = ''.join(
-            f"{int(version_component):02d}"
-            for version_component in compiler.get_version().split('.'))
 
         if compiler.suite == "intel-classic":
             # The flag groups are mainly from infrastructure/build/fortran
@@ -149,7 +145,7 @@ class LFRicBase(FabBase):
 
             # ifort.mk: bad interaction between array shape checking and
             # the matmul" intrinsic in at least some iterations of v19.
-            if '190000' <= compiler_version_comparison < '190100':
+            if (19, 00, 00) <= compiler.get_version() < (19, 01, 00):
                 runtime_flags = ['-check all,noshape', '-fpe0']
             else:
                 runtime_flags = ['-check all', '-fpe0']
