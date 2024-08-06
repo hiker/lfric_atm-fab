@@ -145,7 +145,7 @@ class LFRicBase(FabBase):
 
             # ifort.mk: bad interaction between array shape checking and
             # the matmul" intrinsic in at least some iterations of v19.
-            if (19, 00, 00) <= compiler.get_version() < (19, 01, 00):
+            if (19, 0, 0) <= compiler.get_version() < (19, 1, 0):
                 runtime_flags = ['-check all,noshape', '-fpe0']
             else:
                 runtime_flags = ['-check all', '-fpe0']
