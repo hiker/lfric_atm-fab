@@ -67,6 +67,8 @@ class FabBase:
                                    project_label=f'{name}-$compiler',
                                    verbose=True,
                                    n_procs=16,
+                                   mpi=self._args.mpi,
+                                   openmp=self._args.openmp
                                    )
         self._preprocessor_flags = []
         self._compiler_flags = []
@@ -163,6 +165,18 @@ class FabBase:
         parser.add_argument(
             '--ld', '-ld', type=str, default="$LD",
             help="Name of the linker to use")
+        parser.add_argument(
+            '--mpi', '-mpi', default=True, action="store_true",
+            help="Enable MPI")
+        parser.add_argument(
+            '--no-mpi', '-no-mpi', action="store_false",
+            help="Disable MPI", dest="mpi")
+        parser.add_argument(
+            '--openmp', '-openmp', default=True, action="store_true",
+            help="Enable OpenMP")
+        parser.add_argument(
+            '--no-openmp', '-no-openmp', action="store_false",
+            help="Disable OpenMP")
         parser.add_argument("--site", "-s", type=str,
                             default="$SITE or 'default'",
                             help="Name of the site to use.")
@@ -190,21 +204,11 @@ class FabBase:
                 tr.set_default_compiler_suite("gnu")
             else:
                 tr.set_default_compiler_suite(self._args.suite)
-            # TODO:  for now define mpif90 as default
-            try:
-                fc = tr.get_tool(Category.FORTRAN_COMPILER,
-                                 f"mpif90-{self._args.suite}")
-            except KeyError:
-                fc = tr.get_default(Category.FORTRAN_COMPILER)
 
+            fc = tr.get_default(Category.FORTRAN_COMPILER, mpi=self._args.mpi)
             self._tool_box.add_tool(fc)
 
-            # TODO:  for now also define mpif90 as default linker
-            try:
-                ld = tr.get_tool(Category.LINKER,
-                                 f"linker-{fc.name}")
-            except KeyError:
-                ld = tr.get_default(Category.FORTRAN_COMPILER)
+            ld = tr.get_default(Category.FORTRAN_COMPILER, mpi=self._args.mpi)
             self._tool_box.add_tool(ld)
 
             print(f"Setting suite to '{self._args.suite}'.")

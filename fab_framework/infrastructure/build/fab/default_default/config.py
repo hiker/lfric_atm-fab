@@ -3,24 +3,6 @@
 from fab.tools import Gcc, Gfortran, Icc, Ifort, ToolRepository
 
 
-class Mpif90Gnu(Gfortran):
-    def __init__(self):
-        super().__init__(name="mpif90-gnu",
-                         exec_name="mpif90")
-
-
-class Mpif90Intel(Ifort):
-    def __init__(self):
-        super().__init__(name="mpif90-intel-classic",
-                         exec_name="mpif90")
-
-
-class MpiccIntel(Icc):
-    def __init__(self):
-        super().__init__(name="mpicc-intel-classic",
-                         exec_name="mpicc")
-
-
 class TauGnuFortran(Gfortran):
     def __init__(self):
         super().__init__(name="tau-gnu-fortran",
@@ -49,10 +31,9 @@ class Config:
     def __init__(self):
         tr = ToolRepository()
         # A compiler will also be added automatically
-        # as linker, i.e. linker-mpif90-gnu etc
-        for tool in [Mpif90Gnu, Mpif90Intel, TauGnuFortran, TauIntelFortran,
-                     TauGnuC, TauIntelC]:
-            tr.add_tool(tool)
+        # as linker, i.e. linker-tau-gnu etc
+        for tool in [TauGnuFortran, TauIntelFortran, TauGnuC, TauIntelC]:
+            tr.add_tool(tool())
 
     def update_toolbox(self, toolbox):
         '''This could be used to define different compiler flags etc.

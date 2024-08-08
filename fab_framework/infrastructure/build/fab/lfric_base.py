@@ -16,7 +16,6 @@ from pathlib import Path
 
 from fab.artefacts import ArtefactSet, SuffixFilter
 from fab.steps.analyse import analyse
-from fab.steps.c_pragma_injector import c_pragma_injector
 from fab.steps.find_source_files import find_source_files, Exclude
 from fab.steps.psyclone import psyclone, preprocess_x90
 from fab.steps.grab.folder import grab_folder
@@ -137,7 +136,6 @@ class LFRicBase(FabBase):
             no_optimisation_flags = ['-O0']
             safe_optimisation_flags = ['-O2', '-fp-model=strict']
             risky_optimisation_flags = ['-O3', '-xhost']
-            openmp_arg_flags = ['-qopenmp']
             warnings_flags = ['-warn all', '-warn errors', '-gen-interfaces',
                               'nosource']
             unit_warnings_flags = ['-warn all', '-gen-interfaces', 'nosource']
@@ -156,7 +154,7 @@ class LFRicBase(FabBase):
 
             # ifort.mk has some app and file-specific options for older
             # intel compilers. They have not been included here
-            compiler_flag_group = openmp_arg_flags
+            compiler_flag_group = []
 
             if self._args.profile == 'full-debug':
                 compiler_flag_group += (warnings_flags +
@@ -174,7 +172,7 @@ class LFRicBase(FabBase):
             self.set_flags(compiler_flag_group, self._compiler_flags)
 
         elif compiler.suite in ["joerg", "gnu"]:
-            flags = ['-ffree-line-length-none', '-fopenmp', '-g',
+            flags = ['-ffree-line-length-none', '-g',
                      '-Werror=character-truncation', '-Werror=unused-value',
                      '-Werror=tabs', '-fdefault-real-8', '-fdefault-double-8',
                      ]
@@ -201,28 +199,20 @@ class LFRicBase(FabBase):
         # to set the flags.
         compiler = super().define_linker_flags()
 
-        # TODO: Unfortunately, for now we have to set openmp flags explicitly
-        # for linker. For now, all compiler flags are still set in the compile
-        # step only, so the linker (which adds compiler flags from the
-        # compiler instance) does not have these flags. Once the flags are
-        # moved from the compile step into the compiler object, the linker
-        # will be able to pick up openmp (and other compiler flags)
-        # automatically.
         if compiler.suite == "intel-classic":
             self.set_flags(
-                ['-qopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
+                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
                  '-lnetcdf', '-lhdf5', '-lstdc++'], self._link_flags)
 
         elif compiler.suite == "joerg":
             self.set_flags(
-                ['-fopenmp',
-                 '-L', ('/home/joerg/work/spack/var/spack/environments/'
+                ['-L', ('/home/joerg/work/spack/var/spack/environments/'
                         'lfric-v0/.spack-env/view/lib'),
                  '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
                  '-lhdf5', '-lstdc++'], self._link_flags)
         elif compiler.suite == "gnu":
             self.set_flags(
-                ['-fopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
+                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
                  '-lnetcdf', '-lhdf5', '-lstdc++'], self._link_flags)
         else:
             raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
@@ -297,7 +287,7 @@ class LFRicBase(FabBase):
 
         templaterator = Templaterator(base_dir/"Templaterator")
         config.artefact_store["template_files"] = set()
-        t90_filter = SuffixFilter(ArtefactSet.ALL_SOURCE, [".t90", ".T90"])
+        t90_filter = SuffixFilter(ArtefactSet.INITIAL_SOURCE, [".t90", ".T90"])
         template_files = t90_filter(config.artefact_store)
         # Don't bother with parallelising this, atm there is only one file:
         print("TEMPLATE", template_files)
@@ -333,7 +323,8 @@ class LFRicBase(FabBase):
     def psyclone(self):
         psyclone_cli_args = self.get_psyclone_config()
         compiler = self.config.tool_box[Category.FORTRAN_COMPILER]
-        linker = self.config.tool_box[Category.LINKER]
+        linker = self.config.tool_box.get_tool(Category.LINKER,
+                                               mpi=self.config.mpi)
         if "tau_f90.sh" in [compiler.exec_name, linker.exec_name]:
             psyclone_cli_args.extend(self.get_psyclone_profiling_option())
 
