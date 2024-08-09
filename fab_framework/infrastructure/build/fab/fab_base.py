@@ -56,8 +56,6 @@ class FabBase:
         parser = self.define_command_line_options()
         self.handle_command_line_options(parser)
 
-        self._site_config.update_toolbox(self._tool_box)
-
         if root_symbol:
             self._root_symbol = root_symbol
         else:
@@ -73,6 +71,8 @@ class FabBase:
         self._preprocessor_flags = []
         self._compiler_flags = []
         self._link_flags = []
+
+        self._site_config.update_toolbox(self._config)
 
     @property
     def target(self):
@@ -204,12 +204,6 @@ class FabBase:
                 tr.set_default_compiler_suite("gnu")
             else:
                 tr.set_default_compiler_suite(self._args.suite)
-
-            fc = tr.get_default(Category.FORTRAN_COMPILER, mpi=self._args.mpi)
-            self._tool_box.add_tool(fc)
-
-            ld = tr.get_default(Category.FORTRAN_COMPILER, mpi=self._args.mpi)
-            self._tool_box.add_tool(ld)
 
             print(f"Setting suite to '{self._args.suite}'.")
             # suite will overwrite use of env variables, so change the

@@ -172,10 +172,7 @@ class LFRicBase(FabBase):
             self.set_flags(compiler_flag_group, self._compiler_flags)
 
         elif compiler.suite in ["joerg", "gnu"]:
-            flags = ['-ffree-line-length-none', '-g',
-                     '-Werror=character-truncation', '-Werror=unused-value',
-                     '-Werror=tabs', '-fdefault-real-8', '-fdefault-double-8',
-                     ]
+            flags = []
             # Support Joerg's build environment
             if compiler.suite == "joerg":
                 flags.extend(
