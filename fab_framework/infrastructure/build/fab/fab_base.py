@@ -117,7 +117,12 @@ class FabBase:
             self._platform = "default"
 
         # Define target attribute for site&platform-specific files
-        self._target = f"{self._site}_{self._platform}"
+        # If none are specified, just use a single default (instead of
+        # default-default)
+        if self._platform == "default" and self._site == "default":
+            self._target = "default"
+        else:
+            self._target = f"{self._site}_{self._platform}"
 
     def site_specific_setup(self):
         '''Imports a site-specific config file. The location is based
