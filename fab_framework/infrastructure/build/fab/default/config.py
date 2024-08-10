@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 
-from fab.tools import Category, Gcc, Gfortran, Icc, Ifort, ToolRepository
+from fab.tools import Gcc, Gfortran, Icc, Ifort, ToolRepository
 
+from default.setup_gnu import setup_gnu
+from default.setup_intel_classic import setup_intel_classic
 
 class TauGnuFortran(Gfortran):
     def __init__(self):
@@ -36,19 +38,10 @@ class Config:
             tr.add_tool(tool())
 
     def setup_classic_intel(self, build_config):
-        tr = ToolRepository()
-        ifort = tr.get_tool(Category.FORTRAN_COMPILER, "ifort")
-        ifort.add_flags([])
+        setup_intel_classic(build_config)
 
     def setup_gnu(self, build_config):
-        tr = ToolRepository()
-        gfortran = tr.get_tool(Category.FORTRAN_COMPILER, "gfortran")
-        flags = ['-ffree-line-length-none', '-g',
-                 '-Werror=character-truncation', '-Werror=unused-value',
-                 '-Werror=tabs', '-fdefault-real-8', '-fdefault-double-8',
-                 '-Ditworks'
-                 ]
-        gfortran.add_flags(flags)
+        setup_gnu(build_config)
 
     def update_toolbox(self, build_config):
         '''This could be used to define different compiler flags etc.
