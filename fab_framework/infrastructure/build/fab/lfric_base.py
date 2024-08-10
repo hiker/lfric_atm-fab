@@ -124,29 +124,6 @@ class LFRicBase(FabBase):
         # -DUSE_XIOS is not found in makefile but in fab run_config and
         # driver_io_mod.F90
 
-    def define_compiler_flags(self):
-        '''Top level function that sets (compiler- and site-specific)
-        compiler flags by calling self.set_flags
-        '''
-        compiler = super().define_compiler_flags()
-
-        if compiler.suite in ["joerg", "gnu"]:
-            flags = []
-            # Support Joerg's build environment
-            if compiler.suite == "joerg":
-                flags.extend(
-                    [
-                     # The lib directory contains mpi.mod
-                     '-I', ('/home/joerg/work/spack/var/spack/environments/'
-                            'lfric-v0/.spack-env/view/lib'),
-                     # mod_wait.mod
-                     '-I', ('/home/joerg/work/spack/var/spack/environments/'
-                            'lfric-v0/.spack-env/view/include'),
-                     ])
-            self.set_flags(flags, self._compiler_flags)
-        else:
-            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
-
     def define_linker_flags(self):
         '''Top level function that sets (site-specific) linker flags
         by calling self.set_flags.
@@ -160,16 +137,17 @@ class LFRicBase(FabBase):
                 ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
                  '-lnetcdf', '-lhdf5', '-lstdc++'], self._link_flags)
 
-        elif compiler.suite == "joerg":
-            self.set_flags(
-                ['-L', ('/home/joerg/work/spack/var/spack/environments/'
-                        'lfric-v0/.spack-env/view/lib'),
-                 '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
-                 '-lhdf5', '-lstdc++'], self._link_flags)
         elif compiler.suite == "gnu":
-            self.set_flags(
-                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
-                 '-lnetcdf', '-lhdf5', '-lstdc++'], self._link_flags)
+            if self.site == "joerg":
+                flags = ['-L', ('/home/joerg/work/spack/var/spack/'
+                                'environments/lfric-v0/.spack-env/view/lib')]
+            else:
+                flags = []
+            flags.extend(
+                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
+                 '-lhdf5', '-lstdc++'])
+
+            self.set_flags(flags, self._link_flags)
         else:
             raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
 

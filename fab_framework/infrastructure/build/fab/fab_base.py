@@ -75,6 +75,11 @@ class FabBase:
         self._site_config.update_toolbox(self._config)
 
     @property
+    def site(self):
+        ''':returns: the site.'''
+        return self._site
+
+    @property
     def target(self):
         ''':returns: the target (="site-platform").'''
         return self._target
@@ -205,10 +210,7 @@ class FabBase:
 
         tr = ToolRepository()
         if self._args.suite:
-            if self._args.suite == "joerg":
-                tr.set_default_compiler_suite("gnu")
-            else:
-                tr.set_default_compiler_suite(self._args.suite)
+            tr.set_default_compiler_suite(self._args.suite)
 
             print(f"Setting suite to '{self._args.suite}'.")
             # suite will overwrite use of env variables, so change the
@@ -252,7 +254,8 @@ class FabBase:
         '''Top level function that sets (compiler- and site-specific)
         compiler flags by calling self.set_flags
         '''
-        compiler = self._tool_box[Category.FORTRAN_COMPILER]
+        compiler = self._tool_box.get_tool(Category.FORTRAN_COMPILER,
+                                           mpi=self.config.mpi)
 
         if compiler.suite == "intel-classic":
 
@@ -261,7 +264,7 @@ class FabBase:
 
             self.set_flags(compiler_flags, self._compiler_flags)
 
-        elif compiler.suite in ["joerg", "gnu"]:
+        elif compiler.suite in ["gnu"]:
 
             debug_flags = ['-g']
             compiler_flags = debug_flags
