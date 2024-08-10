@@ -175,13 +175,13 @@ class FabBase:
             help="Enable MPI")
         parser.add_argument(
             '--no-mpi', '-no-mpi', action="store_false",
-            help="Disable MPI", dest="mpi")
+            dest="mpi", help="Disable MPI")
         parser.add_argument(
             '--openmp', '-openmp', default=True, action="store_true",
             help="Enable OpenMP")
         parser.add_argument(
             '--no-openmp', '-no-openmp', action="store_false",
-            help="Disable OpenMP")
+            dest="openmp", help="Disable OpenMP")
         parser.add_argument("--site", "-s", type=str,
                             default="$SITE or 'default'",
                             help="Name of the site to use.")
