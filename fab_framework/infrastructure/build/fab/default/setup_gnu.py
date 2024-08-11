@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 '''This file contains a function that sets the default flags for all
-GNU based compilers in the ToolRepository. 
+GNU based compilers in the ToolRepository.
 
 This function gets called from the default site-specific config file
 '''
