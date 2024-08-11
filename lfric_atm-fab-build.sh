@@ -56,7 +56,9 @@ export PYTHONPATH=$PWD/fab/source
 cd $PATH_TO_CORE/applications/skeleton/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel-classic $PATH_TO_CORE/build.sh ./fab_skeleton.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= \
+	LD=linker-mpif90-intel-classic $PATH_TO_CORE/build.sh                 \
+	./fab_skeleton.py --fc mpif90-ifort --site nci --platform gadi --mpi
 
 echo "Built skeleton"
 
@@ -64,7 +66,7 @@ echo "Built skeleton"
 cd $PATH_TO_APPS/applications/gungho_model/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel-classic CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh ./fab_gungho_model.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel-classic CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh ./fab_gungho_model.py --site nci --platform gadi --mpi
 
 echo "Built gungho_model"
 
@@ -80,7 +82,7 @@ echo "Built gravity_wave"
 cd $PATH_TO_APPS/applications/lfric_atm/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel-classic CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh ./fab_lfric_atm.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel-classic CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh ./fab_lfric_atm.py --site nci --platform gadi --mpi
 
 echo "Built lfric_atm"
 
