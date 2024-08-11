@@ -59,7 +59,7 @@ echo $PWD
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH  CC= \
 	$PATH_TO_CORE/build.sh                                        \
 	./fab_skeleton.py --site nci --platform gadi --mpi            \
-	                  --suite intel-classic                       \
+                      --suite intel-classic                       \
                       --fc mpif90-ifort -ld linker-mpif90-ifort
 
 echo "Built skeleton"
@@ -68,7 +68,12 @@ echo "Built skeleton"
 cd $PATH_TO_APPS/applications/gungho_model/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel-classic CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh ./fab_gungho_model.py --site nci --platform gadi --mpi
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH CC=icc  \
+    $PATH_TO_CORE/build.sh ./fab_gungho_model.py                     \
+                           --site nci --platform gadi --mpi          \
+                           --suite intel-classic                     \
+                           --fc mpif90-ifort -ld linker-mpif90-ifort
+
 
 echo "Built gungho_model"
 
@@ -76,7 +81,8 @@ echo "Built gungho_model"
 cd $PATH_TO_APPS/applications/gravity_wave/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH $PATH_TO_CORE/build.sh ./fab_gravity_wave.py --suite=intel-classic
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH \
+    $PATH_TO_CORE/build.sh ./fab_gravity_wave.py --suite=intel-classic
 
 echo "Built gravity_wave"
 
@@ -84,7 +90,12 @@ echo "Built gravity_wave"
 cd $PATH_TO_APPS/applications/lfric_atm/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel-classic CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh ./fab_lfric_atm.py --site nci --platform gadi --mpi
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel-classic \
+         CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh \
+         ./fab_lfric_atm.py --site nci --platform gadi --mpi       \
+                      --suite intel-classic                        \
+                      --fc mpif90-ifort -ld linker-mpif90-ifort
+
 
 echo "Built lfric_atm"
 
