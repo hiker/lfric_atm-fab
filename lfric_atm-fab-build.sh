@@ -56,9 +56,11 @@ export PYTHONPATH=$PWD/fab/source
 cd $PATH_TO_CORE/applications/skeleton/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= \
-	LD=linker-mpif90-intel-classic $PATH_TO_CORE/build.sh                 \
-	./fab_skeleton.py --fc mpif90-ifort --site nci --platform gadi --mpi
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH  CC= \
+	$PATH_TO_CORE/build.sh                                        \
+	./fab_skeleton.py --site nci --platform gadi --mpi            \
+	                  --suite intel-classic                       \
+                      --fc mpif90-ifort -ld linker-mpif90-ifort
 
 echo "Built skeleton"
 
