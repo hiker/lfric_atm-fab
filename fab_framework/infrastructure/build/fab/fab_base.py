@@ -28,6 +28,9 @@ from fab.steps.grab.folder import grab_folder
 from fab.tools import Category, ToolBox, ToolRepository
 
 
+logger = logging.getLogger('fab')
+
+
 class FabBase:
     '''This is the base class for all FAB scripts.
 
