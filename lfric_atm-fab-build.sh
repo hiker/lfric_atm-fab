@@ -56,6 +56,9 @@ export PYTHONPATH=$PWD/fab/source
 cd $PATH_TO_CORE/applications/skeleton/
 echo "current dir"
 echo $PWD
+
+#BOMJH: disable builds that work for now to quicker debug the rest
+if [[ $(false) ]]; then
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH  CC= \
 	$PATH_TO_CORE/build.sh                                        \
 	./fab_skeleton.py --site nci --platform gadi --mpi            \
@@ -68,12 +71,12 @@ echo "Built skeleton"
 cd $PATH_TO_APPS/applications/gungho_model/
 echo "current dir"
 echo $PWD
+
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH CC=icc  \
     $PATH_TO_CORE/build.sh ./fab_gungho_model.py                     \
                            --site nci --platform gadi --mpi          \
                            --suite intel-classic                     \
                            --fc mpif90-ifort -ld linker-mpif90-ifort
-
 
 echo "Built gungho_model"
 
@@ -82,15 +85,18 @@ cd $PATH_TO_APPS/applications/gravity_wave/
 echo "current dir"
 echo $PWD
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH \
-    $PATH_TO_CORE/build.sh ./fab_gravity_wave.py --suite=intel-classic
+    $PATH_TO_CORE/build.sh ./fab_gravity_wave.py --site nic --platform gadi \
+       --suite=intel-classic
 
 echo "Built gravity_wave"
+
+fi
 
 # build lfric_atm
 cd $PATH_TO_APPS/applications/lfric_atm/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=mpif90-intel-classic \
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=   \
          CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh \
          ./fab_lfric_atm.py --site nci --platform gadi --mpi       \
                       --suite intel-classic                        \
@@ -103,8 +109,14 @@ echo "Built lfric_atm"
 cd $PATH_TO_APPS/applications/lfricinputs/
 echo "current dir"
 echo $PWD
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel-classic $PATH_TO_CORE/build.sh ./fab_lfric2um.py
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort CC= LD=linker-mpif90-intel-classic $PATH_TO_CORE/build.sh ./fab_um2lfric.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC= CC= \
+	LD= $PATH_TO_CORE/build.sh ./fab_lfric2um.py                     \
+		--site nci --platform gadi --mpi --suite intel-classic       \
+        --fc mpif90-ifort -ld linker-mpif90-ifort
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC= CC= \
+	LD=$PATH_TO_CORE/build.sh ./fab_um2lfric.py                      \
+		--site nci --platform gadi --mpi --suite intel-classic       \
+        --fc mpif90-ifort -ld linker-mpif90-ifort
 
 echo "Built lfric_inputs"
 
