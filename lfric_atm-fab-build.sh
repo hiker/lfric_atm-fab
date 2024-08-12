@@ -90,8 +90,6 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH \
 
 echo "Built gravity_wave"
 
-fi
-
 # build lfric_atm
 cd $PATH_TO_APPS/applications/lfric_atm/
 echo "current dir"
@@ -105,6 +103,9 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=   \
 
 echo "Built lfric_atm"
 
+fi
+
+
 # build lfric_inputs
 cd $PATH_TO_APPS/applications/lfricinputs/
 echo "current dir"
@@ -114,7 +115,7 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC= CC= \
 		--site nci --platform gadi --mpi --suite intel-classic       \
         --fc mpif90-ifort -ld linker-mpif90-ifort
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC= CC= \
-	LD=$PATH_TO_CORE/build.sh ./fab_um2lfric.py                      \
+	LD= $PATH_TO_CORE/build.sh ./fab_um2lfric.py                      \
 		--site nci --platform gadi --mpi --suite intel-classic       \
         --fc mpif90-ifort -ld linker-mpif90-ifort
 
