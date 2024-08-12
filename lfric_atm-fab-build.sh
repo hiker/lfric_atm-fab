@@ -57,8 +57,6 @@ cd $PATH_TO_CORE/applications/skeleton/
 echo "current dir"
 echo $PWD
 
-#BOMJH: disable builds that work for now to quicker debug the rest
-if [[ $(false) ]]; then
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH  CC= \
 	$PATH_TO_CORE/build.sh                                        \
 	./fab_skeleton.py --site nci --platform gadi --mpi            \
@@ -102,9 +100,6 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=   \
 
 
 echo "Built lfric_atm"
-
-fi
-
 
 # build lfric_inputs
 cd $PATH_TO_APPS/applications/lfricinputs/
