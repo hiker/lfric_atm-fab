@@ -83,7 +83,7 @@ cd $PATH_TO_APPS/applications/gravity_wave/
 echo "current dir"
 echo $PWD
 imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH \
-    $PATH_TO_CORE/build.sh ./fab_gravity_wave.py --site nic --platform gadi \
+    $PATH_TO_CORE/build.sh ./fab_gravity_wave.py --site nci --platform gadi \
        --suite=intel-classic
 
 echo "Built gravity_wave"
