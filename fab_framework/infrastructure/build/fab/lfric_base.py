@@ -277,7 +277,8 @@ class LFRicBase(FabBase):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path
         '''
-        optimisation_path = config.source_root / 'optimisation' / 'nci-gadi'
+        optimisation_path = (config.source_root / 'optimisation' /
+                             f"{self.site}-{self.platform}")
         relative_path = None
         for base_path in [config.source_root, config.build_output]:
             try:

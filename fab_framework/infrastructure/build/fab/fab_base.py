@@ -83,6 +83,11 @@ class FabBase:
         return self._site
 
     @property
+    def platform(self):
+        ''':returns: the platform.'''
+        return self._platform
+
+    @property
     def target(self):
         ''':returns: the target (="site-platform").'''
         return self._target
