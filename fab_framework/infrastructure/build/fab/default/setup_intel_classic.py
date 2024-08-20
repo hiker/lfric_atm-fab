@@ -30,21 +30,23 @@ def setup_intel_classic(build_config: BuildConfig):
     no_optimisation_flags = ['-O0']
     safe_optimisation_flags = ['-O2', '-fp-model=strict']
     risky_optimisation_flags = ['-O3', '-xhost']
-    warnings_flags = ['-warn all', '-warn errors', '-gen-interfaces',
-                      'nosource']
-    unit_warnings_flags = ['-warn all', '-gen-interfaces', 'nosource']
+    # With -warn errors we get externals that are too long. While this
+    # is a (usually safe) warning, the long externals then causes the
+    # build to abort. So for now we cannot use `-warn errors`
+    warnings_flags = ['-warn all','-gen-interfaces', 'nosource']
+    unit_warnings_flags = ['-warn', 'all', '-gen-interfaces', 'nosource']
     init_flags = ['-ftrapuv']
 
     # ifort.mk: bad interaction between array shape checking and
     # the matmul" intrinsic in at least some iterations of v19.
     if (19, 0, 0) <= ifort.get_version() < (19, 1, 0):
-        runtime_flags = ['-check all,noshape', '-fpe0']
+        runtime_flags = ['-check', 'all,noshape', '-fpe0']
     else:
-        runtime_flags = ['-check all', '-fpe0']
+        runtime_flags = ['-check', 'all', '-fpe0']
 
     # ifort.mk: option for checking code meets Fortran standard
     # - currently 2008
-    fortran_standard_flags = ['-stand f08']
+    fortran_standard_flags = ['-stand', 'f08']
 
     # ifort.mk has some app and file-specific options for older
     # intel compilers. They have not been included here
