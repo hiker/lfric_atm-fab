@@ -23,21 +23,22 @@ class Tauf90(CompilerWrapper):
     def __init__(self, compiler: Compiler):
         super().__init__(name=f"tau-{compiler.name}",
                          exec_name="tau_f90.sh", compiler=compiler, mpi=True)
-    
+
     def compile_file(self, input_file,
                      output_file,
                      openmp,
-                     add_flags = None,
-                     syntax_only = None):
+                     add_flags=None,
+                     syntax_only=None):
         if ('psy.f90' in str(input_file)) or \
-            ('/kernel/' in str(input_file)) or \
-            ('leaf_jls_mod' in str(input_file)) or \
-            ('/science/' in str(input_file)):
-            self._compiler.compile_file(input_file, output_file, 
+          ('/kernel/' in str(input_file)) or \
+          ('leaf_jls_mod' in str(input_file)) or \
+          ('/science/' in str(input_file)):
+            self._compiler.compile_file(input_file, output_file,
                                         openmp, add_flags, syntax_only)
         else:
-            super().compile_file(input_file, output_file, 
+            super().compile_file(input_file, output_file,
                                  openmp, add_flags, syntax_only)
+
 
 class Taucc(CompilerWrapper):
     '''Class for the Tau profiling C compiler wrapper.
