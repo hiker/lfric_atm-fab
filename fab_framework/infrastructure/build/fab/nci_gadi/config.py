@@ -33,13 +33,11 @@ class Tauf90(CompilerWrapper):
             ('/kernel/' in str(input_file)) or \
             ('leaf_jls_mod' in str(input_file)) or \
             ('/science/' in str(input_file)):
-            compiler.compile_file(input_file, output_file, 
-                                 openmp,
-                                 add_flags, syntax_only)
+            self._compiler.compile_file(input_file, output_file, 
+                                        openmp, add_flags, syntax_only)
         else:
             super().compile_file(input_file, output_file, 
-                                 openmp,
-                                 add_flags, syntax_only)
+                                 openmp, add_flags, syntax_only)
 
 class Taucc(CompilerWrapper):
     '''Class for the Tau profiling C compiler wrapper.
