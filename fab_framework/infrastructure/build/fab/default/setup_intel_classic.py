@@ -30,8 +30,10 @@ def setup_intel_classic(build_config: BuildConfig):
     no_optimisation_flags = ['-O0']
     safe_optimisation_flags = ['-O2', '-fp-model=strict']
     risky_optimisation_flags = ['-O3', '-xhost']
-    warnings_flags = ['-warn all', '-warn', 'errors', '-gen-interfaces',
-                      'nosource']
+    # With -warn errors we get externals that are too long. While this
+    # is a (usually safe) warning, the long externals then causes the
+    # build to abort. So for now we cannot use `-warn errors`
+    warnings_flags = ['-warn all','-gen-interfaces', 'nosource']
     unit_warnings_flags = ['-warn', 'all', '-gen-interfaces', 'nosource']
     init_flags = ['-ftrapuv']
 
