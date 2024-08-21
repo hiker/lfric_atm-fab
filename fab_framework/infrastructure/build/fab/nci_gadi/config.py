@@ -29,7 +29,7 @@ class Tauf90(CompilerWrapper):
                      openmp,
                      add_flags=None,
                      syntax_only=None):
-        base_compiler=compiler()
+        base_compiler=self.compiler()
         if ('psy.f90' in str(input_file)) or \
           ('/kernel/' in str(input_file)) or \
           ('leaf_jls_mod' in str(input_file)) or \
