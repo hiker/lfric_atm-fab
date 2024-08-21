@@ -74,7 +74,7 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH CC=icc  \
     $PATH_TO_CORE/build.sh ./fab_gungho_model.py                     \
                            --site nci --platform gadi --mpi          \
                            --suite intel-classic                     \
-                           --fc mpif90-ifort -ld linker-mpif90-ifort
+                           --fc tau-ifort -ld linker-tau-ifort
 
 echo "Built gungho_model"
 
@@ -96,7 +96,7 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=   \
          CC=icc LD=linker-tau-intel-fortran $PATH_TO_CORE/build.sh \
          ./fab_lfric_atm.py --site nci --platform gadi --mpi       \
                       --suite intel-classic                        \
-                      --fc mpif90-ifort -ld linker-mpif90-ifort
+                      --fc tau-ifort -ld linker-tau-ifort
 
 
 echo "Built lfric_atm"

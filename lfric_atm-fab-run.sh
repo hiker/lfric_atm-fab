@@ -24,7 +24,7 @@ echo "Start running gungho_model"
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/gungho_model/example
 echo 'current dir'
 echo $PWD
-imagerun mpirun -np 6 $FAB_WORKSPACE/gungho_model-mpif90-ifort/gungho_model configuration.nml
+imagerun mpirun -np 6 $FAB_WORKSPACE/gungho_model*/gungho_model configuration.nml
 echo "Finished running gungho_model"
 
 # run lfric_atm
@@ -32,7 +32,7 @@ echo "Start running lfric_atm"
 cd $FAB_WORKSPACE/lfric_source_${lfric_core_rev}/source/apps/applications/lfric_atm/example
 echo 'current dir'
 echo $PWD
-imagerun mpirun -np 1 $FAB_WORKSPACE/lfric_atm-mpif90-ifort/lfric_atm configuration.nml
+imagerun mpirun -np 1 $FAB_WORKSPACE/lfric_atm*/lfric_atm configuration.nml
 echo "Finished running lfric_atm"
 
 echo "Finished all runs"
