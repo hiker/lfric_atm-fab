@@ -29,11 +29,12 @@ class Tauf90(CompilerWrapper):
                      openmp,
                      add_flags=None,
                      syntax_only=None):
+        base_compiler=compiler()
         if ('psy.f90' in str(input_file)) or \
           ('/kernel/' in str(input_file)) or \
           ('leaf_jls_mod' in str(input_file)) or \
           ('/science/' in str(input_file)):
-            self._compiler.compile_file(input_file, output_file,
+            base_compiler.compile_file(input_file, output_file,
                                         openmp, add_flags, syntax_only)
         else:
             super().compile_file(input_file, output_file,
