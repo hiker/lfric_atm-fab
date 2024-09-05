@@ -16,7 +16,6 @@ from pathlib import Path
 
 from fab.artefacts import ArtefactSet, SuffixFilter
 from fab.steps.analyse import analyse
-from fab.steps.c_pragma_injector import c_pragma_injector
 from fab.steps.find_source_files import find_source_files, Exclude
 from fab.steps.psyclone import psyclone, preprocess_x90
 from fab.steps.grab.folder import grab_folder
@@ -125,78 +124,6 @@ class LFRicBase(FabBase):
         # -DUSE_XIOS is not found in makefile but in fab run_config and
         # driver_io_mod.F90
 
-    def define_compiler_flags(self):
-        '''Top level function that sets (compiler- and site-specific)
-        compiler flags by calling self.set_flags
-        '''
-        compiler = super().define_compiler_flags()
-        # TODO: This should go into compiler.get_version() in FAB
-        compiler_version_comparison = ''.join(
-            f"{int(version_component):02d}"
-            for version_component in compiler.get_version().split('.'))
-
-        if compiler.suite == "intel-classic":
-            # The flag groups are mainly from infrastructure/build/fortran
-            # /ifort.mk
-            no_optimisation_flags = ['-O0']
-            safe_optimisation_flags = ['-O2', '-fp-model=strict']
-            risky_optimisation_flags = ['-O3', '-xhost']
-            openmp_arg_flags = ['-qopenmp']
-            warnings_flags = ['-warn all', '-warn errors', '-gen-interfaces',
-                              'nosource']
-            unit_warnings_flags = ['-warn all', '-gen-interfaces', 'nosource']
-            init_flags = ['-ftrapuv']
-
-            # ifort.mk: bad interaction between array shape checking and
-            # the matmul" intrinsic in at least some iterations of v19.
-            if '190000' <= compiler_version_comparison < '190100':
-                runtime_flags = ['-check all,noshape', '-fpe0']
-            else:
-                runtime_flags = ['-check all', '-fpe0']
-
-            # ifort.mk: option for checking code meets Fortran standard
-            # - currently 2008
-            fortran_standard_flags = ['-stand f08']
-
-            # ifort.mk has some app and file-specific options for older
-            # intel compilers. They have not been included here
-            compiler_flag_group = openmp_arg_flags
-
-            if self._args.profile == 'full-debug':
-                compiler_flag_group += (warnings_flags +
-                                        init_flags + runtime_flags +
-                                        no_optimisation_flags +
-                                        fortran_standard_flags)
-            elif self._args.profile == 'production':
-                compiler_flag_group += (warnings_flags +
-                                        risky_optimisation_flags)
-            else:  # 'fast-debug'
-                compiler_flag_group += (warnings_flags +
-                                        safe_optimisation_flags +
-                                        fortran_standard_flags)
-
-            self.set_flags(compiler_flag_group, self._compiler_flags)
-
-        elif compiler.suite in ["joerg", "gnu"]:
-            flags = ['-ffree-line-length-none', '-fopenmp', '-g',
-                     '-Werror=character-truncation', '-Werror=unused-value',
-                     '-Werror=tabs', '-fdefault-real-8', '-fdefault-double-8',
-                     ]
-            # Support Joerg's build environment
-            if compiler.suite == "joerg":
-                flags.extend(
-                    [
-                     # The lib directory contains mpi.mod
-                     '-I', ('/home/joerg/work/spack/var/spack/environments/'
-                            'lfric-v0/.spack-env/view/lib'),
-                     # mod_wait.mod
-                     '-I', ('/home/joerg/work/spack/var/spack/environments/'
-                            'lfric-v0/.spack-env/view/include'),
-                     ])
-            self.set_flags(flags, self._compiler_flags)
-        else:
-            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
-
     def define_linker_flags(self):
         '''Top level function that sets (site-specific) linker flags
         by calling self.set_flags.
@@ -205,29 +132,22 @@ class LFRicBase(FabBase):
         # to set the flags.
         compiler = super().define_linker_flags()
 
-        # TODO: Unfortunately, for now we have to set openmp flags explicitly
-        # for linker. For now, all compiler flags are still set in the compile
-        # step only, so the linker (which adds compiler flags from the
-        # compiler instance) does not have these flags. Once the flags are
-        # moved from the compile step into the compiler object, the linker
-        # will be able to pick up openmp (and other compiler flags)
-        # automatically.
         if compiler.suite == "intel-classic":
             self.set_flags(
-                ['-qopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
+                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
                  '-lnetcdf', '-lhdf5', '-lstdc++'], self._link_flags)
 
-        elif compiler.suite == "joerg":
-            self.set_flags(
-                ['-fopenmp',
-                 '-L', ('/home/joerg/work/spack/var/spack/environments/'
-                        'lfric-v0/.spack-env/view/lib'),
-                 '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
-                 '-lhdf5', '-lstdc++'], self._link_flags)
         elif compiler.suite == "gnu":
-            self.set_flags(
-                ['-fopenmp', '-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
-                 '-lnetcdf', '-lhdf5', '-lstdc++'], self._link_flags)
+            if self.site == "joerg":
+                flags = ['-L', ('/home/joerg/work/spack/var/spack/'
+                                'environments/lfric-v0/.spack-env/view/lib')]
+            else:
+                flags = []
+            flags.extend(
+                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
+                 '-lhdf5', '-lstdc++'])
+
+            self.set_flags(flags, self._link_flags)
         else:
             raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
 
@@ -301,7 +221,7 @@ class LFRicBase(FabBase):
 
         templaterator = Templaterator(base_dir/"Templaterator")
         config.artefact_store["template_files"] = set()
-        t90_filter = SuffixFilter(ArtefactSet.ALL_SOURCE, [".t90", ".T90"])
+        t90_filter = SuffixFilter(ArtefactSet.INITIAL_SOURCE, [".t90", ".T90"])
         template_files = t90_filter(config.artefact_store)
         # Don't bother with parallelising this, atm there is only one file:
         print("TEMPLATE", template_files)
@@ -337,7 +257,8 @@ class LFRicBase(FabBase):
     def psyclone(self):
         psyclone_cli_args = self.get_psyclone_config()
         compiler = self.config.tool_box[Category.FORTRAN_COMPILER]
-        linker = self.config.tool_box[Category.LINKER]
+        linker = self.config.tool_box.get_tool(Category.LINKER,
+                                               mpi=self.config.mpi)
         if "tau_f90.sh" in [compiler.exec_name, linker.exec_name]:
             psyclone_cli_args.extend(self.get_psyclone_profiling_option())
 
@@ -356,7 +277,8 @@ class LFRicBase(FabBase):
         ''':returns: the transformation script to be used by PSyclone.
         :rtype: Path
         '''
-        optimisation_path = config.source_root / 'optimisation' / 'nci-gadi'
+        optimisation_path = (config.source_root / 'optimisation' /
+                             f"{self.site}-{self.platform}")
         relative_path = None
         for base_path in [config.source_root, config.build_output]:
             try:

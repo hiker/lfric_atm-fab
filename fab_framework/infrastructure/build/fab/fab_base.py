@@ -28,6 +28,9 @@ from fab.steps.grab.folder import grab_folder
 from fab.tools import Category, ToolBox, ToolRepository
 
 
+logger = logging.getLogger('fab')
+
+
 class FabBase:
     '''This is the base class for all FAB scripts.
 
@@ -56,8 +59,6 @@ class FabBase:
         parser = self.define_command_line_options()
         self.handle_command_line_options(parser)
 
-        self._site_config.update_toolbox(self._tool_box)
-
         if root_symbol:
             self._root_symbol = root_symbol
         else:
@@ -67,10 +68,24 @@ class FabBase:
                                    project_label=f'{name}-$compiler',
                                    verbose=True,
                                    n_procs=16,
+                                   mpi=self._args.mpi,
+                                   openmp=self._args.openmp
                                    )
         self._preprocessor_flags = []
         self._compiler_flags = []
         self._link_flags = []
+
+        self._site_config.update_toolbox(self._config)
+
+    @property
+    def site(self):
+        ''':returns: the site.'''
+        return self._site
+
+    @property
+    def platform(self):
+        ''':returns: the platform.'''
+        return self._platform
 
     @property
     def target(self):
@@ -115,7 +130,12 @@ class FabBase:
             self._platform = "default"
 
         # Define target attribute for site&platform-specific files
-        self._target = f"{self._site}_{self._platform}"
+        # If none are specified, just use a single default (instead of
+        # default-default)
+        if self._platform == "default" and self._site == "default":
+            self._target = "default"
+        else:
+            self._target = f"{self._site}_{self._platform}"
 
     def site_specific_setup(self):
         '''Imports a site-specific config file. The location is based
@@ -163,6 +183,18 @@ class FabBase:
         parser.add_argument(
             '--ld', '-ld', type=str, default="$LD",
             help="Name of the linker to use")
+        parser.add_argument(
+            '--mpi', '-mpi', default=True, action="store_true",
+            help="Enable MPI")
+        parser.add_argument(
+            '--no-mpi', '-no-mpi', action="store_false",
+            dest="mpi", help="Disable MPI")
+        parser.add_argument(
+            '--openmp', '-openmp', default=True, action="store_true",
+            help="Enable OpenMP")
+        parser.add_argument(
+            '--no-openmp', '-no-openmp', action="store_false",
+            dest="openmp", help="Disable OpenMP")
         parser.add_argument("--site", "-s", type=str,
                             default="$SITE or 'default'",
                             help="Name of the site to use.")
@@ -186,26 +218,7 @@ class FabBase:
 
         tr = ToolRepository()
         if self._args.suite:
-            if self._args.suite == "joerg":
-                tr.set_default_compiler_suite("gnu")
-            else:
-                tr.set_default_compiler_suite(self._args.suite)
-            # TODO:  for now define mpif90 as default
-            try:
-                fc = tr.get_tool(Category.FORTRAN_COMPILER,
-                                 f"mpif90-{self._args.suite}")
-            except KeyError:
-                fc = tr.get_default(Category.FORTRAN_COMPILER)
-
-            self._tool_box.add_tool(fc)
-
-            # TODO:  for now also define mpif90 as default linker
-            try:
-                ld = tr.get_tool(Category.LINKER,
-                                 f"linker-{fc.name}")
-            except KeyError:
-                ld = tr.get_default(Category.FORTRAN_COMPILER)
-            self._tool_box.add_tool(ld)
+            tr.set_default_compiler_suite(self._args.suite)
 
             print(f"Setting suite to '{self._args.suite}'.")
             # suite will overwrite use of env variables, so change the
@@ -249,7 +262,8 @@ class FabBase:
         '''Top level function that sets (compiler- and site-specific)
         compiler flags by calling self.set_flags
         '''
-        compiler = self._tool_box[Category.FORTRAN_COMPILER]
+        compiler = self._tool_box.get_tool(Category.FORTRAN_COMPILER,
+                                           mpi=self.config.mpi)
 
         if compiler.suite == "intel-classic":
 
@@ -258,7 +272,7 @@ class FabBase:
 
             self.set_flags(compiler_flags, self._compiler_flags)
 
-        elif compiler.suite in ["joerg", "gnu"]:
+        elif compiler.suite in ["gnu"]:
 
             debug_flags = ['-g']
             compiler_flags = debug_flags
