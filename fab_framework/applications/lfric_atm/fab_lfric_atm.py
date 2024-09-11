@@ -16,6 +16,7 @@ from fab.steps.grab.folder import grab_folder
 from fab.build_config import AddFlags
 from fab.steps.find_source_files import Exclude, Include
 from fab.tools import Category
+from fab.steps.psyclone import psyclone
 
 from lfric_base import LFRicBase
 from get_revision import GetRevision
@@ -125,6 +126,45 @@ class FabLFRicAtm(LFRicBase):
                       AddFlags(match="$source/science/*",
                                flags=['-DLFRIC'])]
         super().preprocess_fortran(path_flags=path_flags)
+
+    def psyclone(self):
+        psyclone_cli_args = self.get_psyclone_config()
+
+        psyclone(self.config, kernel_roots=[self.config.build_output],
+                 transformation_script=self.get_transformation_script[1],
+                 api=self.get_transformation_script[0],
+                 cli_args=psyclone_cli_args)
+
+    def get_transformation_script(self, fpath, config):
+        ''':returns: the transformation script to be used by PSyclone.
+        :rtype: Path
+        '''
+        # Choosing api for transformation or optimization
+        api="dynamo0.3" #optimization by default
+        # Special psyclone commands for two x90 files
+        # source/diagnostics/jules_soil_diags_mod.x90
+        # source/diagnostics/jules_snow_diags_mod.x90
+        if "jules_snow_diags_mod" or "jules_soil_diags_mod" in str(fpath):
+            api = None #transformation
+            return [api, ""]
+        optimisation_path = (config.source_root / 'optimisation' /
+                             f"{self.site}-{self.platform}")
+        relative_path = None
+        for base_path in [config.source_root, config.build_output]:
+            try:
+                relative_path = fpath.relative_to(base_path)
+            except ValueError:
+                pass
+        if relative_path:
+            local_transformation_script = (optimisation_path /
+                                           (relative_path.with_suffix('.py')))
+            if local_transformation_script.exists():
+                return [api, local_transformation_script]
+
+        global_transformation_script = optimisation_path / 'global.py'
+        if global_transformation_script.exists():
+            return [api, global_transformation_script]
+        return [api, ""]
 
     def compile_fortran(self):
         fc = self.config.tool_box[Category.FORTRAN_COMPILER]
