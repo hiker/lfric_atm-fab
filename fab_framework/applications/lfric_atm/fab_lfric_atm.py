@@ -135,9 +135,6 @@ class FabLFRicAtm(LFRicBase):
         self.config.artefact_store.add('X90_BUILD_FILES_REPROCESSED',
                                        [(self.config.source_root /
                                          'diagnostics' /
-                                         'jules_soil_diags_mod.x90'),
-                                        (self.config.source_root /
-                                         'diagnostics' /
                                          'jules_snow_diags_mod.x90')])
         psyclone_cli_args = self.get_psyclone_config()
         psyclone(self.config, kernel_roots=[self.config.build_output],
