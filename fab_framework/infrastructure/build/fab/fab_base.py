@@ -329,7 +329,7 @@ class FabBase:
         archive_objects(self.config)
 
     def link(self):
-        link_exe(self.config, flags=self._link_flags)
+        link_exe(self.config, libs=self._link_flags)
 
     def build(self):
         # We need to use with to trigger the entrance/exit functionality,

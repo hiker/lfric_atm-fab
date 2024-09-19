@@ -25,3 +25,21 @@ def setup_gnu(build_config: BuildConfig):
              '-Ditworks'
              ]
     gfortran.add_flags(flags)
+
+    gfortran = tr.get_tool(Category.LINKER, "linker-gfortran")
+    gfortran.add_lib_flags("netcdf", ["$(nf-config --flibs)",
+                                      "$(nc-config --libs)"],
+                           silent_replace=True)
+    gfortran.add_lib_flags("yaxt", ["-lyaxt", "-lyaxt_c"])
+    gfortran.add_lib_flags("xios", ["-lxios"])
+    gfortran.add_lib_flags("hdf5", ["-lhdf5"])
+    gfortran.add_lib_flags("stdc++", ["-lstdc++"])
+
+    gfortran = tr.get_tool(Category.LINKER, "linker-mpif90-gfortran")
+    gfortran.add_lib_flags("netcdf", ["$(nf-config --flibs)",
+                                      "$(nc-config --libs)"],
+                           silent_replace=True)
+    gfortran.add_lib_flags("yaxt", ["-lyaxt", "-lyaxt_c"])
+    gfortran.add_lib_flags("xios", ["-lxios"])
+    gfortran.add_lib_flags("hdf5", ["-lhdf5"])
+    gfortran.add_lib_flags("stdc++", ["-lstdc++"])

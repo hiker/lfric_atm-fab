@@ -144,8 +144,7 @@ class LFRicBase(FabBase):
             else:
                 flags = []
             flags.extend(
-                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
-                 '-lhdf5', '-lstdc++'])
+                ['yaxt', 'xios', 'netcdf', 'hdf5', 'stdc++'])
 
             self.set_flags(flags, self._link_flags)
         else:
