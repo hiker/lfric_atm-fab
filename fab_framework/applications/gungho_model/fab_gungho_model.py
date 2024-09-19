@@ -22,6 +22,7 @@ class FabGungho(LFRicBase):
         super().grab_files()
         dirs = ['applications/gungho_model/source/',
                 'science/gungho/source',
+                'science/shared/source/',
                 ]
         # pylint: disable=redefined-builtin
         for dir in dirs:
