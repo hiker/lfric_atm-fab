@@ -22,6 +22,7 @@ class FabGravityWave(LFRicBase):
         super().grab_files()
         dirs = ['applications/gravity_wave/source/',
                 'science/gungho/source',
+                'science/shared/source/',
                 ]
 
         # pylint: disable=redefined-builtin
