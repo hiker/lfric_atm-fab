@@ -131,14 +131,23 @@ class FabLFRicAtm(LFRicBase):
     def psyclone(self):
         super().psyclone()
 
-        self.config.artefact_store['X90_BUILD_FILES_REPROCESSED'] = set()
-        self.config.artefact_store.add('X90_BUILD_FILES_REPROCESSED',
-                                       [(self.config.source_root /
-                                         'diagnostics' /
-                                         'jules_snow_diags_mod.x90')])
+        self.config.artefact_store['UM_F90_FILES_TRANSFORMATION'] = set()
+        self.config.artefact_store.add('UM_F90_FILES_TRANSFORMATION',
+                                       [(self.config.build_output /
+                                         'science' /
+                                         'um' /
+                                         'atmosphere' /
+                                         'aerosols' /
+                                         'aero_params_mod.f90'),
+                                         (self.config.source_root /
+                                         'science' /
+                                         'um' /
+                                         'atmosphere' /
+                                         'idealised' /
+                                         'idealise_run_mod.f90')])
         psyclone_cli_args = self.get_psyclone_config()
         psyclone(self.config, kernel_roots=[self.config.build_output],
-                 source_getter=CollectionGetter('X90_BUILD_FILES_REPROCESSED'),
+                 source_getter=CollectionGetter('UM_F90_FILES_TRANSFORMATION'),
                  cli_args=psyclone_cli_args)
 
     def compile_fortran(self):
