@@ -67,7 +67,7 @@ class FabBase:
         self._config = BuildConfig(tool_box=self._tool_box,
                                    project_label=f'{name}-$compiler',
                                    verbose=True,
-                                   n_procs=16,
+                                   n_procs=1,
                                    mpi=self._args.mpi,
                                    openmp=self._args.openmp
                                    )
