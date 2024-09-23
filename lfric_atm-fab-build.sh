@@ -60,8 +60,7 @@ imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=   \
          CC=icc LD= $PATH_TO_CORE/build.sh \
          ./fab_lfric_atm.py --site nci --platform gadi --mpi       \
                       --suite intel-classic                        \
-                      --fc ifort -ld linker-mpif90-ifort
-
+                      --fc mpif90-ifort -ld linker-mpif90-ifort
 
 echo "Built lfric_atm"
 
