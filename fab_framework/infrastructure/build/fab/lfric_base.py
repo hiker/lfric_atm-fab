@@ -157,6 +157,7 @@ class LFRicBase(FabBase):
                 'components/inventory/source/',
                 'components/science/source/',
                 'components/lfric-xios/source/',
+                'components/coupling/source/',
                 ]
 
         # pylint: disable=redefined-builtin
