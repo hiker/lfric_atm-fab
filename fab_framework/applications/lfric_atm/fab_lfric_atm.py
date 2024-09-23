@@ -16,8 +16,7 @@ from fab.steps.grab.folder import grab_folder
 from fab.build_config import AddFlags
 from fab.steps.find_source_files import Exclude, Include
 from fab.tools import Category
-from fab.steps.psyclone import psyclone
-from fab.artefacts import CollectionGetter
+from fab.artefacts import ArtefactSet
 
 from lfric_base import LFRicBase
 from get_revision import GetRevision
@@ -131,24 +130,30 @@ class FabLFRicAtm(LFRicBase):
     def psyclone(self):
         super().psyclone()
 
-        self.config.artefact_store['UM_F90_FILES_TRANSFORMATION'] = set()
-        self.config.artefact_store.add('UM_F90_FILES_TRANSFORMATION',
-                                       [(self.config.build_output /
-                                         'science' /
-                                         'um' /
-                                         'atmosphere' /
-                                         'aerosols' /
-                                         'aero_params_mod.f90'),
-                                        (self.config.build_output /
-                                         'science' /
-                                         'um' /
-                                         'atmosphere' /
-                                         'idealised' /
-                                         'idealise_run_mod.f90')])
-        psyclone_cli_args = self.get_psyclone_config()
-        psyclone(self.config, kernel_roots=[self.config.build_output],
-                 source_getter=CollectionGetter('UM_F90_FILES_TRANSFORMATION'),
-                 cli_args=psyclone_cli_args)
+        psyclone = self.config.tool_box[Category.PSYCLONE]
+        x90_file = (self.config.build_output /
+                    'science' /
+                    'um' /
+                    'atmosphere' /
+                    'aerosols' /
+                    'aero_params_mod.f90')
+        psy_file = (self.config.build_output /
+                    'science' /
+                    'um' /
+                    'atmosphere' /
+                    'aerosols' /
+                    'aero_params_mod_psy.f90')
+        alg_file = (self.config.build_output /
+                    'science' /
+                    'um' /
+                    'atmosphere' /
+                    'aerosols' /
+                    'aero_params_mod_psyclonified.f90')
+        psyclone.process(config=self.config,
+                         x90_file=x90_file,
+                         psy_file=psy_file,
+                         alg_file=alg_file)
+        self.config.artefact_store.replace(ArtefactSet.FORTRAN_BUILD_FILES, [x90_file], [alg_file, psy_file])
 
     def compile_fortran(self):
         fc = self.config.tool_box[Category.FORTRAN_COMPILER]
