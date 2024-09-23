@@ -139,7 +139,7 @@ class FabLFRicAtm(LFRicBase):
                                          'atmosphere' /
                                          'aerosols' /
                                          'aero_params_mod.f90'),
-                                         (self.config.source_root /
+                                        (self.config.build_output /
                                          'science' /
                                          'um' /
                                          'atmosphere' /
