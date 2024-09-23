@@ -40,8 +40,7 @@ class FabLFRicAtm(LFRicBase):
                 'science/socrates_interface/source/',
                 'science/jules_interface/source/',
                 'applications/lfric_atm/source',
-                'science/shared/source/constants/',
-                'science/shared/source/vector_space/',
+                'science/shared/source/',
                 ]
         # pylint: disable=redefined-builtin
         for dir in dirs:
