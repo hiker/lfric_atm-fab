@@ -154,10 +154,11 @@ class FabLFRicAtm(LFRicBase):
                          psy_file=psy_file,
                          alg_file=alg_file)
         psyclone_generated_files = [alg_file]
-        if psy_file.exist():
+        if psy_file.exists():
             psyclone_generated_files += [psy_file]
         self.config.artefact_store.replace(ArtefactSet.FORTRAN_BUILD_FILES,
-                                           [x90_file], psyclone_generated_files)
+                                           [x90_file],
+                                           psyclone_generated_files)
 
     def compile_fortran(self):
         fc = self.config.tool_box[Category.FORTRAN_COMPILER]
