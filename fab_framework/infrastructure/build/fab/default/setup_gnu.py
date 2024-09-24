@@ -58,4 +58,4 @@ def setup_gnu(build_config: BuildConfig):
         linker.add_lib_flags("hdf5", ["-lhdf5"])
 
         # Always link with C++ libs
-        gfortran.add_post_lib_flags(["-lstdc++"])
+        linker.add_post_lib_flags(["-lstdc++"])
