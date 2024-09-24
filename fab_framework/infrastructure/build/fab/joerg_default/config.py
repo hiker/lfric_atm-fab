@@ -33,3 +33,8 @@ class Config(DefaultConfig):
                        'lfric-v0/.spack-env/view/include'),
                 '-DITSUPERWORKS'
             ])
+        for linker_name in ["linker-gfortran", "linker-mpif90-gfortran"]:
+            gfortran = ToolRepository().get_tool(Category.LINKER, linker_name)
+            gfortran.add_post_lib_flags(
+                ['-L', ('/home/joerg/work/spack/var/spack/'
+                        'environments/lfric-v0/.spack-env/view/lib')])

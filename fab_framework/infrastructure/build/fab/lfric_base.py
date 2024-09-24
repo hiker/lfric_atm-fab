@@ -128,27 +128,8 @@ class LFRicBase(FabBase):
         '''Top level function that sets (site-specific) linker flags
         by calling self.set_flags.
         '''
-        # The link flags will depend on the compiler, so use the compiler
-        # to set the flags.
-        compiler = super().define_linker_flags()
-
-        if compiler.suite == "intel-classic":
-            self.set_flags(
-                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
-                 '-lnetcdf', '-lhdf5', '-lstdc++'], self._link_flags)
-
-        elif compiler.suite == "gnu":
-            if self.site == "joerg":
-                flags = ['-L', ('/home/joerg/work/spack/var/spack/'
-                                'environments/lfric-v0/.spack-env/view/lib')]
-            else:
-                flags = []
-            flags.extend(
-                ['yaxt', 'xios', 'netcdf', 'hdf5', 'stdc++'])
-
-            self.set_flags(flags, self._link_flags)
-        else:
-            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
+        super().define_linker_flags()
+        self.set_flags(['yaxt', 'xios', 'netcdf', 'hdf5'], self._link_flags)
 
     def grab_files(self):
         dirs = ['infrastructure/source/',
