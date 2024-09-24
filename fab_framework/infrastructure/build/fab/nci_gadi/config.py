@@ -8,9 +8,22 @@ by the Baf scripts. This script:
 '''
 
 
-from fab.tools import (Category, Compiler, CompilerWrapper, ToolRepository)
+from fab.tools import (Category, Compiler, CompilerWrapper, Tool,
+                       ToolRepository)
 
 from default.config import Config as DefaultConfig
+
+
+class Shell(Tool):
+    '''A simple wrapper that runs a shell script.
+    :name: the path to the script to run.
+    '''
+    def __init__(self, name: str):
+        super().__init__(name=name, exec_name=name,
+                         category=Category.MISC)
+
+    def check_available(self):
+        return True
 
 
 class Tauf90(CompilerWrapper):
@@ -70,3 +83,19 @@ class Config(DefaultConfig):
         for cc in ["icc", "gcc"]:
             compiler = tr.get_tool(Category.C_COMPILER, cc)
             tr.add_tool(Taucc(compiler))
+
+        # ATM a linker is not using a compiler wrapper, and so
+        # linker-mpif90-gfortran does not inherit from linker-gfortran.
+        # For now set the flags in both linkers:
+        bash = Shell("bash")
+        # We must remove the trailing new line, and create a list:
+        nc_flibs = bash.run(additional_parameters=["-c", "nf-config --flibs"],
+                            capture_output=True).strip().split()
+        linker = tr.get_tool(Category.LINKER, "linker-tau-ifort")
+        linker.add_lib_flags("netcdf", nc_flibs, silent_replace=True)
+        linker.add_lib_flags("yaxt", ["-lyaxt", "-lyaxt_c"])
+        linker.add_lib_flags("xios", ["-lxios"])
+        linker.add_lib_flags("hdf5", ["-lhdf5"])
+
+        # Always link with C++ libs
+        linker.add_post_lib_flags(["-lstdc++"])
