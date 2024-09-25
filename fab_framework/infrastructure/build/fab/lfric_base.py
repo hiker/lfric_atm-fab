@@ -13,6 +13,7 @@ script.
 import logging
 import os
 from pathlib import Path
+from typing import List
 
 from fab.artefacts import ArtefactSet, SuffixFilter
 from fab.steps.analyse import analyse
@@ -124,12 +125,13 @@ class LFRicBase(FabBase):
         # -DUSE_XIOS is not found in makefile but in fab run_config and
         # driver_io_mod.F90
 
-    def define_linker_flags(self):
-        '''Top level function that sets (site-specific) linker flags
-        by calling self.set_flags.
+    def get_linker_flags(self) -> List[str]:
+        '''Base class for setting linker flags. This base implementation
+        for now just returns an empty list
+
+        :returns: list of flags for the linker.
         '''
-        super().define_linker_flags()
-        self.set_flags(['yaxt', 'xios', 'netcdf', 'hdf5'], self._link_flags)
+        return ['yaxt', 'xios', 'netcdf', 'hdf5'] + super().get_linker_flags()
 
     def grab_files(self):
         dirs = ['infrastructure/source/',

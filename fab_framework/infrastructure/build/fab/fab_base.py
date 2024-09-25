@@ -14,6 +14,7 @@ from importlib import import_module
 import logging
 import os
 import sys
+from typing import List
 
 from fab.build_config import BuildConfig
 from fab.steps.analyse import analyse
@@ -73,7 +74,6 @@ class FabBase:
                                    )
         self._preprocessor_flags = []
         self._compiler_flags = []
-        self._link_flags = []
 
         self._site_config.update_toolbox(self._config)
 
@@ -284,17 +284,13 @@ class FabBase:
 
         return compiler
 
-    def define_linker_flags(self):
-        '''Top level function that sets (site-specific) linker flags
-        by calling self.set_flags.
+    def get_linker_flags(self) -> List[str]:
+        '''Base class for setting linker flags. This base implementation
+        for now just returns an empty list
+
+        :returns: list of flags for the linker.
         '''
-        # The link flags will depend on the compiler, so use the compiler
-        # to set the flags.
-        compiler = self._tool_box[Category.FORTRAN_COMPILER]
-
-        self.set_flags([], self._link_flags)
-
-        return compiler
+        return []
 
     def set_flags(self, list_of_flags, flag_group):
         for flag in list_of_flags:
@@ -329,7 +325,7 @@ class FabBase:
         archive_objects(self.config)
 
     def link(self):
-        link_exe(self.config, libs=self._link_flags)
+        link_exe(self.config, libs=self.get_linker_flags())
 
     def build(self):
         # We need to use with to trigger the entrance/exit functionality,
@@ -347,7 +343,6 @@ class FabBase:
             self.compile_c()
             self.compile_fortran()
             self.archive_objects()
-            self.define_linker_flags()
             self.link()
 
 
