@@ -137,28 +137,13 @@ class FabLFRicAtm(LFRicBase):
                     'atmosphere' /
                     'aerosols' /
                     'aero_params_mod.f90')
-        psy_file = (self.config.build_output /
-                    'science' /
-                    'um' /
-                    'atmosphere' /
-                    'aerosols' /
-                    'aero_params_mod_psy.f90')
-        alg_file = (self.config.build_output /
-                    'science' /
-                    'um' /
-                    'atmosphere' /
-                    'aerosols' /
-                    'aero_params_mod_psyclonified.f90')
+        transformed_file = x90_file.with_stem(x90_file.stem +"_psyclonified")
         psyclone.process(config=self.config,
                          x90_file=x90_file,
-                         psy_file=psy_file,
-                         alg_file=alg_file)
-        psyclone_generated_files = [alg_file]
-        if psy_file.exists():
-            psyclone_generated_files += [psy_file]
+                         transformed_file=transformed_file)
         self.config.artefact_store.replace(ArtefactSet.FORTRAN_BUILD_FILES,
                                            [x90_file],
-                                           psyclone_generated_files)
+                                           [transformed_file])
 
     def compile_fortran(self):
         fc = self.config.tool_box[Category.FORTRAN_COMPILER]

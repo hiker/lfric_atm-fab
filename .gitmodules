@@ -1,4 +1,4 @@
 [submodule "fab"]
 	path = fab
 	url = https://github.com/hiker/fab_new.git
-	branch = bom_master
+	branch = update_psyclone_to_support_next_release_syntax
