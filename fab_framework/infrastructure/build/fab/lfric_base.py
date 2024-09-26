@@ -13,6 +13,7 @@ script.
 import logging
 import os
 from pathlib import Path
+from typing import List
 
 from fab.artefacts import ArtefactSet, SuffixFilter
 from fab.steps.analyse import analyse
@@ -124,32 +125,13 @@ class LFRicBase(FabBase):
         # -DUSE_XIOS is not found in makefile but in fab run_config and
         # driver_io_mod.F90
 
-    def define_linker_flags(self):
-        '''Top level function that sets (site-specific) linker flags
-        by calling self.set_flags.
+    def get_linker_flags(self) -> List[str]:
+        '''Base class for setting linker flags. This base implementation
+        for now just returns an empty list
+
+        :returns: list of flags for the linker.
         '''
-        # The link flags will depend on the compiler, so use the compiler
-        # to set the flags.
-        compiler = super().define_linker_flags()
-
-        if compiler.suite == "intel-classic":
-            self.set_flags(
-                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff',
-                 '-lnetcdf', '-lhdf5', '-lstdc++'], self._link_flags)
-
-        elif compiler.suite == "gnu":
-            if self.site == "joerg":
-                flags = ['-L', ('/home/joerg/work/spack/var/spack/'
-                                'environments/lfric-v0/.spack-env/view/lib')]
-            else:
-                flags = []
-            flags.extend(
-                ['-lyaxt', '-lyaxt_c', '-lxios', '-lnetcdff', '-lnetcdf',
-                 '-lhdf5', '-lstdc++'])
-
-            self.set_flags(flags, self._link_flags)
-        else:
-            raise RuntimeError(f"Unknown compiler suite '{compiler.suite}'.")
+        return ['yaxt', 'xios', 'netcdf', 'hdf5'] + super().get_linker_flags()
 
     def grab_files(self):
         dirs = ['infrastructure/source/',
