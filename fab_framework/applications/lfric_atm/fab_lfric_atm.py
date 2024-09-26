@@ -137,7 +137,7 @@ class FabLFRicAtm(LFRicBase):
                     'atmosphere' /
                     'aerosols' /
                     'aero_params_mod.f90')
-        transformed_file = x90_file.with_stem(x90_file.stem +"_psyclonified")
+        transformed_file = x90_file.with_stem(x90_file.stem + "_psyclonified")
         psyclone.process(config=self.config,
                          x90_file=x90_file,
                          transformed_file=transformed_file)
