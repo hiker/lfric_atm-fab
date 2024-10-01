@@ -140,8 +140,10 @@ class FabLFRicAtm(LFRicBase):
         psyclone = self.config.tool_box[Category.PSYCLONE]
         # Long term we would want to run these in parallel, but for
         # now this version is easy to understand. Add more files
-        # as required to the loop:
-        for file in ["science/um/atmosphere/boundary_layer/bdy_impl3.F90"]:
+        # as required to the loop. Note that the files are already
+        # preprocessed at this stage, so make sure not to use capital
+        # F90!
+        for file in ["science/um/atmosphere/boundary_layer/bdy_impl3.f90"]:
             file_path = self.config.build_output / file
             transformed_file = file_path.with_stem(file_path.stem + "_psyclonified")
             psyclone.process(config=self.config,
