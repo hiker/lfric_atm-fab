@@ -130,13 +130,15 @@ class FabLFRicAtm(LFRicBase):
         fc = self.config.tool_box[Category.FORTRAN_COMPILER]
         # TODO: needs a better solution, we are still hardcoding compilers here
         if fc.suite == "intel-classic":
-            no_omp = '-qno-openmp'
+            no_omp = "-qno-openmp"
+            real8 = "-r8"
         else:
-            no_omp = '-fno-openmp'
+            no_omp = "-fno-openmp"
+            real8 = "-fdefault-real-8"
         path_flags = [AddFlags(
             '$output/science/um/atmosphere/large_scale_precipitation/*',
             [no_omp]),
-            AddFlags(match="$output/science/*", flags=['-r8']),]
+            AddFlags(match="$output/science/*", flags=[real8]),]
         # TODO: A remove flag functionality based on profile option
         # and precision is needed
         if self._args.profile == 'full-debug':
