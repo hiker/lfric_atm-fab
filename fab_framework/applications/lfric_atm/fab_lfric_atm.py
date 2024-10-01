@@ -127,35 +127,46 @@ class FabLFRicAtm(LFRicBase):
                                flags=['-DLFRIC'])]
         super().preprocess_fortran(path_flags=path_flags)
 
+    def get_um_script(self, input_file, config):
+        ''':returns: the PSyclone script to be used for the specified
+            input file. This version always returns the same script
+            for now.
+        '''
+        return config.source_root / "optimisation" / "umscript.py"
+
     def psyclone(self):
         super().psyclone()
 
         psyclone = self.config.tool_box[Category.PSYCLONE]
-        x90_file = (self.config.build_output /
-                    'science' /
-                    'um' /
-                    'atmosphere' /
-                    'aerosols' /
-                    'aero_params_mod.f90')
-        transformed_file = x90_file.with_stem(x90_file.stem + "_psyclonified")
-        psyclone.process(config=self.config,
-                         x90_file=x90_file,
-                         transformed_file=transformed_file)
-        self.config.artefact_store.replace(ArtefactSet.FORTRAN_BUILD_FILES,
-                                           [x90_file],
-                                           [transformed_file])
+        # Long term we would want to run these in parallel, but for
+        # now this version is easy to understand. Add more files
+        # as required to the loop:
+        for file in ["science/um/atmosphere/boundary_layer/bdy_impl3.F90"]:
+            file_path = self.config.build_output / file
+            transformed_file = file_path.with_stem(file_path.stem + "_psyclonified")
+            psyclone.process(config=self.config,
+                             x90_file=file_path,
+                             transformed_file=transformed_file,
+                             transformation_script=self.get_um_script)
+            # Now remove the unprocessed file from the build files, and add
+            # the newly file processed file
+            self.config.artefact_store.replace(ArtefactSet.FORTRAN_BUILD_FILES,
+                                               [file_path],
+                                               [transformed_file])
 
     def compile_fortran(self):
         fc = self.config.tool_box[Category.FORTRAN_COMPILER]
         # TODO: needs a better solution, we are still hardcoding compilers here
         if fc.suite == "intel-classic":
-            no_omp = '-qno-openmp'
+            no_omp = "-qno-openmp"
+            real8 = "-r8"
         else:
-            no_omp = '-fno-openmp'
+            no_omp = "-fno-openmp"
+            real8 = "-fdefault-real-8"
         path_flags = [AddFlags(
             '$output/science/um/atmosphere/large_scale_precipitation/*',
             [no_omp]),
-            AddFlags(match="$output/science/*", flags=['-r8']),]
+            AddFlags(match="$output/science/*", flags=[real8]),]
         # TODO: A remove flag functionality based on profile option
         # and precision is needed
         if self._args.profile == 'full-debug':
