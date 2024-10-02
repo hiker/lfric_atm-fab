@@ -17,7 +17,7 @@ You need to have PSyclone installed (https://github.com/stfc/PSyclone). This can
 either be the current 2.5.0 release, or current trunk. BOM's current Fab is expected
 to work with the next PSyclone release as well.
 
-Unpack this tar ball::
+Unpack this tar ball:
 
     tax jxvf lric_atm-fan.tar.bz2
 
@@ -29,7 +29,7 @@ First you need to install the included fab version:
 
 Then you need to copy the build system into the two LFRic repositories - core and apps.
 Assuming that the two environment variable `LFRIC_CORE` and `LFRIC_APPS` point to the
-checked out LFRic repositories, use::
+checked out LFRic repositories, use:
 
      cd fab_framework
      ./install.sh  $(LFRIC_CORE) $(LFRIC_APPS)
@@ -46,7 +46,7 @@ Fab-based build scripts will be installed into:
 	- core/mesh_tools
 
 In order to use the Fab build system, a wrapper script installed in the LFRic core
-repo needs to be used. Example (but don't try this now)::
+repo needs to be used. Example (but don't try this now):
 
     cd $(LFRIC_APPS)/applications/lfric_atm
     $LFRIC_CORE/build.sh ./fab_lfric_atm.py
@@ -63,7 +63,7 @@ The fab build scripts will pickup site-specific configuration from directories u
 For now (till we have more changed implemented), it is recommended to copy
 the directory `default` to a new subdirectory `YOURSITENAME` (pick any name).
 Then modify the file `setup_gnu.py` and if required add linking options, which are
-defined in the lines::
+defined in the lines:
 
         linker.add_lib_flags("netcdf", nc_flibs, silent_replace=True)
         linker.add_lib_flags("yaxt", ["-lyaxt", "-lyaxt_c"])
@@ -71,14 +71,14 @@ defined in the lines::
         linker.add_lib_flags("hdf5", ["-lhdf5"])
 
 The left side specifies the internal name for libraries, followed by a list
-of linker options. If you should need additional library paths, you could e.g. use::
+of linker options. If you should need additional library paths, you could e.g. use:
 
         linker.add_lib_flags("yaxt", ["-L", "/my/path/to/yaxt", "-lyaxt", "-lyaxt_c"])
 
 It is important that each parameter (esp. `-L` etc) is an individual entry in the
 list, otherwise they will not be properly recognised by the linker.
 
-Similarly, you can change the compiler flags in the lines::
+Similarly, you can change the compiler flags in the lines:
 
     gfortran = tr.get_tool(Category.FORTRAN_COMPILER, "gfortran")
     flags = ['-ffree-line-length-none', '-g',
@@ -91,7 +91,7 @@ Similarly, you can change the compiler flags in the lines::
 ### Building
 The new LFRic FAB build system relies on command line options to select compiler etc.
 For building lfric_atm with gfortran (using mpif90 as a compiler wrapper that uses
-gfortran), use::
+gfortran), use:
 
 
     $(LFRIC_CORE)/build.sh ./fab_lfric_atm.py --site YOURSITENAME --suite gnu \
@@ -131,7 +131,8 @@ command line handling, running PSyclone on .x90 files etc. The application scrip
 itself selects the requires source files and other repositories, and specifies
 which libraries are required at link time. The example script 
 `./fab_lfric_atm_um_transform.py` only contains the change required to add
-an additional PSyclone step. It defines two methods::
+an additional PSyclone step. It defines two methods:
+
      1. `psyclone`. This step overwrites the default PSyclone step. It first calls
         the original psyclone method (which processes all .x90 files). Then it
         loops over a list of files (with one file only specified as example),
@@ -147,7 +148,7 @@ an additional PSyclone step. It defines two methods::
         `optimisation/umscript.py`. This script simple adds three comment lines
         at the top of the file.
 
-Building lfric_atm using::
+Building lfric_atm using:
 
     $(LFRIC_CORE)/build.sh ./fab_lfric_atm_um_transform.py --site YOURSITENAME --suite gnu \
        -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
@@ -155,7 +156,7 @@ Building lfric_atm using::
 will create a new directory under `FAB_WORKSPACE` called 
 `lfric_atm_um_transform-mpif90-gfortran`. After the build process, you can check for
 the file bdy_impl3 that was transformed (some files have been removed in the output
-below)::
+below):
 
 	~/fab-workspace/lfric_atm_um_transform-mpif90-gfortran$ find  . -iname bdy_impl3\*
 	./source/science/um/atmosphere/boundary_layer/bdy_impl3.F90
@@ -169,7 +170,7 @@ is then processed by psyclone with the `umscript.py`. Then there is only one
 .o file created, for the psyclonified file.
 
 The two f90 files under build_output will be quite different (since PSyclone removes
-comments and changes the layout), but at the top of the file you will see the lines::
+comments and changes the layout), but at the top of the file you will see the lines:
 
 	! Processed by umscript.py
 	! ------------------------
