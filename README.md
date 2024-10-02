@@ -1,93 +1,178 @@
 # lfric_atm-fab
 
+This repository contains our CI runs for building various LFRic suites with
+the new Fab build system.
+
+It can also be used to install a Fab build system into existing LFRic repositories.
+This way, building with Fab can be tested before the new Fab build system becomes
+part of the LFRic repos.
+
+## Installing Fab build system into LFRic
+This repository comes with a version of Fab included, which is taken from the
+BOM Fab development repo. At some stage it is expected that all the changes to Fab
+will be merged into the official Fab repo at https://github.com/MetOffice/fab.
+There is no need to install Fab to use the build system here.
+
+You need to have PSyclone installed (https://github.com/stfc/PSyclone). This can
+either be the current 2.5.0 release, or current trunk. BOM's current Fab is expected
+to work with the next PSyclone release as well.
+
+Unpack this tar ball::
+
+    tax jxvf lric_atm-fan.tar.bz2
+
+First you need to install the included fab version:
+
+     cd lfric_atm-fab/fab
+     pip3 install --user .     # Or just pip
+     cd ..
+
+Then you need to copy the build system into the two LFRic repositories - core and apps.
+Assuming that the two environment variable `LFRIC_CORE` and `LFRIC_APPS` point to the
+checked out LFRic repositories, use::
+
+     cd fab_framework
+     ./install.sh  $(LFRIC_CORE) $(LFRIC_APPS)
+
+The script will do some simple tests to verify that the core and apps directory
+indeed contain the expected LFRic repositories.
+
+Fab-based build scripts will be installed into:
+	- apps/applications/gravity_wave
+	- apps/applications/gungho_model
+	- apps/applications/lfric_atm
+	- apps/applications/lfricinputs
+	- core/applications/skeleton
+	- core/mesh_tools
+
+In order to use the Fab build system, a wrapper script installed in the LFRic core
+repo needs to be used. Example (but don't try this now)::
+
+    cd $(LFRIC_APPS)/applications/lfric_atm
+    $LFRIC_CORE/build.sh ./fab_lfric_atm.py
+
+The wrapper script `build.sh` makes sure that the build scripts installed into the
+core repository will be found. Even if you are building an application in core,
+you still need to invoke the `build.sh` script!
+
+### Site-specific configuration
+
+The fab build scripts will pickup site-specific configuration from directories under
+`$LFRIC_CORE/infrastructure/build/fab/default`.
+
+For now (till we have more changed implemented), it is recommended to copy
+the directory `default` to a new subdirectory `YOURSITENAME` (pick any name).
+Then modify the file `setup_gnu.py` and if required add linking options, which are
+defined in the lines::
+
+        linker.add_lib_flags("netcdf", nc_flibs, silent_replace=True)
+        linker.add_lib_flags("yaxt", ["-lyaxt", "-lyaxt_c"])
+        linker.add_lib_flags("xios", ["-lxios"])
+        linker.add_lib_flags("hdf5", ["-lhdf5"])
+
+The left side specifies the internal name for libraries, followed by a list
+of linker options. If you should need additional library paths, you could e.g. use::
+
+        linker.add_lib_flags("yaxt", ["-L", "/my/path/to/yaxt", "-lyaxt", "-lyaxt_c"])
+
+It is important that each parameter (esp. `-L` etc) is an individual entry in the
+list, otherwise they will not be properly recognised by the linker.
+
+Similarly, you can change the compiler flags in the lines::
+
+    gfortran = tr.get_tool(Category.FORTRAN_COMPILER, "gfortran")
+    flags = ['-ffree-line-length-none', '-g',
+             '-Werror=character-truncation', '-Werror=unused-value',
+             '-Werror=tabs', '-fdefault-real-8', '-fdefault-double-8',
+             '-Ditworks'
+             ]
+    gfortran.add_flags(flags)
+
+### Building
+The new LFRic FAB build system relies on command line options to select compiler etc.
+For building lfric_atm with gfortran (using mpif90 as a compiler wrapper that uses
+gfortran), use::
 
 
-## Getting started
+    $(LFRIC_CORE)/build.sh ./fab_lfric_atm.py --site YOURSITENAME --suite gnu \
+       -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The options in detail:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+    - `--site` will make sure your modified config file is used to setup compiler options
+    - `--suite gnu` Makes the gnu compiler suite  and related compiler wrapper the default
+    - `-mpi` Enables MPI build
+    - `--fc mpif90-gfortran` Selects the Fortran compiler. Here mpif90 as compiler wrapper
+        around gfortran will be used. If your mpif90 should not be using gfortran (e.g. 
+        it might be using intel), this will be detected and the build will
+        be aborted.
+    - `--ld linkfer-mpif90-gfortran` Specifies the linker.
 
-## Add your files
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+It is not strictly necessary to specify the compiler and linker, selecting gnu as
+compiler suite and specifying `-mpi` will be sufficient. But if your site installs
+additional tools (e.g. we have profiling compiler wrappers), an unexpected compiler
+or linker might be picked, hence it is recommended to be explicit.
 
-```
-cd existing_repo
-git remote add origin https://git.nci.org.au/bom/ngm/lfric/lfric_atm-fab.git
-git branch -M main
-git push -uf origin main
-```
+The build directory will be under `FAB_WORKSPACE`, with the name containing the application
+and compiler, e.g. `lfric_atm-mpif90-gfortran`. If FAB_WORKSPACE is not defined, it defaults
+to `$HOME/fab-workspace`. The build directory will contain the binary, all original
+source files will be under `source`, and all files created during build (including 
+preprocessed files, PSyclone modified files, object files, ...) under `build_output`.
 
-## Integrate with your tools
+### Running PSyclone on UM files
+This branch contains an additional script that shows how to use PSyclone to
+additionally transform existing Fortran code using PSyclone's transformation ability
+for the LFRic_atm apps. The script is called `./fab_lfric_atm_um_transform.py`.
+It inherits the required source files from `./fab_lfric_atm.py` in the same directory,
+and it is in turn based on `$LFRIC_CORE/infrastructure/build/fab/lfric_base.py` and
+`fab_base.py` in the same directory. The two base classes in `LFRIC_CORE` provide
+command line handling, running PSyclone on .x90 files etc. The application script
+itself selects the requires source files and other repositories, and specifies
+which libraries are required at link time. The example script 
+`./fab_lfric_atm_um_transform.py` only contains the change required to add
+an additional PSyclone step. It defines two methods::
+     1. `psyclone`. This step overwrites the default PSyclone step. It first calls
+        the original psyclone method (which processes all .x90 files). Then it
+        loops over a list of files (with one file only specified as example),
+        and calls psyclone for these files, creating a new output file with
+        `_psyclonified` added to the file name. Then it replaces the original
+        filename in the FORTRAN_BUILD_FILES artefact with the newly create file
+        (with `psyclonified` added). Once this is done, the rest of the build
+        system will then only compile the newly created file, the original file
+        will not be compiled at all.
+     2. `get_um_script` This method is passed to the psyclone process method, and
+        it is used to determine which psyclone script is used to transform the
+        specified file. In this example, it will always return
+        `optimisation/umscript.py`. This script simple adds three comment lines
+        at the top of the file.
 
-- [ ] [Set up project integrations](https://git.nci.org.au/bom/ngm/lfric/lfric_atm-fab/-/settings/integrations)
+Building lfric_atm using::
 
-## Collaborate with your team
+    $(LFRIC_CORE)/build.sh ./fab_lfric_atm_um_transform.py --site YOURSITENAME --suite gnu \
+       -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+will create a new directory under `FAB_WORKSPACE` called 
+`lfric_atm_um_transform-mpif90-gfortran`. After the build process, you can check for
+the file bdy_impl3 that was transformed (some files have been removed in the output
+below)::
 
-## Test and Deploy
+	~/fab-workspace/lfric_atm_um_transform-mpif90-gfortran$ find  . -iname bdy_impl3\*
+	./source/science/um/atmosphere/boundary_layer/bdy_impl3.F90
+	./build_output/science/um/atmosphere/boundary_layer/bdy_impl3.f90
+	./build_output/science/um/atmosphere/boundary_layer/bdy_impl3_psyclonified.f90
+	./build_output/bdy_impl3_mod.mod
+	./build_output/_prebuild/bdy_impl3_psyclonified.59609a27b.o
 
-Use the built-in continuous integration in GitLab.
+The first line is the original input file. The next is the preprocessed file, which
+is then processed by psyclone with the `umscript.py`. Then there is only one
+.o file created, for the psyclonified file.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+The two f90 files under build_output will be quite different (since PSyclone removes
+comments and changes the layout), but at the top of the file you will see the lines::
 
-***
+	! Processed by umscript.py
+	! ------------------------
+	! 
 
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+The `umscript.py` explicitly adds these comments to each file it processes.
