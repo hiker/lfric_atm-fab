@@ -35,10 +35,10 @@ print('rose-picker revision: ' + ROSE_PICKER_REVISION)
 # todo: doesn't need two separate configs, they use the same project workspace
 lfric_core_source_config = BuildConfig(
     project_label=f'lfric source {LFRIC_CORE_REVISION}', tool_box=ToolBox(),
-    )
+    mpi=False, openmp=False)
 lfric_apps_source_config = BuildConfig(
-    project_label=f'lfric source {LFRIC_CORE_REVISION}', tool_box=ToolBox()
-    )
+    project_label=f'lfric source {LFRIC_CORE_REVISION}', tool_box=ToolBox(),
+    mpi=False, openmp=False)
 
 if __name__ == '__main__':
 
