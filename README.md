@@ -99,14 +99,14 @@ gfortran), use:
 
 The options in detail:
 
-    - `--site` will make sure your modified config file is used to setup compiler options
-    - `--suite gnu` Makes the gnu compiler suite  and related compiler wrapper the default
-    - `-mpi` Enables MPI build
-    - `--fc mpif90-gfortran` Selects the Fortran compiler. Here mpif90 as compiler wrapper
-        around gfortran will be used. If your mpif90 should not be using gfortran (e.g. 
-        it might be using intel), this will be detected and the build will
-        be aborted.
-    - `--ld linkfer-mpif90-gfortran` Specifies the linker.
+- `--site` will make sure your modified config file is used to setup compiler options
+- `--suite gnu` Makes the gnu compiler suite  and related compiler wrapper the default
+- `-mpi` Enables MPI build
+- `--fc mpif90-gfortran` Selects the Fortran compiler. Here mpif90 as compiler wrapper
+  around gfortran will be used. If your mpif90 should not be using gfortran (e.g. 
+  it might be using intel), this will be detected and the build will
+  be aborted.
+- `--ld linkfer-mpif90-gfortran` Specifies the linker.
 
 
 It is not strictly necessary to specify the compiler and linker, selecting gnu as
@@ -133,20 +133,20 @@ which libraries are required at link time. The example script
 `./fab_lfric_atm_um_transform.py` only contains the change required to add
 an additional PSyclone step. It defines two methods:
 
-     1. `psyclone`. This step overwrites the default PSyclone step. It first calls
-        the original psyclone method (which processes all .x90 files). Then it
-        loops over a list of files (with one file only specified as example),
-        and calls psyclone for these files, creating a new output file with
-        `_psyclonified` added to the file name. Then it replaces the original
-        filename in the FORTRAN_BUILD_FILES artefact with the newly create file
-        (with `psyclonified` added). Once this is done, the rest of the build
-        system will then only compile the newly created file, the original file
-        will not be compiled at all.
-     2. `get_um_script` This method is passed to the psyclone process method, and
-        it is used to determine which psyclone script is used to transform the
-        specified file. In this example, it will always return
-        `optimisation/umscript.py`. This script simple adds three comment lines
-        at the top of the file.
+# `psyclone`. This step overwrites the default PSyclone step. It first calls
+   the original psyclone method (which processes all .x90 files). Then it
+   loops over a list of files (with one file only specified as example),
+   and calls psyclone for these files, creating a new output file with
+   `_psyclonified` added to the file name. Then it replaces the original
+   filename in the FORTRAN_BUILD_FILES artefact with the newly create file
+   (with `psyclonified` added). Once this is done, the rest of the build
+   system will then only compile the newly created file, the original file
+   will not be compiled at all.
+# `get_um_script` This method is passed to the psyclone process method, and
+   it is used to determine which psyclone script is used to transform the
+   specified file. In this example, it will always return
+   `optimisation/umscript.py`. This script simple adds three comment lines
+   at the top of the file.
 
 Building lfric_atm using:
 
