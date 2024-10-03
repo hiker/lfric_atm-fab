@@ -108,7 +108,8 @@ Similarly, you can change the compiler flags in the lines:
 
 ### Building
 In order to use the Fab build system, a wrapper script installed in the LFRic core
-repository needs to be used. Example usage (but don't try this now):
+repository needs to be used. You need to start the build from the LFRic apps (or core)
+repo (not from this repo). Example usage (but don't try this now):
 
     cd $(LFRIC_APPS)/applications/lfric_atm
     $LFRIC_CORE/build.sh ./fab_lfric_atm.py
@@ -178,8 +179,10 @@ an additional PSyclone step. It defines two methods:
   `optimisation/umscript.py`. This script simple adds three comment lines
   at the top of the file.
 
-Building lfric_atm using:
+Make sure to be in the LFRic applications repository with lfric_atm, then you
+can build lfric_atm using
 
+    cd $(LFRIC_APPS)/applications/lfric_atm
     $(LFRIC_CORE)/build.sh ./fab_lfric_atm_um_transform.py --site YOURSITE --suite gnu \
        -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
