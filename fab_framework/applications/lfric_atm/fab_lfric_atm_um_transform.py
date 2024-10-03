@@ -34,6 +34,7 @@ class FabLFRicAtmUmTransform(FabLFRicAtm):
         super().psyclone()
 
         psyclone = self.config.tool_box[Category.PSYCLONE]
+        psyclone_cli_args = self.get_psyclone_config()
         # Long term we would want to run these in parallel, but for
         # now this version is easy to understand. Add more files
         # as required to the loop. Note that the files are already
@@ -48,7 +49,8 @@ class FabLFRicAtmUmTransform(FabLFRicAtm):
                              x90_file=file_path,
                              api=None,     # This triggers transformation only
                              transformed_file=transformed_file,
-                             transformation_script=self.get_um_script)
+                             transformation_script=self.get_um_script,
+                             additional_parameters=psyclone_cli_args)
             # Now remove the unprocessed file from the build files, and add
             # the newly file processed file
             self.config.artefact_store.replace(ArtefactSet.FORTRAN_BUILD_FILES,
