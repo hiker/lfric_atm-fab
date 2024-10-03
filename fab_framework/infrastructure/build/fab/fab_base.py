@@ -346,7 +346,12 @@ class FabBase:
             self.define_compiler_flags()
             self.compile_c()
             self.compile_fortran()
-            self.archive_objects()
+            # Disable archiving due to
+            # https://github.com/MetOffice/fab/issues/310
+            # Archives can contain several versions of a file (with different)
+            # hashes, meaning at link time an older version might be used,
+            # even if a newer one is available.
+            # self.archive_objects()
             self.link()
 
 

@@ -73,14 +73,24 @@ class LFRicBase(FabBase):
 
     def get_apps_root_dir(self, path):
         '''This identifies the root directory of the LFRic apps directory,
-        given a file in the apps directory.
+        given a file in the apps directory. This is done by looking for a
+        file `dependencies.sh` in the directory, and searching up in the
+        directory tree till it is found.
         '''
         dep_name = "dependencies.sh"
-        while path and not (path/dep_name).exists():
+        # path.anchor gives us the root as string:
+        while path.anchor != str(path) and not (path/dep_name).exists():
             self.logger.debug(f"lfric_base: no '{dep_name}' in '{path}'.")
             path = path.parent
-        self.logger.info(f"lfric_base: lfric_apps dir = '{path}'.")
-        return path
+        # If we found the file, return the path
+        if path.anchor != str(path):
+            self.logger.info(f"lfric_base: lfric_apps dir = '{path}'.")
+            return path
+
+        # It is possible that we are building an application in the core
+        # repository, so to support this we use the core root also
+        # as the apps root:
+        return self._lfric_core_root
 
     def define_command_line_options(self, parser=None):
         '''Defines command line options. Can be overwritten by a derived
