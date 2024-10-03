@@ -32,9 +32,12 @@ This repository comes with a version of Fab included, which is taken from the
 BOM Fab development repo. At some stage it is expected that all the changes to Fab
 will be merged into the official Fab repo at https://github.com/MetOffice/fab.
 
-You need to have PSyclone installed (https://github.com/stfc/PSyclone). This can
-either be the current 2.5.0 release, or current trunk. BOM's current Fab is expected
-to work with the next PSyclone release as well.
+You need to have current trunk of PSyclone installed
+(https://github.com/stfc/PSyclone). The API changes significantly, and the config
+file included in LFRic and the example script relies on these new feature. This could
+be changed to support both 2.5.0 and current trunk later.
+
+### Installation
 
 Check out this repository using:
 
@@ -54,7 +57,11 @@ Assuming that you prefer to use a python virtual environment, use the following:
      cd lfric_atm-fab
      python3 -m venv venv_fab
      source ./venv_fab/bin/activate
-     pip3 install psyclone
+     # Install current PSyclone
+     git clone https://github.com/stfc/PSyclone.git
+     cd PSyclone
+     pip3 install .
+     cd ..
      # That seems to be a requirement of other build tools outside of fab
      pip3 install jinja2
 
