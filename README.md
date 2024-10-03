@@ -39,9 +39,11 @@ be changed to support both 2.5.0 and current trunk later.
 
 ### Installation
 
-Check out this repository using:
+Check out this repository using the mirrored repo (the repository at
+git@git.nci.org.au:bom/ngm/lfric/lfric_atm-fab.git is the official development
+version, but it needs an account).
 
-    git clone --recurse-submodules git@git.nci.org.au:bom/ngm/lfric/lfric_atm-fab.git
+    git clone -b ng-arch-standalone  --recurse-submodules git@github.com:hiker/lfric_atm-fab.git
 
 If you already have cloned this repository without the `--recurse-submodules` option,
 run:
@@ -77,7 +79,7 @@ Assuming that the two environment variable `LFRIC_CORE` and `LFRIC_APPS` point t
 checked out LFRic repositories, use:
 
      cd fab_framework
-     ./install.sh  $(LFRIC_CORE) $(LFRIC_APPS)
+     ./install.sh  $LFRIC_CORE $LFRIC_APPS
 
 The script will do some simple tests to verify that the core and apps directory
 indeed contain the expected LFRic repositories.
@@ -135,7 +137,7 @@ In order to use the Fab build system, a wrapper script installed in the LFRic co
 repository needs to be used. You need to start the build from the LFRic apps (or core)
 repo (not from this repo). Example usage (but don't try this now):
 
-    cd $(LFRIC_APPS)/applications/lfric_atm
+    cd $LFRIC_APPS/applications/lfric_atm
     $LFRIC_CORE/build.sh ./fab_lfric_atm.py
 
 The wrapper script `build.sh` makes sure that the build scripts installed into the
@@ -147,7 +149,7 @@ For building lfric_atm with gfortran (using mpif90 as a compiler wrapper that us
 gfortran), use:
 
 
-    $(LFRIC_CORE)/build.sh ./fab_lfric_atm.py --site YOURSITE --suite gnu \
+    $LFRIC_CORE/build.sh ./fab_lfric_atm.py --site YOURSITE --suite gnu \
        -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
 Note that the there is no `_default` added to the site, this will be added implicitly
@@ -206,8 +208,8 @@ an additional PSyclone step. It defines two methods:
 Make sure to be in the LFRic applications repository with lfric_atm, then you
 can build lfric_atm using
 
-    cd $(LFRIC_APPS)/applications/lfric_atm
-    $(LFRIC_CORE)/build.sh ./fab_lfric_atm_um_transform.py --site YOURSITE --suite gnu \
+    cd $LFRIC_APPS/applications/lfric_atm
+    $LFRIC_CORE/build.sh ./fab_lfric_atm_um_transform.py --site YOURSITE --suite gnu \
        -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
 This will create a new directory under `FAB_WORKSPACE` called 
