@@ -20,6 +20,7 @@ either be the current 2.5.0 release, or current trunk. BOM's current Fab is expe
 to work with the next PSyclone release as well.
 
 Check out this repository using:
+
     git clone --recurse-submodules git@git.nci.org.au:bom/ngm/lfric/lfric_atm-fab.git
 
 If you already have cloned this repository without the `--recurse-submodules` option,
@@ -39,12 +40,11 @@ Assuming that you prefer to use a python virtual environment, use the following:
      pip3 install psyclone
      # That seems to be a requirement of other build tools outside of fab
      pip3 install jinja2
-     cd ..
 
 Install the included fab version:
 
      # Now install this fab:
-     cd lfric_atm-fab/fab
+     cd fab
      pip3 install .     # Without venv, use pip3 install --user .
      cd ..
 
@@ -125,9 +125,9 @@ gfortran), use:
     $(LFRIC_CORE)/build.sh ./fab_lfric_atm.py --site YOURSITE --suite gnu \
        -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
-Note that the there is no `_default` added to the site, this behaviour is for
-future improvements that support different targets on one site.
-The options in detail:
+Note that the there is no `_default` added to the site, this will be added implicitly
+by fab. This behaviour is meant for future improvements when the fab system will support 
+different targets for one site. The options in detail:
 
 - `--site` will make sure your modified config file is used to setup compiler options
 - `--suite gnu` Makes the gnu compiler suite  and related compiler wrapper the default
