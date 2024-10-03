@@ -10,6 +10,18 @@ system from this repo into existing LFRic repositories, the CI part is not descr
 This setup has been tested with gfortran and ifort, this description assumes the usage
 of gfortran.
 
+## Prerequisites
+In order to use the build procedure below, you need to have:
+
+- `gfortran` (ifort can also be used, but the instructions here are
+  all written for gfortran. To use ifort, replace `--suite gnu` with
+  `-suite intel-classic`, and `gfortran` with `ifort` etc)
+- `mpif90` as a compiler wrapper that calls gfortran
+- All lfric dependencies must be available, including:
+  - netcdf (including `nf-config`)
+  - hdf5
+  - xios, yaxt
+
 ## Installing Fab build system into LFRic
 This repository comes with a version of Fab included, which is taken from the
 BOM Fab development repo. At some stage it is expected that all the changes to Fab
@@ -186,10 +198,10 @@ can build lfric_atm using
     $(LFRIC_CORE)/build.sh ./fab_lfric_atm_um_transform.py --site YOURSITE --suite gnu \
        -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
-will create a new directory under `FAB_WORKSPACE` called 
-`lfric_atm_um_transform-mpif90-gfortran`. After the build process, you can check for
-the file bdy_impl3 that was transformed (some files have been removed in the output
-below):
+This will create a new directory under `FAB_WORKSPACE` called 
+`lfric_atm_um_transform-mpif90-gfortran`. After the build process, you can check that
+the file bdy_impl3 was transformed (some files have been removed in the output
+below, so you will see more):
 
 	~/fab-workspace/lfric_atm_um_transform-mpif90-gfortran$ find  . -iname bdy_impl3\*
 	./source/science/um/atmosphere/boundary_layer/bdy_impl3.F90
