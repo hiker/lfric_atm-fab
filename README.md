@@ -22,6 +22,9 @@ In order to use the build procedure below, you need to have:
   - hdf5
   - xios, yaxt
 
+The current script also support current LFRic trunk, i.e. they won't work with
+LFRic 1.1 (due to missing directories in 1.1).
+
 ## Installing Fab build system into LFRic
 This repository comes with a version of Fab included, which is taken from the
 BOM Fab development repo. At some stage it is expected that all the changes to Fab
