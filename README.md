@@ -17,6 +17,8 @@ In order to use the build procedure below, you need to have:
   all written for gfortran. To use ifort, replace `--suite gnu` with
   `-suite intel-classic`, and `gfortran` with `ifort` etc)
 - `mpif90` as a compiler wrapper that calls gfortran
+- the correct rose-picker version (2.0.0)
+- libclang and python-clang
 - All lfric dependencies must be available, including:
   - netcdf (including `nf-config`)
   - hdf5
