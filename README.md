@@ -86,7 +86,7 @@ For now (until we have more changes implemented), it is recommended to copy
 the whole directory `default` to a new subdirectory `YOURSITE_default`, e.g.
 `nci_default` (which already exists). It is important that `_default` is added
 (this is to support future setups that have different targets for one SITE, e.g.
-meto-spice, meto-xc40, meto-xcs). Also be certain to use an underscore before
+meto-spice, meto-xc40, meto-xcs). Also make sure to use an underscore before
 `default`, not a `minus` (since using a minus prevents python from importing
 files from these subdirectories).
 Then modify the file `setup_gnu.py` and if required add or modify linking options,
@@ -124,8 +124,8 @@ gfortran), use:
     $(LFRIC_CORE)/build.sh ./fab_lfric_atm.py --site YOURSITE --suite gnu \
        -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
-Note that the there is no `_default` added, this behaviour is for future improvements
-that support different targets on one site.
+Note that the there is no `_default` added to the site, this behaviour is for
+future improvements that support different targets on one site.
 The options in detail:
 
 - `--site` will make sure your modified config file is used to setup compiler options
