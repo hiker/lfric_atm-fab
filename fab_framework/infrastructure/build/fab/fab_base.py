@@ -29,9 +29,6 @@ from fab.steps.grab.folder import grab_folder
 from fab.tools import Category, ToolBox, ToolRepository
 
 
-logger = logging.getLogger('fab')
-
-
 class FabBase:
     '''This is the base class for all FAB scripts.
 
@@ -41,6 +38,7 @@ class FabBase:
     '''
     # pylint: disable=too-many-instance-attributes
     def __init__(self, name, root_symbol=None):
+        self._logger = logging.getLogger('fab')
         self._site = None
         self._platform = None
         self._target = None
@@ -75,12 +73,18 @@ class FabBase:
         self._preprocessor_flags = []
         self._compiler_flags = []
 
-        self._site_config.update_toolbox(self._config)
+        if self._site_config:
+            self._site_config.update_toolbox(self._config)
 
     @property
     def site(self):
         ''':returns: the site.'''
         return self._site
+
+    @property
+    def logger(self):
+        ''':returns: the logging instance to use.'''
+        return self._logger
 
     @property
     def platform(self):
@@ -146,11 +150,11 @@ class FabBase:
         except ModuleNotFoundError:
             # We log a warning, but proceed, since there is no need to
             # have a site-specific file.
-            logger.warning(f"Cannot find site-specific module "
-                           f"'{self.target}.config'.")
+            self._logger.warning(f"Cannot find site-specific module "
+                                 f"'{self.target}.config'.")
             self._site_config = None
             return
-        print("IMPORTED", self.target)
+        self.logger.info(f"fab_base: Imported '{self.target}'")
         # The constructor handles everything.
         self._site_config = config_module.Config()
 
@@ -220,7 +224,7 @@ class FabBase:
         if self._args.suite:
             tr.set_default_compiler_suite(self._args.suite)
 
-            print(f"Setting suite to '{self._args.suite}'.")
+            self.logger.info(f"Setting suite to '{self._args.suite}'.")
             # suite will overwrite use of env variables, so change the
             # value of these arguments to be none so they will be ignored
             if self._args.fc == "$FC":
