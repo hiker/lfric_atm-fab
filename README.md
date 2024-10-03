@@ -67,15 +67,6 @@ Fab-based build scripts will be installed into:
 	- core/applications/skeleton
 	- core/mesh_tools
 
-In order to use the Fab build system, a wrapper script installed in the LFRic core
-repository needs to be used. Example usage (but don't try this now):
-
-    cd $(LFRIC_APPS)/applications/lfric_atm
-    $LFRIC_CORE/build.sh ./fab_lfric_atm.py
-
-The wrapper script `build.sh` makes sure that the build scripts installed into the
-core repository will be found. Even if you are building an application in core,
-you still need to invoke the `build.sh` script!
 
 ### Site-specific configuration
 
@@ -116,6 +107,16 @@ Similarly, you can change the compiler flags in the lines:
     gfortran.add_flags(flags)
 
 ### Building
+In order to use the Fab build system, a wrapper script installed in the LFRic core
+repository needs to be used. Example usage (but don't try this now):
+
+    cd $(LFRIC_APPS)/applications/lfric_atm
+    $LFRIC_CORE/build.sh ./fab_lfric_atm.py
+
+The wrapper script `build.sh` makes sure that the build scripts installed into the
+core repository will be found. Even if you are building an application in core,
+you still need to invoke the `build.sh` script!
+
 The new LFRic FAB build system relies on command line options to select compiler etc.
 For building lfric_atm with gfortran (using mpif90 as a compiler wrapper that uses
 gfortran), use:
