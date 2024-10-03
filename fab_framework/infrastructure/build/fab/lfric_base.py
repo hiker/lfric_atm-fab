@@ -10,6 +10,7 @@ applications to only modify very few settings to have a working FAB build
 script.
 '''
 
+import inspect
 import logging
 import os
 from pathlib import Path
@@ -38,16 +39,48 @@ class LFRicBase(FabBase):
     '''
     # pylint: disable=too-many-instance-attributes
     def __init__(self, name, root_symbol=None):
+
         super().__init__(name, root_symbol=root_symbol)
 
         this_file = Path(__file__)
         # The root directory of the LFRic Core
         self._lfric_core_root = this_file.parents[3]
-        # lfric_apps is 'next' to lfric_core
-        self._lfric_apps_root = self.lfric_core_root.parent / 'apps'
+
+        # We need to find the apps directory (it will be required when
+        # finding source files in the build scripts). We shouldn't assume
+        # that it is 'next' to the core directory, nor should we assume
+        # that the name is 'apps'. In order to avoid reliance of any
+        # environment variable, we analyse the call tree to find the first
+        # call that is not in our parent directory (in case that we ever
+        # add another layer of base class).
+        my_base_dir = this_file.parent
+        for caller in inspect.stack():
+            abs_path_caller = Path(caller[1])
+            if not my_base_dir.samefile(abs_path_caller.parent):
+                self.logger.debug(f"lfric_base: found caller: {caller[1]}")
+                self._lfric_apps_root = self.get_apps_root_dir(abs_path_caller)
+                break
+            self.logger.debug(f"lfric_base: searching caller: {caller[1]}")
+        else:
+            # All callers are in this directory? Issue warning, and assume
+            # that lfric_apps is 'next' to lfric_core
+            self._lfric_apps_root = self.lfric_core_root.parent / 'apps'
+            self.logger.warning(f"Could not find apps directory, defaulting "
+                                f"to '{self._lfric_apps_root}'.")
 
         self._psyclone_config = (self.config.source_root / 'psyclone_config' /
                                  'psyclone.cfg')
+
+    def get_apps_root_dir(self, path):
+        '''This identifies the root directory of the LFRic apps directory,
+        given a file in the apps directory.
+        '''
+        dep_name = "dependencies.sh"
+        while path and not (path/dep_name).exists():
+            self.logger.debug(f"lfric_base: no '{dep_name}' in '{path}'.")
+            path = path.parent
+        self.logger.info(f"lfric_base: lfric_apps dir = '{path}'.")
+        return path
 
     def define_command_line_options(self, parser=None):
         '''Defines command line options. Can be overwritten by a derived
