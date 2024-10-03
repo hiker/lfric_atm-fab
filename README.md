@@ -5,26 +5,47 @@ the new Fab build system.
 
 It can also be used to install a Fab build system into existing LFRic repositories.
 This way, building with Fab can be tested before the new Fab build system becomes
-part of the LFRic repos.
+part of the LFRic repos. The description here is only for installing the Fab build
+system from this repo into existing LFRic repositories, the CI part is not described.
+This setup has been tested with gfortran and ifort, this description assumes the usage
+of gfortran.
 
 ## Installing Fab build system into LFRic
 This repository comes with a version of Fab included, which is taken from the
 BOM Fab development repo. At some stage it is expected that all the changes to Fab
 will be merged into the official Fab repo at https://github.com/MetOffice/fab.
-There is no need to install Fab to use the build system here.
 
 You need to have PSyclone installed (https://github.com/stfc/PSyclone). This can
 either be the current 2.5.0 release, or current trunk. BOM's current Fab is expected
 to work with the next PSyclone release as well.
 
-Unpack this tar ball:
+Check out this repository using:
+    git clone --recurse-submodules git@git.nci.org.au:bom/ngm/lfric/lfric_atm-fab.git
 
-    tax jxvf lric_atm-fan.tar.bz2
+If you already have cloned this repository without the `--recurse-submodules` option,
+run:
 
-First you need to install the included fab version:
+    git submodule init
+    git submodule update
 
+to get Fab from the submodule.
+
+Assuming that you prefer to use a python virtual environment, use the following:
+
+     # Create a virtual environment and install psyclone
+     cd lfric_atm-fab
+     python3 -m venv venv_fab
+     source ./venv_fab/bin/activate
+     pip3 install psyclone
+     # That seems to be a requirement of other build tools outside of fab
+     pip3 install jinja2
+     cd ..
+
+Install the included fab version:
+
+     # Now install this fab:
      cd lfric_atm-fab/fab
-     pip3 install --user .     # Or just pip
+     pip3 install .     # Without venv, use pip3 install --user .
      cd ..
 
 Then you need to copy the build system into the two LFRic repositories - core and apps.
@@ -38,6 +59,7 @@ The script will do some simple tests to verify that the core and apps directory
 indeed contain the expected LFRic repositories.
 
 Fab-based build scripts will be installed into:
+
 	- apps/applications/gravity_wave
 	- apps/applications/gungho_model
 	- apps/applications/lfric_atm
@@ -46,7 +68,7 @@ Fab-based build scripts will be installed into:
 	- core/mesh_tools
 
 In order to use the Fab build system, a wrapper script installed in the LFRic core
-repo needs to be used. Example (but don't try this now):
+repository needs to be used. Example usage (but don't try this now):
 
     cd $(LFRIC_APPS)/applications/lfric_atm
     $LFRIC_CORE/build.sh ./fab_lfric_atm.py
@@ -60,10 +82,15 @@ you still need to invoke the `build.sh` script!
 The fab build scripts will pickup site-specific configuration from directories under
 `$LFRIC_CORE/infrastructure/build/fab/default`.
 
-For now (till we have more changed implemented), it is recommended to copy
-the directory `default` to a new subdirectory `YOURSITENAME` (pick any name).
-Then modify the file `setup_gnu.py` and if required add linking options, which are
-defined in the lines:
+For now (until we have more changes implemented), it is recommended to copy
+the whole directory `default` to a new subdirectory `YOURSITE_default`, e.g.
+`nci_default` (which already exists). It is important that `_default` is added
+(this is to support future setups that have different targets for one SITE, e.g.
+meto-spice, meto-xc40, meto-xcs). Also be certain to use an underscore before
+`default`, not a `minus` (since using a minus prevents python from importing
+files from these subdirectories).
+Then modify the file `setup_gnu.py` and if required add or modify linking options,
+which are defined in the lines:
 
         linker.add_lib_flags("netcdf", nc_flibs, silent_replace=True)
         linker.add_lib_flags("yaxt", ["-lyaxt", "-lyaxt_c"])
@@ -94,9 +121,11 @@ For building lfric_atm with gfortran (using mpif90 as a compiler wrapper that us
 gfortran), use:
 
 
-    $(LFRIC_CORE)/build.sh ./fab_lfric_atm.py --site YOURSITENAME --suite gnu \
+    $(LFRIC_CORE)/build.sh ./fab_lfric_atm.py --site YOURSITE --suite gnu \
        -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
+Note that the there is no `_default` added, this behaviour is for future improvements
+that support different targets on one site.
 The options in detail:
 
 - `--site` will make sure your modified config file is used to setup compiler options
@@ -150,7 +179,7 @@ an additional PSyclone step. It defines two methods:
 
 Building lfric_atm using:
 
-    $(LFRIC_CORE)/build.sh ./fab_lfric_atm_um_transform.py --site YOURSITENAME --suite gnu \
+    $(LFRIC_CORE)/build.sh ./fab_lfric_atm_um_transform.py --site YOURSITE --suite gnu \
        -mpi -fc mpif90-gfortran -ld  linker-mpif90-gfortran
 
 will create a new directory under `FAB_WORKSPACE` called 
