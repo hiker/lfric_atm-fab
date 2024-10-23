@@ -23,7 +23,7 @@ cp lfric_apps_revision $FAB_WORKSPACE/lfric_apps_revision
 
 # load the container
 module use /scratch/hc46/hc46_gitlab/ngm/modules/
-module load lfric-v0/intel-openmpi-master
+module load lfric-v0/intel-openmpi-fab-update-clang
 
 # Make sure the fab submodule exist:
 if [[ ! -d $PWD/fab/source ]]; then

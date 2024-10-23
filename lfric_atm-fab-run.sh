@@ -10,7 +10,7 @@ export FAB_WORKSPACE=/scratch/hc46/hc46_gitlab/lfric_fab
 
 # load the container
 module use /scratch/hc46/hc46_gitlab/ngm/modules/
-module load lfric-v0/intel-openmpi-master
+module load lfric-v0/intel-openmpi-fab-update-clang
 
 # print out revisions
 export lfric_core_rev=$(tac "lfric_core_revision")
