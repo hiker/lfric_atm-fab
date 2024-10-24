@@ -23,11 +23,18 @@ cp lfric_apps_revision $FAB_WORKSPACE/lfric_apps_revision
 
 # load the container
 module use /scratch/hc46/hc46_gitlab/ngm/modules/
-module load lfric-v0/intel-openmpi-fab-new-framework
+module load lfric-v0/intel-openmpi-master
+
+# Make sure the fab submodule exist:
+if [[ ! -d $PWD/fab/source ]]; then
+	echo "Error initialising the Fab submodule, $PWD/fab/source does not exist"
+	exit 1
+fi
+export PYTHONPATH=$PWD/fab/source
 
 # grab the lfric sources
 echo "Start grabbing the lfric sources"
-imagerun FAB_WORKSPACE=$FAB_WORKSPACE FC=ifort ./fab_framework/infrastructure/build/fab/grab_lfric.py
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC=ifort ./fab_framework/infrastructure/build/fab/grab_lfric.py
 echo "Grabbed the lfric sources successfully"
 
 # install the fab build scripts
@@ -44,13 +51,6 @@ cd ../
 echo 'current dir'
 echo $PWD
 echo "Start building apps"
-
-# Make sure the fab submodule exist:
-if [[ ! -d $PWD/fab/source ]]; then
-	echo "Error initialising the Fab submodule, $PWD/fab/source does not exist"
-	exit 1
-fi
-export PYTHONPATH=$PWD/fab/source
 
 # build skeleton
 cd $PATH_TO_CORE/applications/skeleton/
