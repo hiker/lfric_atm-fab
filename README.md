@@ -43,7 +43,7 @@ Check out this repository using the mirrored repo (the repository at
 git@git.nci.org.au:bom/ngm/lfric/lfric_atm-fab.git is the official development
 version, but it needs an account).
 
-    git clone -b ng-arch-standalone  --recurse-submodules git@github.com:hiker/lfric_atm-fab.git
+    git clone -b main  --recurse-submodules git@github.com:hiker/lfric_atm-fab.git
 
 If you already have cloned this repository without the `--recurse-submodules` option,
 run:
