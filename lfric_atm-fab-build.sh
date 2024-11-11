@@ -100,6 +100,21 @@ imagerun PSYCLONE_CONFIG= PSYCLONE_TRANSFORMATION= FAB_WORKSPACE=$FAB_WORKSPACE 
 
 echo "Built lfric_atm"
 
+# build lfric_inputs
+cd $PATH_TO_APPS/applications/lfricinputs/
+echo "current dir"
+echo $PWD
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC= CC= \
+    LD= $PATH_TO_CORE/build.sh ./fab_lfric2um.py                     \
+        --site nci --platform gadi --mpi --suite intel-classic       \
+        --fc mpif90-ifort -ld linker-mpif90-ifort
+imagerun FAB_WORKSPACE=$FAB_WORKSPACE PYTHONPATH=$PYTHONPATH FC= CC= \
+    LD= $PATH_TO_CORE/build.sh ./fab_um2lfric.py                      \
+        --site nci --platform gadi --mpi --suite intel-classic       \
+        --fc mpif90-ifort -ld linker-mpif90-ifort
+
+echo "Built lfric_inputs"
+
 cd $FAB_FRAMEWORK_REPO
 echo "current dir"
 echo $PWD
